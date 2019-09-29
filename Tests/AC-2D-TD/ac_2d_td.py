@@ -13,7 +13,7 @@ Author: Minglang Yin
 """
 
 import sys
-sys.path.insert(0,'../Utils')
+sys.path.insert(0,'../../Utils')
 
 import torch
 import torch.nn as nn
@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import scipy.io
 
-# from plotting import newfig, savefig
+from plotting import newfig, savefig
 
 torch.manual_seed(123456)
 np.random.seed(123456)
@@ -81,7 +81,7 @@ def AC_2D_init(x):
 def main():
     ## parameters
     device = torch.device(f"cpu")
-    epochs = 5000
+    epochs =5000
     lr = 0.001
 
     num_x = 100
@@ -135,6 +135,7 @@ def main():
     u_i_train = torch.tensor(u_i, dtype=torch.float32).to(device)
     u_b_train = torch.tensor(u_b, dtype=torch.float32).to(device)
 
+
     ## instantiate model
     model = Model().to(device)
 
@@ -164,36 +165,25 @@ def main():
     print(f'total training time: {toc-tic}')
 
     ## test
-    u_test = to_numpy(model(x_test)).reshape(num_t, num_x, num_y)
-    u_test = u_test.reshape((num_t, num_x, num_y))
-    x_test = to_numpy(x_test)
+    u_test = np.zeros((num_t, num_x, num_y))
+    for i in range(0, 6):
+        xt = np.concatenate((t[i]*np.ones((num_x*num_y, 1)), x_2d), axis=1)[:,None]
+        xt_tensor = torch.tensor(xt, dtype=torch.float32).to(device)
+        u_test[i,:,:] = to_numpy(model(xt_tensor)).reshape(num_x, num_y)
 
-    scipy.io.savemat('pred_res.mat',{'t':t, 'x':x_grid, 'y':y_grid, 'u':u_test})
+        x_test = to_numpy(x_test)
 
-    ## plotting
-    # fig, ax = newfig(2.0, 1.1)
-    # ax.axis('off') 
-    # gs0 = gridspec.GridSpec(1, 2)
-    # gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    # h = ax.imshow(u_test.T, interpolation='nearest', cmap='rainbow', 
-    #            # extent=[t.min(), t.max(), x.min(), x.max()], 
-    #             origin='lower', aspect='auto')
-    # fig.colorbar(h)
-    # ax.plot(x_test[:,1], x_test[:,0], 'kx', label = 'Data (%d points)' % (x_test.shape[0]), markersize = 4, clip_on = False)
-    # line = np.linspace(x_test.min(), x_test.max(), 2)[:,None]
-    # savefig('./u_test')
-
-    # fig, ax = newfig(2.0, 1.1)
-    # ax.axis('off') 
-    # gs0 = gridspec.GridSpec(1, 2)
-    # gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    # h = ax.imshow(u_sol.T, interpolation='nearest', cmap='rainbow', 
-    #            # extent=[t.min(), t.max(), x.min(), x.max()], 
-    #             origin='lower', aspect='auto')
-    # fig.colorbar(h)
-    # # ax.plot(x[:,1], x[:,0], 'kx', label = 'Data (%d points)' % (x.shape[0]), markersize = 4, clip_on = False)
-    # line = np.linspace(x_test.min(), x_test.max(), 2)[:,None]
-    # savefig('./u_sol')
+        fig, ax = newfig(2.0, 1.1)
+        ax.axis('off') 
+        gs0 = gridspec.GridSpec(1, 2)
+        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+        h = ax.imshow(u_test[i,:,:].T, interpolation='nearest', cmap='rainbow', 
+                # extent=[t.min(), t.max(), x.min(), x.max()], 
+                    origin='lower', aspect='auto')
+        fig.colorbar(h)
+        ax.plot(x_test[:,1], x_test[:,2], 'kx', label = 'Data (%d points)' % (x_test.shape[0]), markersize = 4, clip_on = False)
+        line = np.linspace(x_test.min(), x_test.max(), 2)[:,None]
+        savefig('./u_test_'+str(i))
 
 
 if __name__ == '__main__':

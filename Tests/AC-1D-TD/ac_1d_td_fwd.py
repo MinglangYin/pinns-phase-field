@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import scipy.io
 
-from plotting import newfig, savefig
+rom plotting import newfig, savefigf
 
 torch.manual_seed(1234)
 np.random.seed(1234)
