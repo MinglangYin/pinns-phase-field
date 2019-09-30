@@ -29,7 +29,7 @@ np.random.seed(123456)
 
 eps = 0.02
 Pe = 1
-rho = 1000
+rho = 1
 mu = 0.001
 
 class Model(nn.Module):
@@ -59,10 +59,10 @@ class Model(nn.Module):
 
         u_xx, u_yy = gradients(u_x, x)[0][:, 1], gradients(u_y, x)[0][:, 2]
         v_xx, v_yy = gradients(v_x, x)[0][:, 1], gradients(v_y, x)[0][:, 2]
-        phi_xx, phi_xy, phi_yy = gradients(phi_x, x)[0][:, 1], gradients(phi_x, x)[0][:, 2], gradients(phi_y, x)[0][:, 1]
+        phi_xx, phi_xy, phi_yy = gradients(phi_x, x)[0][:, 1], gradients(phi_x, x)[0][:, 2], gradients(phi_y, x)[0][:, 2]
 
         ## NS
-        res_ns_x = rho*(u_t + u*u_x + v*u_x) + p_x - mu*(u_xx + u_yy) \
+        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) \
                     + self.lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y)
         res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) \
                     + self.lmd*(2*phi_y*phi_xy + phi_xx*phi_y + phi_xy*phi_x)
