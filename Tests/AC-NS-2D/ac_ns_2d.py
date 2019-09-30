@@ -24,13 +24,16 @@ import scipy.io
 
 from plotting import newfig, savefig
 
-torch.manual_seed(123456)
+torch.manual_seed(23456)
 np.random.seed(123456)
 
 eps = 0.02
 Pe = 1
 rho = 1
 mu = 0.001
+H_o = 0.01
+k = 2*np.pi
+eta = 1
 
 class Model(nn.Module):
     def __init__(self):
@@ -65,13 +68,12 @@ class Model(nn.Module):
         res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) \
                     + self.lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y)
         res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) \
-                    + self.lmd*(2*phi_y*phi_xy + phi_xx*phi_y + phi_xy*phi_x)
+                    + self.lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy)
         res_incomp = u_x + v_y
 
         ## PF
         F_g = u**3 - u
-
-        res_pf = phi_t + u*phi_x + v*phi_y - 1/Pe*(-F_g + eps**2*(phi_xx + phi_yy)) + eps**2
+        res_pf = phi_t + (u*phi_x + v*phi_y) - 1/Pe*(-F_g + eps**2*(phi_xx + phi_yy)) + eps**2
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw):
@@ -89,9 +91,10 @@ class Model(nn.Module):
                 (u_up**2).mean() + (u_dw**2).mean() + (v_up**2).mean() + (v_dw**2).mean() +\
                 (phi_dw_y**2).mean() + (phi_up_y**2).mean()
 
-    def loss_ic(self, x_i, u_i):
-        u_i_pred = self.net(x_i)
-        return ((u_i_pred-u_i)**2).mean()
+    def loss_ic(self, x_i, u_i, v_i, phi_i):
+        y_pred = self.net(x_i)
+        u_i_pred, v_i_pred, phi_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 2]
+        return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean()
 
 def gradients(outputs, inputs):
     return torch.autograd.grad(outputs, inputs, grad_outputs=torch.ones_like(outputs), create_graph=True)
@@ -106,7 +109,13 @@ def to_numpy(input):
             'np.ndarray, but got {}'.format(type(input)))
 
 def AC_2D_init(x):
-    return np.tanh( (0.1-np.sqrt((x[:,1]-0.5)**2 + (x[:,2] - 0.5)**2)) / (np.sqrt(2)*eps) )
+    ## bubble
+    # return np.tanh( (0.1-np.sqrt((x[:,1]-0.5)**2 + (x[:,2] - 0.5)**2)) / (np.sqrt(2)*eps) )
+    ## wave
+    u_init = np.zeros((x.shape[0], 1))
+    v_init = np.zeros((x.shape[0], 1))
+    phi_init = np.tanh((x[:, 2] - H_o*np.cos(k*x[:, 1]))/np.sqrt(2)/eta)
+    return u_init, v_init, phi_init
 
 def main():
     ## parameters
@@ -116,7 +125,7 @@ def main():
 
     num_x = 100
     num_y = 100
-    num_t = 10
+    num_t = 5
     num_b_train = 10    # boundary sampling points
     num_f_train = 100   # inner sampling points
     num_i_train = 100   # initial sampling points 
@@ -127,8 +136,11 @@ def main():
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
+    
+    ## initialization
     xt_init = np.concatenate((np.zeros((num_x*num_y, 1)), x_2d), axis=1)
-    u_init = AC_2D_init(xt_init)[:,None]
+    u_init, v_init, phi_init = AC_2D_init(xt_init)
+    u_init, v_init, phi_init = u_init[:, None], v_init[:, None], phi_init[:, None]
 
     x_2d_ext = np.tile(x_2d, [num_t,1])
     t_ext = np.tile(t[:,None], [num_x*num_y, 1])
@@ -170,7 +182,11 @@ def main():
     x_b_train = torch.tensor(x_b, requires_grad=True, dtype=torch.float32).to(device)
     x_test = torch.tensor(xt_2d_ext, requires_grad=True, dtype=torch.float32).to(device)
     xt_i_train = torch.tensor(xt_i, requires_grad=True, dtype=torch.float32).to(device)
-    u_i_train = torch.tensor(u_i, dtype=torch.float32).to(device)
+    
+    u_i_train = torch.tensor(u_init, dtype=torch.float32).to(device)
+    v_i_train = torch.tensor(v_init, dtype=torch.float32).to(device)
+    phi_i_train = torch.tensor(phi_init, dtype=torch.float32).to(device)
+
     u_b_train = torch.tensor(u_b, dtype=torch.float32).to(device)
 
     xt_l_train = torch.tensor(xt_l, requires_grad=True, dtype=torch.float32).to(device)
@@ -191,7 +207,7 @@ def main():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train)
-            loss_ic = model.loss_ic(xt_i_train, u_i_train)
+            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train)
             loss = loss_pde + loss_bc + loss_ic
             loss.backward()
             return loss
@@ -227,7 +243,6 @@ def main():
     #     line = np.linspace(x_test.min(), x_test.max(), 2)[:,None]
     #     savefig('./u_test_'+str(i))
 
-    
 
 if __name__ == '__main__':
     main()
