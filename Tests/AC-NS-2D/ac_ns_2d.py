@@ -84,8 +84,8 @@ class Model(nn.Module):
         u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
         u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3] 
 
-        phi_up_y = gradients(phi_up, x_up)[0][:, 1]
-        phi_dw_y = gradients(phi_dw, x_dw)[0][:, 1]
+        phi_up_y = gradients(phi_up, x_up)[0][:, 2]
+        phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
         return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() +\
                 ((p_l - p_r)**2).mean() + ((phi_l - phi_r)**2).mean() +\
                 (u_up**2).mean() + (u_dw**2).mean() + (v_up**2).mean() + (v_dw**2).mean() +\
