@@ -28,18 +28,16 @@ torch.manual_seed(23456)
 np.random.seed(123456)
 
 eps = 0.02
+lmd = 0.01
 Pe = 1
 rho = 1
 mu = 0.001
 H_o = 0.01
 k = 2*np.pi
-eta = 1
 
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
-        self.lmd = 0.001
-
         self.net = nn.Sequential()
         self.net.add_module('linear_layer_1', nn.Linear(3, 30))
         self.net.add_module('tanh_layer_1', nn.Tanh())
@@ -66,9 +64,9 @@ class Model(nn.Module):
 
         ## NS
         res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) \
-                    + self.lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y)
+                    + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y)
         res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) \
-                    + self.lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy)
+                    + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy)
         res_incomp = u_x + v_y
 
         ## PF
@@ -114,7 +112,7 @@ def AC_2D_init(x):
     ## wave
     u_init = np.zeros((x.shape[0], 1))
     v_init = np.zeros((x.shape[0], 1))
-    phi_init = np.tanh((x[:, 2] - H_o*np.cos(k*x[:, 1]))/np.sqrt(2)/eta)
+    phi_init = np.tanh((x[:, 2] - H_o*np.cos(k*x[:, 1]))/np.sqrt(2)/lmd)
     return u_init, v_init, phi_init
 
 def main():
