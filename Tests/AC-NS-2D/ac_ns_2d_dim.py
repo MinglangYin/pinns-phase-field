@@ -113,12 +113,16 @@ def to_numpy(input):
 
 def AC_2D_init(x):
     ## bubble
-    # return np.tanh( (0.1-np.sqrt((x[:,1]-0.5)**2 + (x[:,2] - 0.5)**2)) / (np.sqrt(2)*eps) )
-    ## wave
     u_init = np.zeros((x.shape[0]))
     v_init = np.zeros((x.shape[0]))
-    phi_init = np.tanh((x[:, 2] - H_o*np.cos(k*x[:, 1]))/np.sqrt(2)/eta)
+    phi_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2] - 0.0)**2)) / (np.sqrt(2)*0.03) )
     return u_init, v_init, phi_init
+    
+    ## wave
+    # u_init = np.zeros((x.shape[0]))
+    # v_init = np.zeros((x.shape[0]))
+    # phi_init = np.tanh((x[:, 2] - H_o*np.cos(k*x[:, 1]))/np.sqrt(2)/eta)
+    # return u_init, v_init, phi_init
 
 def main():
     ## parameters
@@ -131,12 +135,12 @@ def main():
     num_t = 100
     num_b_train = 50    # boundary sampling points
     num_f_train = 50000   # inner sampling points
-    num_i_train = 4000   # initial sampling points 
+    num_i_train = 5000   # initial sampling points 
     num_t_train = 40
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 20, num=num_t)[:, None]
+    t = np.linspace(0, 5, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
@@ -262,7 +266,6 @@ def main():
         ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
         line = np.linspace(xt.min(), xt.max(), 2)[:,None]
         fig.savefig('./phi_'+str(i+1000)+'.png')
-
 
 if __name__ == '__main__':
     main()
