@@ -33,8 +33,9 @@ eps = 1
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
-        self.input_1 = nn.Dense
-        self.linear = 
+        self.input_1 = nn.Linear()
+        self.linear = nn.Linear()
+        self.nonlinear = 
         self.output_1 = 
         self.input_2 = 
         self.dense_2 = 
