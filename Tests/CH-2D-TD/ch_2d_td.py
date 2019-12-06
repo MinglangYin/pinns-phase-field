@@ -133,7 +133,7 @@ def main():
     ## parameters
     cuda=0
     device = torch.device(f"cuda:{cuda}" if torch.cuda.is_available() else "cpu")
-    epochs = 1
+    epochs = 1000
     lr = 0.001
 
     num_x = 100
@@ -241,7 +241,7 @@ def main():
             loss_pde = model.loss_pde(x_f_train)
             loss_bc = model.loss_bc(x_bh_train, x_bv_train)
             loss_ic = model.loss_ic(x_i_train, u_i_train, w_i_train)
-            loss = loss_pde + 10*loss_bc + 5*loss_ic
+            loss = loss_pde + loss_bc + loss_ic
             print(f'epoch {epoch}: loss_pde {loss_pde:.6f}, loss_bc {loss_bc:.6f}, loss_ic {loss_ic:.6f}')
             loss.backward()
             return loss
