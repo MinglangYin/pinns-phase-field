@@ -29,6 +29,8 @@ import scipy.io
 from scipy.misc import derivative
 from plotting import newfig, savefig
 from sympy import *
+from random_field import fftind, gaussian_random_field
+from image_gradient import *
 
 # torch.manual_seed(1234)
 # np.random.seed(1234)
@@ -87,6 +89,7 @@ class Model(nn.Module):
     def loss_ic(self, x_i, u_i, w_i):
         y = self.net(x_i)
         u_i_pred, w_i_pred = y[:,0], y[:,1]
+        
         return ((u_i_pred - u_i)**2).mean() + ((w_i_pred - w_i)**2).mean()
 
 def gradients(outputs, inputs):
@@ -100,10 +103,11 @@ def to_numpy(input):
     else:
         raise TypeError('Unknown type of input, expected torch.Tensor or '\
             'np.ndarray, but got {}'.format(type(input)))
-
+############ bubble#############
 def CH_2D_init(x_init):
     x, y = symbols('x y')
-    u = tanh( (0.2-sqrt((x-0.0)**2 + (y - 0.0)**2)) / (sqrt(2)*0.03) )
+    # u = tanh( (0.2-sqrt((x-0.0)**2 + (y - 0.0)**2)) / (sqrt(2)*0.03) )
+    u = sin(0.2*x+0.2*y)
     u_x, u_y = u.diff(x), u.diff(y)
     u_xx, u_yy = u_x.diff(x), u_y.diff(y)
 
@@ -114,6 +118,16 @@ def CH_2D_init(x_init):
     u_init = f_u(x_init[:,1], x_init[:,2])
     w_init = -f_u_xx(x_init[:,1], x_init[:,2]) - f_u_yy(x_init[:,1],x_init[:,2]) + u_init**3 - u_init
     return u_init, w_init
+
+########### Random Field ###########
+# def get_w(u, sobol_filter):
+#     u_x = sobol_filter.grad_h(u)
+#     u_xx = sobol_filter.grad_h(u_x)
+#     u_y = sobol_filter.grad_v(u)
+#     u_yy = sobol_filter.grad_v(u_y)
+#     w = -u_xx - u_yy + u**3 - u
+#     return w
+
 
 def main():
     ## parameters
@@ -140,6 +154,9 @@ def main():
     ## initialization
     xt_init = np.concatenate((np.zeros((num_x*num_y, 1)), x_2d), axis=1)
     u_init, w_init = CH_2D_init(xt_init)
+    # u_init = gaussian_random_field(alpha = 8.0, size = num_x)[None,:][None,:]
+    # print(u_init.shape)
+    # w_init = 
 
     ############# save init fig #################
     fig, ax = newfig(2.0, 1.1)
@@ -166,7 +183,7 @@ def main():
     line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
     fig.savefig('./u_init.png')
 
-    #######################################3
+    #######################################
     x_2d_ext = np.tile(x_2d, [num_t,1])
     t_ext = np.zeros((num_t*num_x*num_y, 1))
     for i in range (0, num_t):
