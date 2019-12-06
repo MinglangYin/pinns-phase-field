@@ -133,7 +133,7 @@ def main():
     ## parameters
     cuda=0
     device = torch.device(f"cuda:{cuda}" if torch.cuda.is_available() else "cpu")
-    epochs = 1000
+    epochs = 1
     lr = 0.001
 
     num_x = 100
@@ -155,8 +155,6 @@ def main():
     xt_init = np.concatenate((np.zeros((num_x*num_y, 1)), x_2d), axis=1)
     u_init, w_init = CH_2D_init(xt_init)
     # u_init = gaussian_random_field(alpha = 8.0, size = num_x)[None,:][None,:]
-    # print(u_init.shape)
-    # w_init = 
 
     ############# save init fig #################
     fig, ax = newfig(2.0, 1.1)
