@@ -122,7 +122,7 @@ def AC_2D_init(x):
 
 def main():
     ## parameters
-    device = torch.device(f"cuda:{1}" if torch.cuda.is_available() else "cpu")
+    device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device)
 
     epochs = 10000
@@ -130,15 +130,15 @@ def main():
 
     num_x = 100
     num_y = 100
-    num_t = 100
+    num_t = 500
     num_b_train = 50    # boundary sampling points
-    num_f_train = 50000   # inner sampling points
+    num_f_train = 250000   # inner sampling points
     num_i_train = 4000   # initial sampling points 
-    num_t_train = 40
+    num_t_train = 200
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 20, num=num_t)[:, None]
+    t = np.linspace(0, 100, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)

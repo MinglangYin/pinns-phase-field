@@ -126,21 +126,22 @@ def AC_2D_init(x):
 
 def main():
     ## parameters
-    device = torch.device(f"cpu")
+    device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
+    print(device, flush=True)
     epochs = 10000
     lr = 0.001
 
     num_x = 100
     num_y = 100
-    num_t = 100
+    num_t = 50
     num_b_train = 50    # boundary sampling points
-    num_f_train = 50000   # inner sampling points
+    num_f_train = 100000   # inner sampling points
     num_i_train = 5000   # initial sampling points 
-    num_t_train = 40
+    num_t_train = 25
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 5, num=num_t)[:, None]
+    t = np.linspace(0, 10, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
@@ -225,6 +226,8 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr = lr)
 
     # training
+    loss_his = np.zeros((epochs,1))
+
     def train(epoch):
         model.train()
         def closure():
@@ -233,19 +236,20 @@ def main():
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train)
             loss = loss_pde + loss_bc + 100*loss_ic
-            print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}')
+            print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
             return loss
         loss = optimizer.step(closure)
         loss_value = loss.item() if not isinstance(loss, float) else loss
+        loss_his[epoch,0] = loss_value
         # print(f'epoch {epoch}: loss {loss_value:.6f}')
 
-    print('start training...')
+    print('start training...', flush=True)
     tic = time.time()
-    for epoch in range(1, epochs + 1):    
+    for epoch in range(0, epochs):    
         train(epoch)
     toc = time.time()
-    print(f'total training time: {toc-tic}')
+    print(f'total training time: {(toc-tic)/60.0:.2f}', flush=True)
 
     ## test
     phi_test = np.zeros((num_t, num_x, num_y))
@@ -266,6 +270,7 @@ def main():
         ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
         line = np.linspace(xt.min(), xt.max(), 2)[:,None]
         fig.savefig('./phi_'+str(i+1000)+'.png')
+        plt.close()
 
 if __name__ == '__main__':
     main()
