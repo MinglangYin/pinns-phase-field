@@ -122,7 +122,7 @@ def AC_2D_init(x):
 
 def main():
     ## parameters
-    device = torch.device(f"cuda:{1}" if torch.cuda.is_available() else "cpu")
+    device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device)
 
     epochs = 10000
@@ -158,7 +158,7 @@ def main():
     fig.colorbar(h)
     ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
     line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
-    fig.savefig('./phi_init.png')
+    #fig.savefig('./phi_init.png')
 
 
     x_2d_ext = np.tile(x_2d, [num_t,1])
