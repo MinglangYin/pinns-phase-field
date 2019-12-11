@@ -114,6 +114,7 @@ def to_numpy(input):
 def AC_2D_init(x):
     ## bubble
     u_init = np.zeros((x.shape[0]))
+    u_init = -(x[:,2]**2)+1
     v_init = np.zeros((x.shape[0]))
     phi_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2] - 0.0)**2)) / (np.sqrt(2)*0.03) )
     return u_init, v_init, phi_init
@@ -133,15 +134,15 @@ def main():
 
     num_x = 100
     num_y = 100
-    num_t = 50
+    num_t = 100
     num_b_train = 50    # boundary sampling points
     num_f_train = 100000   # inner sampling points
     num_i_train = 5000   # initial sampling points 
-    num_t_train = 25
+    num_t_train = 50
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 10, num=num_t)[:, None]
+    t = np.linspace(0, 30, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
