@@ -2,11 +2,15 @@
 Author: Minglang Yin
     PINNs (physical-informed neural network) for solving time-dependent Allen-Cahn Navier-Stokes equation (2D).
     
-    d(phi)/dt + div*(phi*u) = 1/Pe*(-F'(phi) + eta^2*lap(phi)) + beta(t)
+    Governing equtions (Latex, refer to Xiaoning Zheng et al. Interface):
+        \frac{\partial\phi}{t} + u\cdot(\nabla\phi) - \gamma(\Delta\phi - f(\phi)) = 0,
+        \rho(\frac{\partial u}{\partial t} + (u \cdot \nabla) u) + \nabla p - \mu\Delta u + \lambda(\Delta\phi- f(\phi))\nabla \phi = 0,
+        \nabla \cdot u = 0
+        f(\phi) = F'(\phi) = -1/(eta^2)(\phi^3- \phi)
 
     where:
     Input: [t, x, y]
-    Output: [u, v, p, phi]
+    Output: [u, v, p, phi, psi_1, psi_2]
 """
 
 import sys
@@ -26,14 +30,14 @@ from plotting import newfig, savefig
 torch.manual_seed(123456)
 np.random.seed(123456)
 
-eta = 0.1
-lmd = 0.01
-gemma = 0.01
+rho =1 
+eta = 1
+lmd_e = 1
+lmd = 1
+K = 1
+gamma = 1
 rho = 1
-mu = 0.01
-
-H_o = 0.1
-k = 6*np.pi
+tau = 1
 
 class Model(nn.Module):
     def __init__(self):
@@ -42,7 +46,7 @@ class Model(nn.Module):
         self.net.add_module('linear_layer_1', nn.Linear(3, 20))
         # self.net.add_module('tanh_layer_1', nn.Tanh())
         self.net.add_module('lrelu_layer_1', nn.LeakyReLU())
-        for num in range(2,14):
+        for num in range(2,10):
             self.net.add_module('linear_layer_%d' %(num), nn.Linear(20, 20))
             # self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
             self.net.add_module('lrelu_layer_%d' %(num), nn.LeakyReLU())
@@ -53,28 +57,42 @@ class Model(nn.Module):
 
     def loss_pde(self, x):
         y = self.net(x)
-        u, v, p, phi = y[:, 0], y[:, 1], y[:, 2], y[:, 3]
-        u_g, v_g, p_g, phi_g = gradients(u, x)[0], gradients(v, x)[0], gradients(p, x)[0], gradients(phi, x)[0]
+        u, v, p, phi, psi_1, psi_2 = y[:, 0], y[:, 1], y[:, 2], y[:, 3], y[:, 4], y[:, 5]
+        u_g, v_g, p_g, phi_g, psi_1_g, psi_2_g = gradients(u, x)[0], gradients(v, x)[0], gradients(p, x)[0], gradients(phi, x)[0], gradients(psi_1, x)[0], gradients(psi_2, x)[0]
         u_t, u_x, u_y = u_g[:, 0], u_g[:, 1], u_g[:, 2]
         v_t, v_x, v_y = v_g[:, 0], v_g[:, 1], v_g[:, 2]
         p_x, p_y = p_g[:, 1], p_g[:, 2]
         phi_t, phi_x, phi_y = phi_g[:, 0], phi_g[:, 1], phi_g[:, 2]
+        psi_1_t, psi_1_x, psi_1_y = psi_1_g[:, 0], psi_1_g[:, 1], psi_1_g[:, 2]
+        psi_2_t, psi_2_x, psi_2_y = psi_2_g[:, 0], psi_2_g[:, 1], psi_2_g[:, 2]
 
         u_xx, u_yy = gradients(u_x, x)[0][:, 1], gradients(u_y, x)[0][:, 2]
         v_xx, v_yy = gradients(v_x, x)[0][:, 1], gradients(v_y, x)[0][:, 2]
         phi_xx, phi_xy, phi_yy = gradients(phi_x, x)[0][:, 1], gradients(phi_x, x)[0][:, 2], gradients(phi_y, x)[0][:, 2]
+        psi_1_xx, psi_1_xy, psi_1_yy = gradients(psi_1_x, x)[0][:, 1], gradients(psi_1_x, x)[0][:, 2], gradients(psi_1_y, x)[0][:, 2]
+        psi_2_xx, psi_2_xy, psi_2_yy = gradients(psi_2_x, x)[0][:, 1], gradients(psi_2_x, x)[0][:, 2], gradients(psi_2_y, x)[0][:, 2]
 
-        ## NS
-        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) \
-                    + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y)
-        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) \
-                    + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy)
+        ## Navier Stokes
+        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - eta*(u_xx + u_yy) \
+                    + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) \
+                    + lmd_e*(psi_1_x*(psi_1_x**2+psi_2_x**2) + 2*phi*(psi_1_x*psi_1_xx + psi_2_x*psi_2_xx) \
+                        + phi_y*(psi_1_x*psi_1_y+psi_2_x*psi_2_y) + phi*(psi_1_xy*psi_1_y+psi_1_x*psi_1_yy + psi_2_xy*psi_2_y+psi_2_x*psi_2_yy)) \
+                    + eta*(1-phi)*u/K
+        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - eta*(v_xx + v_yy) \
+                    + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) \
+                    + lmd_e*(psi_1_x*(psi_1_x**2+psi_2_x**2) + 2*phi*(psi_1_x*psi_1_xx + psi_2_x*psi_2_xx) \
+                        + phi_y*(psi_1_x*psi_1_y+psi_2_x*psi_2_y) + phi*(psi_1_xy*psi_1_y+psi_1_x*psi_1_yy + psi_2_xy*psi_2_y+psi_2_x*psi_2_yy)) \
+                    + eta*(1-phi)*u/K
         res_incomp = u_x + v_y
 
-        ## PF
-        F_g = phi**3 - phi
-        res_pf = phi_t + eta**2*(u*phi_x + v*phi_y) - gemma*(-F_g + eta**2*(phi_xx + phi_yy)) 
-        return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean()
+        F_g = phi**3 - phi        
+        ###phi
+        res_pf = phi_t + eta**2*(u*phi_x + v*phi_y) - gamma*(-F_g + eta**2*(phi_xx + phi_yy)) 
+        ###psi
+        res_psi_x = psi_1_t + (u*psi_1_x + v*psi_2_x)
+        res_psi_y = psi_2_t + (u*psi_1_y + v*psi_2_y)
+
+        return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_pf**2).mean() + (res_psi_x**2).mean() + (res_psi_y**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw):
         y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
