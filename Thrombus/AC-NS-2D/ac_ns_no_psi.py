@@ -3,10 +3,11 @@ Author: Minglang Yin
     PINNs (physical-informed neural network) for solving time-dependent Allen-Cahn Navier-Stokes equation (2D).
     
     Governing equtions (Latex, refer to Xiaoning Zheng et al. Interface):
-        \frac{\partial\phi}{t} + u\cdot(\nabla\phi) - \gamma(\Delta\phi - f(\phi)) = 0,
-        \rho(\frac{\partial u}{\partial t} + (u \cdot \nabla) u) + \nabla p - \mu\Delta u + \lambda(\Delta\phi- f(\phi))\nabla \phi = 0,
+        \frac{\partial\phi}{\partial t} + u\cdot(\nabla\phi) - \tau(-\lambda\Delta\phi + \lambda\gamma f(\phi)) = 0,
+        \rho(\frac{\partial u}{\partial t} + (u \cdot \nabla) u) + \nabla p - \mu\Delta u + 
+                \lambda\nabla\cdot(\nabla\phi \otimes \nabla\phi) + \frac{(1-\phi)u}{\kappa}= 0,
         \nabla \cdot u = 0
-        f(\phi) = F'(\phi) = -1/(eta^2)(\phi^3- \phi)
+        f(\phi) = F'(\phi) = 1/(h^2)2\phi(\phi-1)(2\phi-1)
 
     where:
     Input: [t, x, y]
@@ -17,6 +18,9 @@ Author: Minglang Yin
         Right: Outflow: n*grad(u)=0
         Up: u=v=0, n*grad(phi)=n*grad(psi)=0
         Down: u=v=0, n*grad(phi)=n*grad(psi)=0
+
+    Note:
+        Here we keep the direction of Jacobian the same as convention. 
 """
 
 import sys
@@ -44,6 +48,7 @@ K = 1
 gamma = 1
 rho = 1
 tau = 1
+h = 1
 
 class Model(nn.Module):
     def __init__(self):
@@ -56,89 +61,62 @@ class Model(nn.Module):
             self.net.add_module('linear_layer_%d' %(num), nn.Linear(20, 20))
             # self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
             self.net.add_module('lrelu_layer_%d' %(num), nn.LeakyReLU())
-        self.net.add_module('linear_layer_50', nn.Linear(20, 6))
+        self.net.add_module('linear_layer_50', nn.Linear(20, 4))
 
     def forward(self, x):
         return self.net(x)
 
     def loss_pde(self, x):
         y = self.net(x)
-        u, v, p, phi, psi_1, psi_2 = y[:, 0], y[:, 1], y[:, 2], y[:, 3], y[:, 4], y[:, 5]
-        u_g, v_g, p_g, phi_g, psi_1_g, psi_2_g = gradients(u, x)[0], gradients(v, x)[0], gradients(p, x)[0], gradients(phi, x)[0], gradients(psi_1, x)[0], gradients(psi_2, x)[0]
+        u, v, p, phi = y[:, 0], y[:, 1], y[:, 2], y[:, 3]
+        u_g, v_g, p_g, phi_g = gradients(u, x)[0], gradients(v, x)[0], gradients(p, x)[0], gradients(phi, x)[0]
         u_t, u_x, u_y = u_g[:, 0], u_g[:, 1], u_g[:, 2]
         v_t, v_x, v_y = v_g[:, 0], v_g[:, 1], v_g[:, 2]
         p_x, p_y = p_g[:, 1], p_g[:, 2]
         phi_t, phi_x, phi_y = phi_g[:, 0], phi_g[:, 1], phi_g[:, 2]
-        psi_1_t, psi_1_x, psi_1_y = psi_1_g[:, 0], psi_1_g[:, 1], psi_1_g[:, 2]
-        psi_2_t, psi_2_x, psi_2_y = psi_2_g[:, 0], psi_2_g[:, 1], psi_2_g[:, 2]
-
+   
         u_xx, u_yy = gradients(u_x, x)[0][:, 1], gradients(u_y, x)[0][:, 2]
         v_xx, v_yy = gradients(v_x, x)[0][:, 1], gradients(v_y, x)[0][:, 2]
         phi_xx, phi_xy, phi_yy = gradients(phi_x, x)[0][:, 1], gradients(phi_x, x)[0][:, 2], gradients(phi_y, x)[0][:, 2]
-        psi_1_xx, psi_1_xy, psi_1_yy = gradients(psi_1_x, x)[0][:, 1], gradients(psi_1_x, x)[0][:, 2], gradients(psi_1_y, x)[0][:, 2]
-        psi_2_xx, psi_2_xy, psi_2_yy = gradients(psi_2_x, x)[0][:, 1], gradients(psi_2_x, x)[0][:, 2], gradients(psi_2_y, x)[0][:, 2]
-
+        
         ## Navier Stokes
         res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - eta*(u_xx + u_yy) \
-                    + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) \
-                    + lmd_e*(psi_1_x*(psi_1_x**2+psi_2_x**2) + 2*phi*(psi_1_x*psi_1_xx + psi_2_x*psi_2_xx) \
-                        + phi_y*(psi_1_x*psi_1_y+psi_2_x*psi_2_y) + phi*(psi_1_xy*psi_1_y+psi_1_x*psi_1_yy + psi_2_xy*psi_2_y+psi_2_x*psi_2_yy)) \
-                    + eta*(1-phi)*u/K
+                    + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + eta*(1-phi)*u/K
         res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - eta*(v_xx + v_yy) \
-                    + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) \
-                    + lmd_e*(psi_1_y*(psi_1_y**2+psi_2_y**2) + 2*phi*(psi_1_y*psi_1_yy + psi_2_y*psi_2_yy) \
-                        + phi_x*(psi_1_x*psi_1_y+psi_2_x*psi_2_y) + phi*(psi_1_xy*psi_1_x+psi_1_y*psi_1_xx + psi_2_xy*psi_2_x+psi_2_y*psi_2_xx)) \
-                    + eta*(1-phi)*v/K
+                    + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + eta*(1-phi)*v/K
         res_incomp = u_x + v_y
 
         ###phi
-        F_g = phi**3 - phi
+        F_g = 2/(h**2)*phi*(phi-1)*(2*phi-1)
         w = -lmd*(phi_xx + phi_yy) + lmd*gamma*F_g # + lmd_e/2*(psi_1_x**2+psi_1_y**2 + psi_2_x**2+psi_2_y**2)
-        res_pf = phi_t + eta**2*(u*phi_x + v*phi_y) + tau*w
-        ###psi
-        res_psi_x = psi_1_t + (u*psi_1_x + v*psi_2_x)
-        res_psi_y = psi_2_t + (u*psi_1_y + v*psi_2_y)
-
-        return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_pf**2).mean() + (res_psi_x**2).mean() + (res_psi_y**2).mean()
+        res_pf = phi_t + (u*phi_x + v*phi_y) + tau*w
+    
+        return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_pf**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
         y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
-
-        u_l, v_l, p_l, phi_l, psi_1_l, psi_2_l = y_l[:, 0], y_l[:, 1], y_l[:, 2], y_l[:, 3], y_l[:, 4], y_l[:,5]
-        u_r, v_r, p_r, phi_r, psi_1_r, psi_2_r = y_r[:, 0], y_r[:, 1], y_r[:, 2], y_r[:, 3], y_r[:, 4], y_r[:, 5]
-        u_up, v_up, phi_up, psi_1_up, psi_2_up = y_up[:, 0], y_up[:, 1], y_up[:, 3], y_up[:, 4], y_up[:, 5]
-        u_dw, v_dw, phi_dw, psi_1_dw, psi_2_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3], y_dw[:, 4], y_dw[:, 5]
-
-        phi_l_x = gradients(phi_l, x_l)[0][:, 1]
-        psi_1_l_x = gradients(psi_1_l, x_l)[0][:, 1]
-        psi_2_l_x = gradients(psi_2_l, x_l)[0][:, 1]
+        
+        u_l, v_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 3]
+        u_r, phi_r = y_r[:, 0], y_r[:, 3]
+        u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
+        u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3]
 
         u_r_x = gradients(u_r, x_r)[0][:, 1]
         phi_r_x = gradients(phi_r, x_r)[0][:, 1]
-        psi_1_r_x = gradients(psi_1_r, x_r)[0][:, 1]
-        psi_2_r_x = gradients(psi_2_r, x_r)[0][:, 1]
-
+        phi_l_x = gradients(phi_l, x_l)[0][:, 1]
         phi_up_y = gradients(phi_up, x_up)[0][:, 2]
-        psi_1_up_y = gradients(psi_1_up, x_up)[0][:, 2]
-        psi_2_up_y = gradients(psi_2_up, x_up)[0][:, 2]
-
         phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
-        psi_1_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2]
-        psi_2_dw_y = gradients(psi_2_dw, x_dw)[0][:, 2]
 
-        return ((u_l - u_l_real)**2).mean() + (phi_l_x**2).mean() + (psi_1_l_x**2).mean() + (psi_2_l_x**2).mean() \
-                + (u_r_x**2).mean() + (phi_r_x**2).mean() + (psi_1_r_x**2).mean() + (psi_2_r_x**2).mean() \
-                + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
-                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()
+        return ((u_l - u_l_real)**2).mean() + (v_l**2).mean() + (phi_l_x**2).mean()  + (u_r_x**2).mean() + (phi_r_x**2).mean() \
+                + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean()
 
-    def loss_ic(self, x_i, u_i, v_i, phi_i, psi_1_i, psi_2_i):
+    def loss_ic(self, x_i, u_i, v_i, phi_i):
         y_pred = self.net(x_i)
-        u_i_pred, v_i_pred, phi_i_pred, psi_1_i_pred, psi_2_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3], y_pred[:, 4], y_pred[:, 5]
+        u_i_pred, v_i_pred, phi_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3]
         # print(f'u_loss: {((u_i_pred-u_i)**2).mean():6f}')
         # print(f'v_loss: {((v_i_pred-v_i)**2).mean():6f}')
         # print(f'phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}')
-        return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() \
-                + ((psi_1_i_pred - psi_1_i)**2).mean() + ((psi_2_i_pred - psi_2_i)**2).mean()
+        return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean()
 
 def gradients(outputs, inputs):
     return torch.autograd.grad(outputs, inputs, grad_outputs=torch.ones_like(outputs), create_graph=True)
@@ -157,12 +135,8 @@ def AC_2D_init(x):
     u_init = np.zeros((x.shape[0]))
     u_init = -(x[:,2]**2)+1
     v_init = np.zeros((x.shape[0]))
-
-    #phi_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2] - 0.0)**2)) / (np.sqrt(2)*0.03) )
-    phi_init = np.zeros((x.shape[0]))
-    psi_1_init = np.zeros((x.shape[0]))
-    psi_2_init = np.zeros((x.shape[0]))
-    return u_init, v_init, phi_init, psi_1_init, psi_2_init
+    phi_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2] + 1)**2)) / (np.sqrt(2)*0.03) )
+    return u_init, v_init, phi_init
 
 def left_bound_vel(x_l):
     return -(x_l[:, 2]**2)+1
@@ -191,7 +165,7 @@ def main():
     
     ## initial condition
     xt_init = np.concatenate((np.zeros((num_x*num_y, 1)), x_2d), axis=1)
-    u_init, v_init, phi_init, psi_1_init, psi_2_init = AC_2D_init(xt_init)
+    u_init, v_init, phi_init = AC_2D_init(xt_init)
 
     ## save init fig
     fig, ax = newfig(2.0, 1.1)
@@ -205,7 +179,6 @@ def main():
     ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
     line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
     fig.savefig('./phi_init.png')
-
 
     x_2d_ext = np.tile(x_2d, [num_t,1])
     t_ext = np.zeros((num_t*num_x*num_y, 1))
@@ -263,9 +236,7 @@ def main():
     u_l_train = torch.tensor(u_l, dtype=torch.float32).to(device)
     v_i_train = torch.tensor(v_init, dtype=torch.float32).to(device)
     phi_i_train = torch.tensor(phi_init, dtype=torch.float32).to(device)
-    psi_1_i_train = torch.tensor(psi_1_init, dtype=torch.float32).to(device)
-    psi_2_i_train = torch.tensor(psi_2_init, dtype=torch.float32).to(device)
-
+    
     xt_l_train = torch.tensor(xt_l, requires_grad=True, dtype=torch.float32).to(device)
     xt_r_train = torch.tensor(xt_r, requires_grad=True, dtype=torch.float32).to(device)
     xt_up_train = torch.tensor(xt_up, requires_grad=True, dtype=torch.float32).to(device)
@@ -286,7 +257,7 @@ def main():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_l_train)
-            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
+            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train)
             loss = loss_pde + loss_bc + 100*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
@@ -323,6 +294,7 @@ def main():
         line = np.linspace(xt.min(), xt.max(), 2)[:,None]
         fig.savefig('./phi_'+str(i+1000)+'.png')
         plt.close()
+
 
 if __name__ == '__main__':
     main()
