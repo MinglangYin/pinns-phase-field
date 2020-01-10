@@ -32,7 +32,7 @@ np.random.seed(123456)
 
 eta = 0.1
 lmd = 0.01
-gemma = 0.01
+gamma = 0.01
 rho = 1
 mu = 0.01
 
@@ -77,7 +77,7 @@ class Model(nn.Module):
 
         ## PF
         F_g = phi**3 - phi
-        res_pf = phi_t + eta**2*(u*phi_x + v*phi_y) - gemma*(-F_g + eta**2*(phi_xx + phi_yy)) 
+        res_pf = phi_t + eta**2*(u*phi_x + v*phi_y) - gamma*(-F_g + eta**2*(phi_xx + phi_yy)) 
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw):
