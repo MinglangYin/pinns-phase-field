@@ -97,8 +97,8 @@ class Model(nn.Module):
         res_incomp = u_x + v_y
 
         ###phi
-        # F_g = 2/(h**2)*phi*(phi-1)*(2*phi-1)
-        F_g = phi**3 - phi
+        F_g = 2/(h**2)*phi*(phi-1)*(2*phi-1)
+        # F_g = phi**3 - phi
         w = -Eta**2*(phi_xx + phi_yy) + F_g # + lmd_e/2*(psi_1_x**2+psi_1_y**2 + psi_2_x**2+psi_2_y**2)
 
         # res_pf = phi_t + (u*phi_x + v*phi_y) + tau*w
