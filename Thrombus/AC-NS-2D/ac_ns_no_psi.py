@@ -51,6 +51,9 @@ tau = 1
 h = 1
 
 mu = 0.01
+Gamma = 0.01
+Eta = 0.1
+
 
 class Model(nn.Module):
     def __init__(self):
@@ -96,9 +99,11 @@ class Model(nn.Module):
         ###phi
         # F_g = 2/(h**2)*phi*(phi-1)*(2*phi-1)
         F_g = phi**3 - phi
-        w = -lmd*(phi_xx + phi_yy) + lmd*gamma*F_g # + lmd_e/2*(psi_1_x**2+psi_1_y**2 + psi_2_x**2+psi_2_y**2)
-        res_pf = phi_t + (u*phi_x + v*phi_y) + tau*w
-    
+        w = -Eta**2*(phi_xx + phi_yy) + F_g # + lmd_e/2*(psi_1_x**2+psi_1_y**2 + psi_2_x**2+psi_2_y**2)
+
+        # res_pf = phi_t + (u*phi_x + v*phi_y) + tau*w
+        res_pf = phi_t + Eta**2*(u*phi_x + v*phi_y) + Gamma*w
+
         return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_pf**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
@@ -158,7 +163,7 @@ def AC_2D_init(x):
     u_init = np.zeros((x.shape[0]))
     u_init = -(x[:,2]**2)+1
     v_init = np.zeros((x.shape[0]))
-    phi_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2] + 0.0)**2)) / (np.sqrt(2)*0.03) )
+    phi_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2] + 1.0)**2)) / (np.sqrt(2)*0.03) )
     return u_init, v_init, phi_init
 
 def left_bound_vel(x_l):
@@ -168,7 +173,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 30000
+    epochs = 10000
     lr = 0.001
 
     num_x = 100
@@ -281,7 +286,7 @@ def main():
             loss_pde = model.loss_pde(xt_f_train)
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_l_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train)
-            loss = 10*loss_pde + loss_bc + 30*loss_ic
+            loss = loss_pde + loss_bc + 30*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
             return loss
