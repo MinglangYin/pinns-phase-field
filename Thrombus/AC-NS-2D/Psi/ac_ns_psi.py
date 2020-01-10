@@ -60,89 +60,97 @@ class Model(nn.Module):
             self.net.add_module('linear_layer_%d' %(num), nn.Linear(20, 20))
             # self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
             self.net.add_module('lrelu_layer_%d' %(num), nn.LeakyReLU())
-        self.net.add_module('linear_layer_50', nn.Linear(20, 6))
+        self.net.add_module('linear_layer_50', nn.Linear(20, 4))
 
     def forward(self, x):
         return self.net(x)
 
     def loss_pde(self, x):
         y = self.net(x)
-        u, v, p, phi, psi_1, psi_2 = y[:, 0], y[:, 1], y[:, 2], y[:, 3], y[:, 4], y[:, 5]
-        u_g, v_g, p_g, phi_g, psi_1_g, psi_2_g = gradients(u, x)[0], gradients(v, x)[0], gradients(p, x)[0], gradients(phi, x)[0], gradients(psi_1, x)[0], gradients(psi_2, x)[0]
+        # u, v, p, phi, psi_1, psi_2 = y[:, 0], y[:, 1], y[:, 2], y[:, 3], y[:, 4], y[:, 5]
+        # u_g, v_g, p_g, phi_g, psi_1_g, psi_2_g = gradients(u, x)[0], gradients(v, x)[0], gradients(p, x)[0], gradients(phi, x)[0], gradients(psi_1, x)[0], gradients(psi_2, x)[0]
+        
+        #####test
+        u, v, p, phi= y[:, 0], y[:, 1], y[:, 2], y[:, 3]
+        u_g, v_g, p_g, phi_g = gradients(u, x)[0], gradients(v, x)[0], gradients(p, x)[0], gradients(phi, x)[0]
+        #####
+
         u_t, u_x, u_y = u_g[:, 0], u_g[:, 1], u_g[:, 2]
         v_t, v_x, v_y = v_g[:, 0], v_g[:, 1], v_g[:, 2]
         p_x, p_y = p_g[:, 1], p_g[:, 2]
         phi_t, phi_x, phi_y = phi_g[:, 0], phi_g[:, 1], phi_g[:, 2]
-        psi_1_t, psi_1_x, psi_1_y = psi_1_g[:, 0], psi_1_g[:, 1], psi_1_g[:, 2]
-        psi_2_t, psi_2_x, psi_2_y = psi_2_g[:, 0], psi_2_g[:, 1], psi_2_g[:, 2]
+        
+        #####test
+        # psi_1_t, psi_1_x, psi_1_y = psi_1_g[:, 0], psi_1_g[:, 1], psi_1_g[:, 2]
+        # psi_2_t, psi_2_x, psi_2_y = psi_2_g[:, 0], psi_2_g[:, 1], psi_2_g[:, 2]
+        #####
 
         u_xx, u_yy = gradients(u_x, x)[0][:, 1], gradients(u_y, x)[0][:, 2]
         v_xx, v_yy = gradients(v_x, x)[0][:, 1], gradients(v_y, x)[0][:, 2]
         phi_xx, phi_xy, phi_yy = gradients(phi_x, x)[0][:, 1], gradients(phi_x, x)[0][:, 2], gradients(phi_y, x)[0][:, 2]
 
+        #####test
         ## Left Cauchy-Green Deformation Tensor
-        B_11 = (1-phi)*(psi_1_x**2 + psi_2_x**2)
-        B_21 = (1-phi)*(psi_1_x*psi_1_y + psi_2_x*psi_2_y)
-        B_12 = B_21
-        B_22 = (1-phi)*(psi_1_y**2 + psi_2_y**2)
+        # B_11 = (1-phi)*(psi_1_x**2 + psi_2_x**2)
+        # B_21 = (1-phi)*(psi_1_x*psi_1_y + psi_2_x*psi_2_y)
+        # B_12 = B_21
+        # B_22 = (1-phi)*(psi_1_y**2 + psi_2_y**2)
 
-        B_11_g = gradients(B_11, x)[0]
-        B_12_g = gradients(B_12, x)[0]
-        B_22_g = gradients(B_22, x)[0]
+        # B_11_g = gradients(B_11, x)[0]
+        # B_12_g = gradients(B_12, x)[0]
+        # B_22_g = gradients(B_22, x)[0]
         
-        B_11_x, B_21_y, B_12_x, B_22_y = B_11_g[:, 1], B_12_g[:, 2], B_12_g[:, 1], B_22_g[:, 2]
+        # B_11_x, B_21_y, B_12_x, B_22_y = B_11_g[:, 1], B_12_g[:, 2], B_12_g[:, 1], B_22_g[:, 2]
+        #####
 
         ## Navier Stokes
-        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/K \
-                    - lmd_e*(B_11_x + B_21_y)
+        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/K #\
+                    # - lmd_e*(B_11_x + B_21_y)
                     
-        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + mu*(1-phi)*v/K \
-                    - lmd_e*(B_12_x + B_22_y)
+        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + mu*(1-phi)*v/K #\
+                    # - lmd_e*(B_12_x + B_22_y)
 
         res_incomp = u_x + v_y
 
-        # res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) \
-        #             + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/K
-        # res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) \
-        #             + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + mu*(1-phi)*v/K
-        # res_incomp = u_x + v_y
-
         ## phi, psi
         F_g = 2/(h**2)*phi*(phi-1)*(2*phi-1)
-        w = -Eta**2*(phi_xx + phi_yy) + F_g + lmd_e/2*(psi_1_x**2+psi_1_y**2 + psi_2_x**2+psi_2_y**2)
+        w = -Eta**2*(phi_xx + phi_yy) + F_g #+ lmd_e/2*(psi_1_x**2+psi_1_y**2 + psi_2_x**2+psi_2_y**2)
         res_pf = phi_t + Eta**2*(u*phi_x + v*phi_y) + Gamma*w
-        res_psi_x = psi_1_t + (u*psi_1_x + v*psi_2_x)
-        res_psi_y = psi_2_t + (u*psi_1_y + v*psi_2_y)
-
-        # F_g = 2/(h**2)*phi*(phi-1)*(2*phi-1)
-        # F_g = phi**3 - phi
-        # w = -Eta**2*(phi_xx + phi_yy) + F_g # + lmd_e/2*(psi_1_x**2+psi_1_y**2 + psi_2_x**2+psi_2_y**2)
-        # res_pf = phi_t + (u*phi_x + v*phi_y) + tau*w
-        # res_pf = phi_t + Eta**2*(u*phi_x + v*phi_y) + Gamma*w
-
-        return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_pf**2).mean() + (res_psi_x**2).mean() + (res_psi_y**2).mean()
+        # res_psi_x = psi_1_t + (u*psi_1_x + v*psi_2_x)
+        # res_psi_y = psi_2_t + (u*psi_1_y + v*psi_2_y)
+        return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_pf**2).mean() #+ (res_psi_x**2).mean() + (res_psi_y**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw):
         y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
 
-        u_l, v_l, phi_l, psi_1_l, psi_2_l = y_l[:, 0], y_l[:, 1], y_l[:, 3], y_l[:, 4], y_l[:, 5]
-        u_r, v_r, phi_r, psi_1_r, psi_2_r = y_r[:, 0], y_r[:, 1], y_r[:, 3], y_r[:, 4], y_r[:, 5]
-        u_up, v_up, phi_up, psi_1_up, psi_2_up = y_up[:, 0], y_up[:, 1], y_up[:, 3], y_up[:, 4], y_up[:, 5]
-        u_dw, v_dw, phi_dw, psi_1_dw, psi_2_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3], y_dw[:, 4], y_dw[:, 5]
+        # u_l, v_l, phi_l, psi_1_l, psi_2_l = y_l[:, 0], y_l[:, 1], y_l[:, 3], y_l[:, 4], y_l[:, 5]
+        # u_r, v_r, phi_r, psi_1_r, psi_2_r = y_r[:, 0], y_r[:, 1], y_r[:, 3], y_r[:, 4], y_r[:, 5]
+        # u_up, v_up, phi_up, psi_1_up, psi_2_up = y_up[:, 0], y_up[:, 1], y_up[:, 3], y_up[:, 4], y_up[:, 5]
+        # u_dw, v_dw, phi_dw, psi_1_dw, psi_2_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3], y_dw[:, 4], y_dw[:, 5]
+
+        #####test
+        u_l, v_l, phi_l= y_l[:, 0], y_l[:, 1], y_l[:, 3]
+        u_r, v_r, phi_r = y_r[:, 0], y_r[:, 1], y_r[:, 3]
+        u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
+        u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3]
+        #####
 
         phi_up_y = gradients(phi_up, x_up)[0][:, 2]
         phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
         
-        psi_1_up_y = gradients(psi_1_up, x_up)[0][:, 2]
-        psi_2_up_y = gradients(psi_2_up, x_up)[0][:, 2]
-        psi_1_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2]
-        psi_2_dw_y = gradients(psi_2_dw, x_dw)[0][:, 2]
+        # psi_1_up_y = gradients(psi_1_up, x_up)[0][:, 2]
+        # psi_2_up_y = gradients(psi_2_up, x_up)[0][:, 2]
+        # psi_1_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2]
+        # psi_2_dw_y = gradients(psi_2_dw, x_dw)[0][:, 2]
 
+        # return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
+                # + ((psi_1_l-psi_1_r)**2).mean() + ((psi_2_l-psi_2_r)**2).mean() \
+                # + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
+                # + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()
+        
         return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
-                + ((psi_1_l-psi_1_r)**2).mean() + ((psi_2_l-psi_2_r)**2).mean() \
-                + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
-                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()
-
+                + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() \
+                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean()
 
         ## Velocity inflow and velocity gradient outflow
         # y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
@@ -174,14 +182,17 @@ class Model(nn.Module):
         #         + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
         #         + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()
 
-    def loss_ic(self, x_i, u_i, v_i, phi_i, psi_1_i, psi_2_i):
+    def loss_ic(self, x_i, u_i, v_i, phi_i ):#, psi_1_i, psi_2_i):
         y_pred = self.net(x_i)
-        u_i_pred, v_i_pred, phi_i_pred, psi_1_i_pred, psi_2_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3], y_pred[:, 4], y_pred[:, 5]
+        
+        # u_i_pred, v_i_pred, phi_i_pred, psi_1_i_pred, psi_2_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3], y_pred[:, 4], y_pred[:, 5]
+        
+        u_i_pred, v_i_pred, phi_i_pred= y_pred[:, 0], y_pred[:, 1], y_pred[:, 3]
         # print(f'u_loss: {((u_i_pred-u_i)**2).mean():6f}')
         # print(f'v_loss: {((v_i_pred-v_i)**2).mean():6f}')
         # print(f'phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}')
-        return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() \
-                + ((psi_1_i_pred - psi_1_i)**2).mean() + ((psi_2_i_pred - psi_2_i)**2).mean()
+        return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() #\
+                # + ((psi_1_i_pred - psi_1_i)**2).mean() + ((psi_2_i_pred - psi_2_i)**2).mean()
 
 def gradients(outputs, inputs):
     return torch.autograd.grad(outputs, inputs, grad_outputs=torch.ones_like(outputs), create_graph=True)
@@ -247,28 +258,28 @@ def main():
     fig.savefig('./phi_init.png')
 
     # psi_1
-    fig, ax = newfig(2.0, 1.1)
-    ax.axis('off') 
-    gs0 = gridspec.GridSpec(1, 2)
-    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    h = ax.imshow(psi_1_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
-    fig.colorbar(h)
-    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
-    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
-    fig.savefig('./psi_1_init.png')
+    # fig, ax = newfig(2.0, 1.1)
+    # ax.axis('off') 
+    # gs0 = gridspec.GridSpec(1, 2)
+    # gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+    # h = ax.imshow(psi_1_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
+    # fig.colorbar(h)
+    # ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
+    # line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
+    # fig.savefig('./psi_1_init.png')
 
-    # psi_2
-    fig, ax = newfig(2.0, 1.1)
-    ax.axis('off') 
-    gs0 = gridspec.GridSpec(1, 2)
-    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    h = ax.imshow(psi_2_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', 
-            # extent=[t.min(), t.max(), x.min(), x.max()], 
-                origin='lower', aspect='auto')
-    fig.colorbar(h)
-    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
-    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
-    fig.savefig('./psi_2_init.png')
+    # # psi_2
+    # fig, ax = newfig(2.0, 1.1)
+    # ax.axis('off') 
+    # gs0 = gridspec.GridSpec(1, 2)
+    # gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+    # h = ax.imshow(psi_2_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', 
+    #         # extent=[t.min(), t.max(), x.min(), x.max()], 
+    #             origin='lower', aspect='auto')
+    # fig.colorbar(h)
+    # ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
+    # line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
+    # fig.savefig('./psi_2_init.png')
 
     ##
     x_2d_ext = np.tile(x_2d, [num_t,1])
@@ -346,7 +357,8 @@ def main():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train)
-            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
+            # loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
+            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train)
             loss = loss_pde + 5*loss_bc + 30*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
