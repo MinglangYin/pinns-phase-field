@@ -37,7 +37,7 @@ np.random.seed(123456)
 
 rho =1 
 eta = 1
-lmd_e = 0.1
+lmd_e = 0.0
 lmd = 1
 K = 1
 gamma = 1
