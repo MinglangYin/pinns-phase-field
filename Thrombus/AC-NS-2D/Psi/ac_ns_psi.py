@@ -20,7 +20,7 @@ Author: Minglang Yin
 """
 
 import sys
-sys.path.insert(0,'../../Utils')
+sys.path.insert(0,'../../../Utils')
 
 import torch
 import torch.nn as nn
@@ -82,10 +82,10 @@ class Model(nn.Module):
         phi_xx, phi_xy, phi_yy = gradients(phi_x, x)[0][:, 1], gradients(phi_x, x)[0][:, 2], gradients(phi_y, x)[0][:, 2]
 
         ## Left Cauchy-Green Deformation Tensor
-        B_11 = (1-phi)(psi_1_x**2 + psi_2_x**2)
-        B_21 = (1-phi)(psi_1_x*psi_1_y + psi_2_x*psi_2_y)
+        B_11 = (1-phi)*(psi_1_x**2 + psi_2_x**2)
+        B_21 = (1-phi)*(psi_1_x*psi_1_y + psi_2_x*psi_2_y)
         B_12 = B_21
-        B_22 = (1-phi)(psi_1_y**2 + psi_2_y**2)
+        B_22 = (1-phi)*(psi_1_y**2 + psi_2_y**2)
 
         B_11_g = gradients(B_11, x)[0]
         B_12_g = gradients(B_12, x)[0]
@@ -123,20 +123,26 @@ class Model(nn.Module):
 
         return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_pf**2).mean() + (res_psi_x**2).mean() + (res_psi_y**2).mean()
 
-    def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
+    def loss_bc(self, x_l, x_r, x_up, x_dw):
         y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
 
-        u_l, v_l, p_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 2], y_l[:, 3]
-        u_r, v_r, p_r, phi_r = y_r[:, 0], y_r[:, 1], y_r[:, 2], y_r[:, 3]
-        u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
-        u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3] 
+        u_l, v_l, phi_l, psi_1_l, psi_2_l = y_l[:, 0], y_l[:, 1], y_l[:, 3], y_l[:, 4], y_l[:, 5]
+        u_r, v_r, phi_r, psi_1_r, psi_2_r = y_r[:, 0], y_r[:, 1], y_r[:, 3], y_r[:, 4], y_r[:, 5]
+        u_up, v_up, phi_up, psi_1_up, psi_2_up = y_up[:, 0], y_up[:, 1], y_up[:, 3], y_up[:, 4], y_up[:, 5]
+        u_dw, v_dw, phi_dw, psi_1_dw, psi_2_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3], y_dw[:, 4], y_dw[:, 5]
 
         phi_up_y = gradients(phi_up, x_up)[0][:, 2]
         phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
-        return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() +\
-                 ((phi_l - phi_r)**2).mean() + \
-                (u_up**2).mean() + (u_dw**2).mean() + (v_up**2).mean() + (v_dw**2).mean() +\
-                (phi_dw_y**2).mean() + (phi_up_y**2).mean()
+        
+        psi_1_up_y = gradients(psi_1_up, x_up)[0][:, 2]
+        psi_2_up_y = gradients(psi_2_up, x_up)[0][:, 2]
+        psi_1_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2]
+        psi_2_dw_y = gradients(psi_2_dw, x_dw)[0][:, 2]
+
+        return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
+                + ((psi_1_l-psi_1_r)**2).mean() + ((psi_2_l-psi_2_r)**2).mean() \
+                + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
+                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()
 
 
         ## Velocity inflow and velocity gradient outflow
@@ -195,11 +201,9 @@ def AC_2D_init(x):
     u_init = np.zeros((x.shape[0]))
     u_init = -(x[:,2]**2)+1
     v_init = np.zeros((x.shape[0]))
-
-    #phi_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2] - 0.0)**2)) / (np.sqrt(2)*0.03) )
-    phi_init = np.zeros((x.shape[0]))
-    psi_1_init = np.zeros((x.shape[0]))
-    psi_2_init = np.zeros((x.shape[0]))
+    phi_init = (np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2]+1.0)**2)) / (np.sqrt(2)*0.03) ) + 1)/2
+    psi_1_init = -x[:, 2]
+    psi_2_init = x[:, 1]
     return u_init, v_init, phi_init, psi_1_init, psi_2_init
 
 def left_bound_vel(x_l):
@@ -232,19 +236,42 @@ def main():
     u_init, v_init, phi_init, psi_1_init, psi_2_init = AC_2D_init(xt_init)
 
     ## save init fig
+    # phi
     fig, ax = newfig(2.0, 1.1)
     ax.axis('off') 
     gs0 = gridspec.GridSpec(1, 2)
     gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    h = ax.imshow(phi_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', 
-            # extent=[t.min(), t.max(), x.min(), x.max()], 
-                origin='lower', aspect='auto')
+    h = ax.imshow(phi_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
     fig.colorbar(h)
     ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
     line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
     fig.savefig('./phi_init.png')
 
+    # psi_1
+    fig, ax = newfig(2.0, 1.1)
+    ax.axis('off') 
+    gs0 = gridspec.GridSpec(1, 2)
+    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+    h = ax.imshow(psi_1_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
+    fig.colorbar(h)
+    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
+    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
+    fig.savefig('./psi_1_init.png')
 
+    # psi_2
+    fig, ax = newfig(2.0, 1.1)
+    ax.axis('off') 
+    gs0 = gridspec.GridSpec(1, 2)
+    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+    h = ax.imshow(psi_2_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', 
+            # extent=[t.min(), t.max(), x.min(), x.max()], 
+                origin='lower', aspect='auto')
+    fig.colorbar(h)
+    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
+    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
+    fig.savefig('./psi_2_init.png')
+
+    ##
     x_2d_ext = np.tile(x_2d, [num_t,1])
     t_ext = np.zeros((num_t*num_x*num_y, 1))
     for i in range (0, num_t):
@@ -288,9 +315,6 @@ def main():
     xt_i = xt_init #[id_i, :]
     xt_f = xt_2d_ext #[id_f, :]
 
-    #############left boundary velocity
-    u_l = left_bound_vel(xt_l)
-
     ## set data as tensor and send to device
     xt_f_train = torch.tensor(xt_f, requires_grad=True, dtype=torch.float32).to(device)
     # x_test = torch.tensor(xt_2d_ext, requires_grad=True, dtype=torch.float32).to(device)
@@ -298,7 +322,6 @@ def main():
     x_i_train = torch.tensor(x_2d, requires_grad=True, dtype=torch.float32).to(device)
 
     u_i_train = torch.tensor(u_init, dtype=torch.float32).to(device)
-    u_l_train = torch.tensor(u_l, dtype=torch.float32).to(device)
     v_i_train = torch.tensor(v_init, dtype=torch.float32).to(device)
     phi_i_train = torch.tensor(phi_init, dtype=torch.float32).to(device)
     psi_1_i_train = torch.tensor(psi_1_init, dtype=torch.float32).to(device)
@@ -323,7 +346,7 @@ def main():
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
-            loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_l_train)
+            loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
             loss = loss_pde + loss_bc + 100*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
@@ -361,6 +384,7 @@ def main():
         line = np.linspace(xt.min(), xt.max(), 2)[:,None]
         fig.savefig('./phi_'+str(i+1000)+'.png')
         plt.close()
+
 
 if __name__ == '__main__':
     main()

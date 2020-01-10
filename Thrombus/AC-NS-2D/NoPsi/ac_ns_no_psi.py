@@ -24,7 +24,7 @@ Author: Minglang Yin
 """
 
 import sys
-sys.path.insert(0,'../../Utils')
+sys.path.insert(0,'../../../Utils')
 
 import torch
 import torch.nn as nn
