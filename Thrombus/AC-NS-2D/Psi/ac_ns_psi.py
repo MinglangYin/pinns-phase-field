@@ -13,8 +13,7 @@ Author: Minglang Yin
     Output: [u, v, p, phi, psi_1, psi_2]
 
     Boundary Condition:
-        Left: Inflow: velocity: u = , v = 0
-        Right: Outflow: n*grad(u)=0
+        Left and right: Periodic
         Up: u=v=0, n*grad(phi)=n*grad(psi)=0
         Down: u=v=0, n*grad(phi)=n*grad(psi)=0
 """
@@ -348,7 +347,7 @@ def main():
             loss_pde = model.loss_pde(xt_f_train)
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + 100*loss_ic
+            loss = loss_pde + 5*loss_bc + 30*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
             return loss
