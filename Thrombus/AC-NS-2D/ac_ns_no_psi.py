@@ -161,13 +161,13 @@ def to_numpy(input):
 def AC_2D_init(x):
     ## bubble (psi field is very tricky)
     u_init = np.zeros((x.shape[0]))
-    u_init = -(x[:,2]**2)+1
+    u_init = 3*(-(x[:,2]**2)+1)
     v_init = np.zeros((x.shape[0]))
     phi_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2] + 1.0)**2)) / (np.sqrt(2)*0.03) )
     return u_init, v_init, phi_init
 
 def left_bound_vel(x_l):
-    return -(x_l[:, 2]**2)+1
+    return 3*(-(x_l[:, 2]**2)+1)
 
 def main():
     ## parameters
