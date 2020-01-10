@@ -50,6 +50,8 @@ rho = 1
 tau = 1
 h = 1
 
+mu = 0.01
+
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
@@ -80,14 +82,20 @@ class Model(nn.Module):
         phi_xx, phi_xy, phi_yy = gradients(phi_x, x)[0][:, 1], gradients(phi_x, x)[0][:, 2], gradients(phi_y, x)[0][:, 2]
         
         ## Navier Stokes
-        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - eta*(u_xx + u_yy) \
-                    + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + eta*(1-phi)*u/K
-        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - eta*(v_xx + v_yy) \
-                    + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + eta*(1-phi)*v/K
+        # res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - eta*(u_xx + u_yy) \
+        #             + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + eta*(1-phi)*u/K
+        # res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - eta*(v_xx + v_yy) \
+        #             + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + eta*(1-phi)*v/K
+
+        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) \
+                    + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/K
+        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) \
+                    + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + mu*(1-phi)*v/K
         res_incomp = u_x + v_y
 
         ###phi
-        F_g = 2/(h**2)*phi*(phi-1)*(2*phi-1)
+        # F_g = 2/(h**2)*phi*(phi-1)*(2*phi-1)
+        F_g = phi**3 - phi
         w = -lmd*(phi_xx + phi_yy) + lmd*gamma*F_g # + lmd_e/2*(psi_1_x**2+psi_1_y**2 + psi_2_x**2+psi_2_y**2)
         res_pf = phi_t + (u*phi_x + v*phi_y) + tau*w
     

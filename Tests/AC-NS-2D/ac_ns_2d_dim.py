@@ -1,12 +1,16 @@
 """
 Author: Minglang Yin
     PINNs (physical-informed neural network) for solving time-dependent Allen-Cahn Navier-Stokes equation (2D).
-    
-    d(phi)/dt + div*(phi*u) = 1/Pe*(-F'(phi) + eta^2*lap(phi)) + beta(t)
 
-    where:
-    Input: [t, x, y]
-    Output: [u, v, p, phi]
+    Governing equtions (Latex):
+        \frac{\partial\phi}{t} + u\cdot(\nabla\phi) - \gamma(\Delta\phi - f(\phi)) = 0,
+        \rho(\frac{\partial u}{\partial t} + (u \cdot \nabla) u) + \nabla p - \mu\Delta u + \lambda(\Delta\phi- f(\phi))\nabla \phi = 0,
+        \nabla \cdot u = 0
+        f(\phi) = F'(\phi) = -1/(eta^2)(\phi^3- \phi)
+
+    where
+        Input: [t, x, y]
+        Output: [u, v, p, phi]
 """
 
 import sys
@@ -129,7 +133,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 10000
+    epochs = 30000
     lr = 0.001
 
     num_x = 100
@@ -208,7 +212,6 @@ def main():
 
     ## set data as tensor and send to device
     xt_f_train = torch.tensor(xt_f, requires_grad=True, dtype=torch.float32).to(device)
-    # x_test = torch.tensor(xt_2d_ext, requires_grad=True, dtype=torch.float32).to(device)
     xt_i_train = torch.tensor(xt_init, requires_grad=True, dtype=torch.float32).to(device)
     x_i_train = torch.tensor(x_2d, requires_grad=True, dtype=torch.float32).to(device)
 
