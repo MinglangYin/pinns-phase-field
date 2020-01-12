@@ -109,6 +109,10 @@ class Model(nn.Module):
         res_phi = phi_t + Eta**2*(u*phi_x + v*phi_y) + Gamma*w
         res_psi_x = psi_1_t + (u*psi_1_x + v*psi_2_x)
         res_psi_y = psi_2_t + (u*psi_1_y + v*psi_2_y)
+
+        print(f'res_incomp:{res_incomp:6f}, res_ns_x:{res_ns_x:6f}, res_ns_y:{res_ns_y:6f}, \
+                res_phi:{res_phi:6f}, res_psi_x:{res_psi_x:6f}, res_psi_y:{res_psi_y:6f}', flush=True)
+
         return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_phi**2).mean() \
             + (res_psi_x**2).mean() + (res_psi_y**2).mean()
 
@@ -166,9 +170,8 @@ class Model(nn.Module):
         y_pred = self.net(x_i)
         u_i_pred, v_i_pred, phi_i_pred, psi_1_i_pred, psi_2_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3], y_pred[:, 4], y_pred[:, 5]
         
-        # print(f'u_loss: {((u_i_pred-u_i)**2).mean():6f}')
-        # print(f'v_loss: {((v_i_pred-v_i)**2).mean():6f}')
-        # print(f'phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}')
+        print(f'u_init:{((u_i_pred-u_i)**2).mean()}, v_init:{((v_i_pred-v_i)**2).mean()}, phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}, \
+                psi_1:{((psi_1_i_pred - psi_1_i)**2).mean()}, psi_2:{((psi_2_i_pred - psi_2_i)**2).mean()}')
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() \
             + ((psi_1_i_pred - psi_1_i)**2).mean() + ((psi_2_i_pred - psi_2_i)**2).mean()
 
