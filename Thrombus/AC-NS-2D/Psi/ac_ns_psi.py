@@ -107,8 +107,8 @@ class Model(nn.Module):
         F_g = 2/(h**2)*phi*(phi-1)*(2*phi-1)
         w = -Eta**2*(phi_xx + phi_yy) + F_g  #+ lmd_e/2*(psi_1_x**2+psi_1_y**2 + psi_2_x**2+psi_2_y**2)
         res_phi = phi_t + Eta**2*(u*phi_x + v*phi_y) + Gamma*w
-        res_psi_x = psi_1_t + (u*psi_1_x + v*psi_2_x)
-        res_psi_y = psi_2_t + (u*psi_1_y + v*psi_2_y)
+        res_psi_x = psi_1_t + (u*psi_1_x + v*psi_1_y)
+        res_psi_y = psi_2_t + (u*psi_2_x + v*psi_2_y)
 
         print(f'res_incomp:{(res_incomp**2).mean():6f}, res_ns_x:{(res_ns_x**2).mean():6f}, res_ns_y:{(res_ns_y**2).mean():6f}, res_phi:{(res_phi**2).mean():6f}, res_psi_x:{(res_psi_x**2).mean():6f}, res_psi_y:{(res_psi_y**2).mean():6f}', flush=True)
 
