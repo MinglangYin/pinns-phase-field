@@ -46,7 +46,7 @@ tau = 1
 h = 1
 
 mu = 0.01
-Gamma = 0.01
+Gamma = 0.5
 Eta = 0.1
 
 class Model(nn.Module):
