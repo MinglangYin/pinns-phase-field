@@ -188,7 +188,9 @@ def to_numpy(input):
 def AC_2D_init(x):
     ## bubble (psi field is very tricky)
     u_init = np.zeros((x.shape[0]))
-    u_init = -(x[:,2]**2)+1
+    for i in range(0, u_init.shape[0]):
+        if x[i, 1] == -1.0:
+            u_init[i] = (-(x[i,2]**2)+1)*0.1
     v_init = np.zeros((x.shape[0]))
     phi_init = (np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2]+1.0)**2)) / (np.sqrt(2)*0.03) ) + 1)/2
     psi_1_init = -x[:, 2]
@@ -225,6 +227,17 @@ def main():
     u_init, v_init, phi_init, psi_1_init, psi_2_init = AC_2D_init(xt_init)
 
     ## save init fig
+    ### phi
+    fig, ax = newfig(2.0, 1.1)
+    ax.axis('off') 
+    gs0 = gridspec.GridSpec(1, 2)
+    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+    h = ax.imshow(u_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
+    fig.colorbar(h)
+    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
+    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
+    fig.savefig('./u_init.png')
+
     ### phi
     fig, ax = newfig(2.0, 1.1)
     ax.axis('off') 
