@@ -37,7 +37,7 @@ np.random.seed(123456)
 
 rho =1 
 eta = 1
-lmd_e = 0.0
+lmd_e = 0.01
 lmd = 1
 K = 1
 gamma = 1
@@ -74,10 +74,8 @@ class Model(nn.Module):
         v_t, v_x, v_y = v_g[:, 0], v_g[:, 1], v_g[:, 2]
         p_x, p_y = p_g[:, 1], p_g[:, 2]
         phi_t, phi_x, phi_y = phi_g[:, 0], phi_g[:, 1], phi_g[:, 2]
-        
         psi_1_t, psi_1_x, psi_1_y = psi_1_g[:, 0], psi_1_g[:, 1], psi_1_g[:, 2]
         psi_2_t, psi_2_x, psi_2_y = psi_2_g[:, 0], psi_2_g[:, 1], psi_2_g[:, 2]
-
 
         u_xx, u_yy = gradients(u_x, x)[0][:, 1], gradients(u_y, x)[0][:, 2]
         v_xx, v_yy = gradients(v_x, x)[0][:, 1], gradients(v_y, x)[0][:, 2]
@@ -86,14 +84,15 @@ class Model(nn.Module):
         ## Left Cauchy-Green Deformation Tensor
         B_11 = (1-phi)*(psi_1_x**2 + psi_2_x**2)
         B_21 = (1-phi)*(psi_1_x*psi_1_y + psi_2_x*psi_2_y)
-        B_12 = B_21
+        B_12 = (1-phi)*(psi_1_x*psi_1_y + psi_2_x*psi_2_y)
         B_22 = (1-phi)*(psi_1_y**2 + psi_2_y**2)
 
         B_11_g = gradients(B_11, x)[0]
+        B_21_g = gradients(B_21, x)[0]
         B_12_g = gradients(B_12, x)[0]
         B_22_g = gradients(B_22, x)[0]
         
-        B_11_x, B_21_y, B_12_x, B_22_y = B_11_g[:, 1], B_12_g[:, 2], B_12_g[:, 1], B_22_g[:, 2]
+        B_11_x, B_21_y, B_12_x, B_22_y = B_11_g[:, 1], B_21_g[:, 2], B_12_g[:, 1], B_22_g[:, 2]
 
         ## Navier Stokes
         res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/K \
@@ -107,30 +106,29 @@ class Model(nn.Module):
         ## phi, psi
         F_g = 2/(h**2)*phi*(phi-1)*(2*phi-1)
         w = -Eta**2*(phi_xx + phi_yy) + F_g  #+ lmd_e/2*(psi_1_x**2+psi_1_y**2 + psi_2_x**2+psi_2_y**2)
-        res_pf = phi_t + Eta**2*(u*phi_x + v*phi_y) + Gamma*w
+        res_phi = phi_t + Eta**2*(u*phi_x + v*phi_y) + Gamma*w
         res_psi_x = psi_1_t + (u*psi_1_x + v*psi_2_x)
         res_psi_y = psi_2_t + (u*psi_1_y + v*psi_2_y)
-        return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_pf**2).mean() \
+        return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_phi**2).mean() \
             + (res_psi_x**2).mean() + (res_psi_y**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw):
         y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
 
-        u_l, v_l, phi_l, psi_1_l, psi_2_l = y_l[:, 0], y_l[:, 1], y_l[:, 3], y_l[:, 4], y_l[:, 5]
-        u_r, v_r, phi_r, psi_1_r, psi_2_r = y_r[:, 0], y_r[:, 1], y_r[:, 3], y_r[:, 4], y_r[:, 5]
+        u_l, v_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 3]
+        u_r, v_r, phi_r = y_r[:, 0], y_r[:, 1], y_r[:, 3]
         u_up, v_up, phi_up, psi_1_up, psi_2_up = y_up[:, 0], y_up[:, 1], y_up[:, 3], y_up[:, 4], y_up[:, 5]
         u_dw, v_dw, phi_dw, psi_1_dw, psi_2_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3], y_dw[:, 4], y_dw[:, 5]
 
         phi_up_y = gradients(phi_up, x_up)[0][:, 2]
-        phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
-        
         psi_1_up_y = gradients(psi_1_up, x_up)[0][:, 2]
         psi_2_up_y = gradients(psi_2_up, x_up)[0][:, 2]
+
+        phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
         psi_1_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2]
         psi_2_dw_y = gradients(psi_2_dw, x_dw)[0][:, 2]
 
         return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
-                + ((psi_1_l-psi_1_r)**2).mean() + ((psi_2_l-psi_2_r)**2).mean() \
                 + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
                 + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()
         
@@ -208,15 +206,15 @@ def main():
 
     num_x = 100
     num_y = 100
-    num_t = 10
+    num_t = 2
     num_b_train = 100    # boundary sampling points
-    num_f_train = 50000   # inner sampling points
+    num_f_train = 10000   # inner sampling points
     num_i_train = 10000   # initial sampling points 
-    num_t_train = 10
+    num_t_train = 2
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 5, num=num_t)[:, None]
+    t = np.linspace(0, 0.01, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
@@ -338,7 +336,7 @@ def main():
             loss_pde = model.loss_pde(xt_f_train)
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + 5*loss_bc + 30*loss_ic
+            loss = loss_pde + loss_bc + loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
             return loss
