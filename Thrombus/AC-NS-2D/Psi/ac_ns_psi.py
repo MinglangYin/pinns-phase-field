@@ -110,8 +110,8 @@ class Model(nn.Module):
         res_psi_x = psi_1_t + (u*psi_1_x + v*psi_2_x)
         res_psi_y = psi_2_t + (u*psi_1_y + v*psi_2_y)
 
-        print(f'res_incomp:{res_incomp:6f}, res_ns_x:{res_ns_x:6f}, res_ns_y:{res_ns_y:6f}, \
-                res_phi:{res_phi:6f}, res_psi_x:{res_psi_x:6f}, res_psi_y:{res_psi_y:6f}', flush=True)
+        print(f'res_incomp:{(res_incomp**2).mean():6f}, res_ns_x:{(res_ns_x**2).mean():6f}, res_ns_y:{(res_ns_y**2).mean():6f}, \
+                res_phi:{(res_phi**2).mean():6f}, res_psi_x:{(res_psi_x**2).mean():6f}, res_psi_y:{(res_psi_y**2).mean():6f}', flush=True)
 
         return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_phi**2).mean() \
             + (res_psi_x**2).mean() + (res_psi_y**2).mean()
