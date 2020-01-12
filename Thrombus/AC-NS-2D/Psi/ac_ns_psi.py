@@ -132,9 +132,12 @@ class Model(nn.Module):
         psi_2_dw_y = gradients(psi_2_dw, x_dw)[0][:, 2]
 
         return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
-                + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
-                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()
-        
+                + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() \
+                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() #+ (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()\
+                # + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
+
+
+
         ## Velocity inflow and velocity gradient outflow
         # y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
 
@@ -204,7 +207,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 10000
+    epochs = 5000
     lr = 0.001
 
     num_x = 100
@@ -350,7 +353,7 @@ def main():
             loss_pde = model.loss_pde(xt_f_train)
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + 5*loss_ic
+            loss = loss_pde + 100*loss_bc + 30*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
             return loss
