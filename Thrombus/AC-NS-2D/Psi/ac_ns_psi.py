@@ -372,8 +372,13 @@ def main():
         xt = np.concatenate((t[i]*np.ones((num_x*num_y, 1)), x_2d), axis=1)
         xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.float32).to(device)
         y_pred = model(xt_tensor)
+        u_test[i,:,:] = to_numpy(y_pred[:, 0]).reshape(num_x, num_y)
+        v_test[i,:,:] = to_numpy(y_pred[:, 1]).reshape(num_x, num_y)
         phi_test[i,:,:] = to_numpy(y_pred[:, 3]).reshape(num_x, num_y)
+        psi_1_test[i,:,:] = to_numpy(y_pred[:, 4]).reshape(num_x, num_y)
+        psi_2_test[i,:,:] = to_numpy(y_pred[:, 5]).reshape(num_x, num_y)
 
+        ## phi
         fig, ax = newfig(2.0, 1.1)
         ax.axis('off') 
         gs0 = gridspec.GridSpec(1, 2)
@@ -385,6 +390,34 @@ def main():
         ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
         line = np.linspace(xt.min(), xt.max(), 2)[:,None]
         fig.savefig('./phi_'+str(i+1000)+'.png')
+        plt.close()
+
+        ## psi_1
+        fig, ax = newfig(2.0, 1.1)
+        ax.axis('off') 
+        gs0 = gridspec.GridSpec(1, 2)
+        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+        h = ax.imshow(psi_1_test[i,:,:], interpolation='nearest', cmap='rainbow', 
+                # extent=[t.min(), t.max(), x.min(), x.max()], 
+                    origin='lower', aspect='auto')
+        fig.colorbar(h)
+        ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
+        line = np.linspace(xt.min(), xt.max(), 2)[:,None]
+        fig.savefig('./psi_1_'+str(i+1000)+'.png')
+        plt.close()
+
+        ## psi_2
+        fig, ax = newfig(2.0, 1.1)
+        ax.axis('off') 
+        gs0 = gridspec.GridSpec(1, 2)
+        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+        h = ax.imshow(psi_2_test[i,:,:], interpolation='nearest', cmap='rainbow', 
+                # extent=[t.min(), t.max(), x.min(), x.max()], 
+                    origin='lower', aspect='auto')
+        fig.colorbar(h)
+        ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
+        line = np.linspace(xt.min(), xt.max(), 2)[:,None]
+        fig.savefig('./psi_2_'+str(i+1000)+'.png')
         plt.close()
 
 
