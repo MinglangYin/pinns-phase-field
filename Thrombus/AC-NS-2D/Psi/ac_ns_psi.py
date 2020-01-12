@@ -133,8 +133,8 @@ class Model(nn.Module):
 
         return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
                 + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() \
-                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() #+ (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()\
-                # + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
+                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()\
+                + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
 
 
 
@@ -173,7 +173,7 @@ class Model(nn.Module):
         u_i_pred, v_i_pred, phi_i_pred, psi_1_i_pred, psi_2_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3], y_pred[:, 4], y_pred[:, 5]
         
         print(f'u_init:{((u_i_pred-u_i)**2).mean():6f}, v_init:{((v_i_pred-v_i)**2).mean():6f}, phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}, psi_1:{((psi_1_i_pred - psi_1_i)**2).mean():6f}, psi_2:{((psi_2_i_pred - psi_2_i)**2).mean():6f}')
-        return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() \
+        return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + 10*((phi_i_pred-phi_i)**2).mean() \
             + ((psi_1_i_pred - psi_1_i)**2).mean() + ((psi_2_i_pred - psi_2_i)**2).mean()
 
 def gradients(outputs, inputs):
@@ -353,7 +353,7 @@ def main():
             loss_pde = model.loss_pde(xt_f_train)
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + 5*loss_bc + 100*loss_ic
+            loss = loss_pde + 10*loss_bc + 100*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
             return loss
