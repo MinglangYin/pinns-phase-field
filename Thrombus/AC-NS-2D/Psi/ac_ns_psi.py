@@ -169,7 +169,7 @@ class Model(nn.Module):
         y_pred = self.net(x_i)
         u_i_pred, v_i_pred, phi_i_pred, psi_1_i_pred, psi_2_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3], y_pred[:, 4], y_pred[:, 5]
         
-        print(f'u_init:{((u_i_pred-u_i)**2).mean()}, v_init:{((v_i_pred-v_i)**2).mean()}, phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}, psi_1:{((psi_1_i_pred - psi_1_i)**2).mean()}, psi_2:{((psi_2_i_pred - psi_2_i)**2).mean()}')
+        print(f'u_init:{((u_i_pred-u_i)**2).mean():6f}, v_init:{((v_i_pred-v_i)**2).mean():6f}, phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}, psi_1:{((psi_1_i_pred - psi_1_i)**2).mean():6f}, psi_2:{((psi_2_i_pred - psi_2_i)**2).mean():6f}')
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() \
             + ((psi_1_i_pred - psi_1_i)**2).mean() + ((psi_2_i_pred - psi_2_i)**2).mean()
 
