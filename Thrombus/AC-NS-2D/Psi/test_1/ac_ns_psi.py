@@ -454,6 +454,7 @@ def main():
         fig.savefig('./v_'+str(i+1000)+'.png')
         plt.close()
         
+        np.savetxt('loss.his', loss_his)
 
 
 if __name__ == '__main__':
