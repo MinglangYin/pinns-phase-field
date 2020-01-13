@@ -110,7 +110,7 @@ class Model(nn.Module):
         res_psi_x = psi_1_t + (u*psi_1_x + v*psi_1_y)
         res_psi_y = psi_2_t + (u*psi_2_x + v*psi_2_y)
 
-        print(f'res_incomp:{(res_incomp**2).mean():6f}, res_ns_x:{(res_ns_x**2).mean():6f}, res_ns_y:{(res_ns_y**2).mean():6f}, res_phi:{(res_phi**2).mean():6f}, res_psi_x:{(res_psi_x**2).mean():6f}, res_psi_y:{(res_psi_y**2).mean():6f}', flush=True)
+        #print(f'res_incomp:{(res_incomp**2).mean():6f}, res_ns_x:{(res_ns_x**2).mean():6f}, res_ns_y:{(res_ns_y**2).mean():6f}, res_phi:{(res_phi**2).mean():6f}, res_psi_x:{(res_psi_x**2).mean():6f}, res_psi_y:{(res_psi_y**2).mean():6f}', flush=True)
 
         return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_phi**2).mean() \
             + (res_psi_x**2).mean() + (res_psi_y**2).mean()
@@ -131,12 +131,12 @@ class Model(nn.Module):
         psi_1_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2]
         psi_2_dw_y = gradients(psi_2_dw, x_dw)[0][:, 2]
 
-        print(f'u_lr:{((u_l - u_r)**2).mean():6f}, v_lr:{((v_l - v_r)**2).mean():6f}, phi_lr:{((phi_l - phi_r)**2).mean():6f}, u_up:{(u_up**2).mean():6f}, v_up:{(v_up**2).mean():6f}, phi_up:{(phi_up_y**2).mean():6f}, psi_up:{((psi_1_up_y**2).mean() + (psi_2_up_y**2).mean()):6f}, u_dw:{(u_dw**2).mean():6f}, v_dw:{(v_dw**2).mean():6f}, phi_dw:{(phi_dw_y**2).mean():6f}, psi_dw:{((psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()):6f}', flush=True)
+        #print(f'u_lr:{((u_l - u_r)**2).mean():6f}, v_lr:{((v_l - v_r)**2).mean():6f}, phi_lr:{((phi_l - phi_r)**2).mean():6f}, u_up:{(u_up**2).mean():6f}, v_up:{(v_up**2).mean():6f}, phi_up:{(phi_up_y**2).mean():6f}, psi_up:{((psi_1_up_y**2).mean() + (psi_2_up_y**2).mean()):6f}, u_dw:{(u_dw**2).mean():6f}, v_dw:{(v_dw**2).mean():6f}, phi_dw:{(phi_dw_y**2).mean():6f}, psi_dw:{((psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()):6f}', flush=True)
 
         return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
                 + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() \
-                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()\
-                + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
+                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() #+ (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()\
+                #+ (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
 
 
 
@@ -174,7 +174,7 @@ class Model(nn.Module):
         y_pred = self.net(x_i)
         u_i_pred, v_i_pred, phi_i_pred, psi_1_i_pred, psi_2_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3], y_pred[:, 4], y_pred[:, 5]
         
-        print(f'u_init:{((u_i_pred-u_i)**2).mean():6f}, v_init:{((v_i_pred-v_i)**2).mean():6f}, phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}, psi_1:{((psi_1_i_pred - psi_1_i)**2).mean():6f}, psi_2:{((psi_2_i_pred - psi_2_i)**2).mean():6f}')
+        #print(f'u_init:{((u_i_pred-u_i)**2).mean():6f}, v_init:{((v_i_pred-v_i)**2).mean():6f}, phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}, psi_1:{((psi_1_i_pred - psi_1_i)**2).mean():6f}, psi_2:{((psi_2_i_pred - psi_2_i)**2).mean():6f}')
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + 10*((phi_i_pred-phi_i)**2).mean() \
             + ((psi_1_i_pred - psi_1_i)**2).mean() + ((psi_2_i_pred - psi_2_i)**2).mean()
 
