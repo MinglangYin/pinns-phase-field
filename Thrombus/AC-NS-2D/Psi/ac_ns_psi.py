@@ -192,10 +192,12 @@ def to_numpy(input):
 
 def AC_2D_init(x):
     ## bubble (psi field is very tricky)
-    u_init = np.zeros((x.shape[0]))
+    # u_init = np.zeros((x.shape[0]))
+    u_init = (-(x[:,2]**2)+1)*0.01
     # for i in range(0, u_init.shape[0]):
-    #     if x[i, 1] == -1.0:
-    #         u_init[i] = (-(x[i,2]**2)+1)*0.1
+        # if abs(x[i, 2]) <= 0.5:
+            # u_init[i] = (-(x[i,2]**2)+1)*0.01
+            # u_init[i] = 0.25-x[i,2]**2
     v_init = np.zeros((x.shape[0]))
     phi_init = (np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2]+1.0)**2)) / (np.sqrt(2)*0.03) ) + 1)/2
     psi_1_init = -x[:, 2]
