@@ -6,8 +6,8 @@
 # Request 1 CPU core
 #SBATCH -n 1
 
-#SBATCH -t 01:00:00
+#SBATCH -t 03:00:00
 #SBATCH -o MyCUDAJob-%j.out
 
 # Compile CUDA program and run
-~/Environments/PyTorch-GPU/bin/python test_2/ac_ns_psi.py
+~/Environments/PyTorch-GPU/bin/python ac_ns_psi.py

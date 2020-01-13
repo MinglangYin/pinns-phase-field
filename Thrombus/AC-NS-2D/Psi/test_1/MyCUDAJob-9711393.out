@@ -1,0 +1,13 @@
+## SLURM PROLOG ###############################################################
+##    Job ID : 9711393
+##  Job Name : cuda.sh
+##  Nodelist : gpu1204
+##      CPUs : 1
+##   Mem/CPU : 2800 MB
+## Directory : /gpfs/scratch/myin2/NeuralNets/PINNs-PF/Thrombus/AC-NS-2D/Psi/test_1
+##   Started : Mon Jan 13 17:40:33 EST 2020
+###############################################################################
+Traceback (most recent call last):
+  File "ac_ns_psi.py", line 33, in <module>
+    from plotting import newfig, savefig
+ModuleNotFoundError: No module named 'plotting'

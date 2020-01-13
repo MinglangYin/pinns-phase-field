@@ -37,7 +37,7 @@ np.random.seed(123456)
 
 rho =1 
 eta = 1
-lmd_e = 1e-6 
+lmd_e = 1
 lmd = 0.01
 K = 0.1
 gamma = 1
@@ -56,7 +56,7 @@ class Model(nn.Module):
         self.net.add_module('linear_layer_1', nn.Linear(3, 20))
         self.net.add_module('tanh_layer_1', nn.Tanh())
         # self.net.add_module('lrelu_layer_1', nn.LeakyReLU())
-        for num in range(2,10):
+        for num in range(2,20):
             self.net.add_module('linear_layer_%d' %(num), nn.Linear(20, 20))
             self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
             # self.net.add_module('lrelu_layer_%d' %(num), nn.LeakyReLU())
@@ -108,7 +108,7 @@ class Model(nn.Module):
         res_psi_x = psi_1_t + (u*psi_1_x + v*psi_1_y)
         res_psi_y = psi_2_t + (u*psi_2_x + v*psi_2_y)
 
-        #print(f'res_incomp:{(res_incomp**2).mean():6f}, res_ns_x:{(res_ns_x**2).mean():6f}, res_ns_y:{(res_ns_y**2).mean():6f}, res_phi:{(res_phi**2).mean():6f}, res_psi_x:{(res_psi_x**2).mean():6f}, res_psi_y:{(res_psi_y**2).mean():6f}', flush=True)
+        print(f'res_incomp:{(res_incomp**2).mean():6f}, res_ns_x:{(res_ns_x**2).mean():6f}, res_ns_y:{(res_ns_y**2).mean():6f}, res_phi:{(res_phi**2).mean():6f}, res_psi_x:{(res_psi_x**2).mean():6f}, res_psi_y:{(res_psi_y**2).mean():6f}', flush=True)
 
         return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_phi**2).mean() \
             + (res_psi_x**2).mean() + (res_psi_y**2).mean()
@@ -129,12 +129,12 @@ class Model(nn.Module):
         psi_1_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2]
         psi_2_dw_y = gradients(psi_2_dw, x_dw)[0][:, 2]
 
-        #print(f'u_lr:{((u_l - u_r)**2).mean():6f}, v_lr:{((v_l - v_r)**2).mean():6f}, phi_lr:{((phi_l - phi_r)**2).mean():6f}, u_up:{(u_up**2).mean():6f}, v_up:{(v_up**2).mean():6f}, phi_up:{(phi_up_y**2).mean():6f}, psi_up:{((psi_1_up_y**2).mean() + (psi_2_up_y**2).mean()):6f}, u_dw:{(u_dw**2).mean():6f}, v_dw:{(v_dw**2).mean():6f}, phi_dw:{(phi_dw_y**2).mean():6f}, psi_dw:{((psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()):6f}', flush=True)
+        print(f'u_lr:{((u_l - u_r)**2).mean():6f}, v_lr:{((v_l - v_r)**2).mean():6f}, phi_lr:{((phi_l - phi_r)**2).mean():6f}, u_up:{(u_up**2).mean():6f}, v_up:{(v_up**2).mean():6f}, phi_up:{(phi_up_y**2).mean():6f}, psi_up:{((psi_1_up_y**2).mean() + (psi_2_up_y**2).mean()):6f}, u_dw:{(u_dw**2).mean():6f}, v_dw:{(v_dw**2).mean():6f}, phi_dw:{(phi_dw_y**2).mean():6f}, psi_dw:{((psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()):6f}', flush=True)
 
         return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
                 + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() \
-                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() #+ (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()\
-                #+ (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
+                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()\
+                + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
 
 
 
@@ -172,7 +172,7 @@ class Model(nn.Module):
         y_pred = self.net(x_i)
         u_i_pred, v_i_pred, phi_i_pred, psi_1_i_pred, psi_2_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3], y_pred[:, 4], y_pred[:, 5]
         
-        #print(f'u_init:{((u_i_pred-u_i)**2).mean():6f}, v_init:{((v_i_pred-v_i)**2).mean():6f}, phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}, psi_1:{((psi_1_i_pred - psi_1_i)**2).mean():6f}, psi_2:{((psi_2_i_pred - psi_2_i)**2).mean():6f}')
+        print(f'u_init:{((u_i_pred-u_i)**2).mean():6f}, v_init:{((v_i_pred-v_i)**2).mean():6f}, phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}, psi_1:{((psi_1_i_pred - psi_1_i)**2).mean():6f}, psi_2:{((psi_2_i_pred - psi_2_i)**2).mean():6f}')
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + 10*((phi_i_pred-phi_i)**2).mean() \
             + ((psi_1_i_pred - psi_1_i)**2).mean() + ((psi_2_i_pred - psi_2_i)**2).mean()
 
@@ -191,7 +191,7 @@ def to_numpy(input):
 def AC_2D_init(x):
     ## bubble (psi field is very tricky)
     # u_init = np.zeros((x.shape[0]))
-    u_init = (-(x[:,2]**2)+1)*0.01
+    u_init = (-(x[:,2]**2)+1)*0.1
     # for i in range(0, u_init.shape[0]):
         # if abs(x[i, 2]) <= 0.5:
             # u_init[i] = (-(x[i,2]**2)+1)*0.01
@@ -211,11 +211,11 @@ def main():
 
     num_x = 100
     num_y = 100
-    num_t = 10
+    num_t = 20
     num_b_train = 100    # boundary sampling points
-    num_f_train = 10000   # inner sampling points
+    num_f_train = 50000   # inner sampling points
     num_i_train = 10000   # initial sampling points 
-    num_t_train = 10
+    num_t_train = 20
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
@@ -352,7 +352,7 @@ def main():
             loss_pde = model.loss_pde(xt_f_train)
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + 50*loss_bc + 100*loss_ic
+            loss = 30*loss_pde + 5*loss_bc + 50*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
             return loss
@@ -425,6 +425,35 @@ def main():
         line = np.linspace(xt.min(), xt.max(), 2)[:,None]
         fig.savefig('./psi_2_'+str(i+1000)+'.png')
         plt.close()
+
+        ## u
+        fig, ax = newfig(2.0, 1.1)
+        ax.axis('off') 
+        gs0 = gridspec.GridSpec(1, 2)
+        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+        h = ax.imshow(u_test[i,:,:], interpolation='nearest', cmap='rainbow', 
+                # extent=[t.min(), t.max(), x.min(), x.max()], 
+                    origin='lower', aspect='auto')
+        fig.colorbar(h)
+        ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
+        line = np.linspace(xt.min(), xt.max(), 2)[:,None]
+        fig.savefig('./u_'+str(i+1000)+'.png')
+        plt.close()
+
+        ## v
+        fig, ax = newfig(2.0, 1.1)
+        ax.axis('off') 
+        gs0 = gridspec.GridSpec(1, 2)
+        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+        h = ax.imshow(v_test[i,:,:], interpolation='nearest', cmap='rainbow', 
+                # extent=[t.min(), t.max(), x.min(), x.max()], 
+                    origin='lower', aspect='auto')
+        fig.colorbar(h)
+        ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
+        line = np.linspace(xt.min(), xt.max(), 2)[:,None]
+        fig.savefig('./v_'+str(i+1000)+'.png')
+        plt.close()
+        
 
 
 if __name__ == '__main__':
