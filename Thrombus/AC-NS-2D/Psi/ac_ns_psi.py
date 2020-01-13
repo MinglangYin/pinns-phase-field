@@ -37,12 +37,12 @@ np.random.seed(123456)
 
 rho =1 
 eta = 1
-lmd_e = 0.05
+lmd_e = 1e-6 
 lmd = 1
 K = 1
 gamma = 1
 rho = 1
-tau = 1
+tau = 0.1
 h = 1
 
 mu = 0.01
@@ -54,12 +54,12 @@ class Model(nn.Module):
         super(Model, self).__init__()
         self.net = nn.Sequential()
         self.net.add_module('linear_layer_1', nn.Linear(3, 20))
-        # self.net.add_module('tanh_layer_1', nn.Tanh())
-        self.net.add_module('lrelu_layer_1', nn.LeakyReLU())
+        self.net.add_module('tanh_layer_1', nn.Tanh())
+        # self.net.add_module('lrelu_layer_1', nn.LeakyReLU())
         for num in range(2,10):
             self.net.add_module('linear_layer_%d' %(num), nn.Linear(20, 20))
-            # self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
-            self.net.add_module('lrelu_layer_%d' %(num), nn.LeakyReLU())
+            self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
+            # self.net.add_module('lrelu_layer_%d' %(num), nn.LeakyReLU())
         self.net.add_module('linear_layer_50', nn.Linear(20, 6))
 
     def forward(self, x):
@@ -84,29 +84,27 @@ class Model(nn.Module):
         ## Left Cauchy-Green Deformation Tensor
         B_11 = (1-phi)*(psi_1_x**2 + psi_2_x**2)
         B_21 = (1-phi)*(psi_1_x*psi_1_y + psi_2_x*psi_2_y)
-        B_12 = (1-phi)*(psi_1_x*psi_1_y + psi_2_x*psi_2_y)
         B_22 = (1-phi)*(psi_1_y**2 + psi_2_y**2)
 
         B_11_g = gradients(B_11, x)[0]
         B_21_g = gradients(B_21, x)[0]
-        B_12_g = gradients(B_12, x)[0]
         B_22_g = gradients(B_22, x)[0]
         
-        B_11_x, B_21_y, B_12_x, B_22_y = B_11_g[:, 1], B_21_g[:, 2], B_12_g[:, 1], B_22_g[:, 2]
+        B_11_x, B_21_y, B_12_x, B_22_y = B_11_g[:, 1], B_21_g[:, 2], B_21_g[:, 1], B_22_g[:, 2]
 
         ## Navier Stokes
-        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/K \
-                    - lmd_e*(B_11_x + B_21_y)
+        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) \
+                    + mu*(1-phi)*u/K - lmd_e*(B_11_x + B_21_y)
                     
-        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + mu*(1-phi)*v/K \
-                    - lmd_e*(B_12_x + B_22_y)
+        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) \
+                    + mu*(1-phi)*v/K - lmd_e*(B_12_x + B_22_y)
 
         res_incomp = u_x + v_y
 
         ## phi, psi
         F_g = 2/(h**2)*phi*(phi-1)*(2*phi-1)
         w = -Eta**2*(phi_xx + phi_yy) + F_g  #+ lmd_e/2*(psi_1_x**2+psi_1_y**2 + psi_2_x**2+psi_2_y**2)
-        res_phi = phi_t + Eta**2*(u*phi_x + v*phi_y) + Gamma*w
+        res_phi = phi_t + Eta**2*(u*phi_x + v*phi_y) + tau*w
         res_psi_x = psi_1_t + (u*psi_1_x + v*psi_1_y)
         res_psi_y = psi_2_t + (u*psi_2_x + v*psi_2_y)
 
@@ -203,9 +201,6 @@ def AC_2D_init(x):
     psi_1_init = -x[:, 2]
     psi_2_init = x[:, 1]
     return u_init, v_init, phi_init, psi_1_init, psi_2_init
-
-def left_bound_vel(x_l):
-    return -(x_l[:, 2]**2)+1
 
 def main():
     ## parameters
