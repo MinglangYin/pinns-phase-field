@@ -209,7 +209,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 20000
+    epochs = 10000
     lr = 0.001
 
     num_x = 100
@@ -218,7 +218,7 @@ def main():
     num_b_train = 100    # boundary sampling points
     num_f_train = 10000   # inner sampling points
     num_i_train = 10000   # initial sampling points 
-    num_t_train = 1
+    num_t_train = 10
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
