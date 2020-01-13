@@ -131,6 +131,8 @@ class Model(nn.Module):
         psi_1_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2]
         psi_2_dw_y = gradients(psi_2_dw, x_dw)[0][:, 2]
 
+        print(f'u_lr:{((u_l - u_r)**2).mean():6f}, v_lr:{((v_l - v_r)**2).mean():6f}, phi_lr:{((phi_l - phi_r)**2).mean():6f}, u_up:{(u_up**2).mean():6f}, v_up:{(v_up**2).mean():6f}, phi_up:{(phi_up_y**2).mean():6f}, psi_up:{((psi_1_up_y**2).mean() + (psi_2_up_y**2).mean()):6f}, u_dw:{(u_dw**2).mean():6f}, v_dw:{(v_dw**2).mean():6f}, phi_dw:{(phi_dw_y**2).mean():6f}, psi_dw:{((psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()):6f}', flush=True)
+
         return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
                 + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() \
                 + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()\
@@ -207,12 +209,12 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 3000
+    epochs = 20000
     lr = 0.001
 
     num_x = 100
     num_y = 100
-    num_t = 1
+    num_t = 10
     num_b_train = 100    # boundary sampling points
     num_f_train = 10000   # inner sampling points
     num_i_train = 10000   # initial sampling points 
@@ -220,7 +222,7 @@ def main():
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 0, num=num_t)[:, None]
+    t = np.linspace(0, 5, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
