@@ -19,7 +19,7 @@ Author: Minglang Yin
 """
 
 import sys
-sys.path.insert(0,'../../../Utils')
+sys.path.insert(0,'../../../../Utils')
 
 import torch
 import torch.nn as nn
@@ -56,7 +56,7 @@ class Model(nn.Module):
         self.net.add_module('linear_layer_1', nn.Linear(3, 20))
         self.net.add_module('tanh_layer_1', nn.Tanh())
         # self.net.add_module('lrelu_layer_1', nn.LeakyReLU())
-        for num in range(2,20):
+        for num in range(2,10):
             self.net.add_module('linear_layer_%d' %(num), nn.Linear(20, 20))
             self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
             # self.net.add_module('lrelu_layer_%d' %(num), nn.LeakyReLU())
@@ -212,15 +212,15 @@ def main():
 
     num_x = 100
     num_y = 100
-    num_t = 20
+    num_t = 10
     num_b_train = 100    # boundary sampling points
     num_f_train = 50000   # inner sampling points
     num_i_train = 10000   # initial sampling points 
-    num_t_train = 20
+    num_t_train = 5
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 5, num=num_t)[:, None]
+    t = np.linspace(0, 2, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)

@@ -19,7 +19,7 @@ Author: Minglang Yin
 """
 
 import sys
-sys.path.insert(0,'../../../Utils')
+sys.path.insert(0,'../../../../Utils')
 
 import torch
 import torch.nn as nn
@@ -53,14 +53,14 @@ class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         self.net = nn.Sequential()
-        self.net.add_module('linear_layer_1', nn.Linear(3, 20))
+        self.net.add_module('linear_layer_1', nn.Linear(3, 15))
         self.net.add_module('tanh_layer_1', nn.Tanh())
         # self.net.add_module('lrelu_layer_1', nn.LeakyReLU())
-        for num in range(2,20):
-            self.net.add_module('linear_layer_%d' %(num), nn.Linear(20, 20))
+        for num in range(2,15):
+            self.net.add_module('linear_layer_%d' %(num), nn.Linear(15, 15))
             self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
             # self.net.add_module('lrelu_layer_%d' %(num), nn.LeakyReLU())
-        self.net.add_module('linear_layer_50', nn.Linear(20, 6))
+        self.net.add_module('linear_layer_50', nn.Linear(15, 6))
 
     def forward(self, x):
         return self.net(x)
@@ -211,11 +211,11 @@ def main():
 
     num_x = 100
     num_y = 100
-    num_t = 20
+    num_t = 10
     num_b_train = 100    # boundary sampling points
     num_f_train = 50000   # inner sampling points
     num_i_train = 10000   # initial sampling points 
-    num_t_train = 20
+    num_t_train = 6
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
