@@ -19,6 +19,7 @@ Author: Minglang Yin
 """
 
 import sys
+import os
 sys.path.insert(0,'../../../../Utils')
 
 import torch
@@ -53,11 +54,11 @@ class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         self.net = nn.Sequential()
-        self.net.add_module('linear_layer_1', nn.Linear(3, 20))
+        self.net.add_module('linear_layer_1', nn.Linear(3, 15))
         self.net.add_module('tanh_layer_1', nn.Tanh())
         # self.net.add_module('lrelu_layer_1', nn.LeakyReLU())
-        for num in range(2,10):
-            self.net.add_module('linear_layer_%d' %(num), nn.Linear(20, 20))
+        for num in range(2,15):
+            self.net.add_module('linear_layer_%d' %(num), nn.Linear(15, 15))
             self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
             # self.net.add_module('lrelu_layer_%d' %(num), nn.LeakyReLU())
         self.net.add_module('linear_layer_50', nn.Linear(20, 6))
@@ -209,6 +210,7 @@ def main():
     print(device, flush=True)
     epochs = 10000
     lr = 0.001
+    path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/psi_1/', './Predictions/psi_2/' ]
 
     num_x = 100
     num_y = 100
@@ -216,7 +218,7 @@ def main():
     num_b_train = 100    # boundary sampling points
     num_f_train = 50000   # inner sampling points
     num_i_train = 10000   # initial sampling points 
-    num_t_train = 5
+    num_t_train = 6
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
@@ -229,52 +231,31 @@ def main():
     xt_init = np.concatenate((np.zeros((num_x*num_y, 1)), x_2d), axis=1)
     u_init, v_init, phi_init, psi_1_init, psi_2_init = AC_2D_init(xt_init)
 
+    inits = np.zeros((5, num_x*num_y)) # [u, v, phi, psi_1, psi_2]
+    inits[0, :] = u_init
+    inits[1, :] = v_init
+    inits[2, :] = phi_init
+    inits[3, :] = psi_1_init
+    inits[4, :] = psi_2_init
+    init_list = ['u', 'v', 'phi', 'psi_1', 'psi_2']
+    init_path = './InitConds/'
+
+    ## Create Folders
+    for path in path_list:
+        os.makedirs(path, exist_ok=True)
+    os.makedirs(init_path, exist_ok=True)
+
     ## save init fig
-    ### phi
-    fig, ax = newfig(2.0, 1.1)
-    ax.axis('off') 
-    gs0 = gridspec.GridSpec(1, 2)
-    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    h = ax.imshow(u_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
-    fig.colorbar(h)
-    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
-    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
-    fig.savefig('./u_init.png')
-
-    ### phi
-    fig, ax = newfig(2.0, 1.1)
-    ax.axis('off') 
-    gs0 = gridspec.GridSpec(1, 2)
-    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    h = ax.imshow(phi_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
-    fig.colorbar(h)
-    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
-    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
-    fig.savefig('./phi_init.png')
-
-    ### psi_1
-    fig, ax = newfig(2.0, 1.1)
-    ax.axis('off') 
-    gs0 = gridspec.GridSpec(1, 2)
-    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    h = ax.imshow(psi_1_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
-    fig.colorbar(h)
-    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
-    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
-    fig.savefig('./psi_1_init.png')
-
-    ### psi_2
-    fig, ax = newfig(2.0, 1.1)
-    ax.axis('off') 
-    gs0 = gridspec.GridSpec(1, 2)
-    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    h = ax.imshow(psi_2_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', 
-            # extent=[t.min(), t.max(), x.min(), x.max()], 
-                origin='lower', aspect='auto')
-    fig.colorbar(h)
-    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
-    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
-    fig.savefig('./psi_2_init.png')
+    for i in range(0, 5):
+        fig, ax = newfig(2.0, 1.1)
+        ax.axis('off') 
+        gs0 = gridspec.GridSpec(1, 2)
+        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+        h = ax.imshow(inits[i, :].reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
+        fig.colorbar(h)
+        ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
+        line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
+        fig.savefig(init_path + init_list[i])
 
     ##
     x_2d_ext = np.tile(x_2d, [num_t,1])
@@ -354,6 +335,7 @@ def main():
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
             loss = 30*loss_pde + 5*loss_bc + 50*loss_ic
+            # loss_real = loss_pde + loss_bc + loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
             return loss
@@ -369,93 +351,30 @@ def main():
     toc = time.time()
     print(f'total training time: {(toc-tic)/60.0:.2f}', flush=True)
 
-    ## test
-    u_test = np.zeros((num_t, num_x, num_y))
-    v_test = np.zeros((num_t, num_x, num_y))
-    phi_test = np.zeros((num_t, num_x, num_y))
-    psi_1_test = np.zeros((num_t, num_x, num_y))
-    psi_2_test = np.zeros((num_t, num_x, num_y))
+    ## Save Predictions
+    Predictions = np.zeros((6, num_t, num_x, num_y))
     for i in range(0, num_t):
         xt = np.concatenate((t[i]*np.ones((num_x*num_y, 1)), x_2d), axis=1)
         xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.float32).to(device)
         y_pred = model(xt_tensor)
-        u_test[i,:,:] = to_numpy(y_pred[:, 0]).reshape(num_x, num_y)
-        v_test[i,:,:] = to_numpy(y_pred[:, 1]).reshape(num_x, num_y)
-        phi_test[i,:,:] = to_numpy(y_pred[:, 3]).reshape(num_x, num_y)
-        psi_1_test[i,:,:] = to_numpy(y_pred[:, 4]).reshape(num_x, num_y)
-        psi_2_test[i,:,:] = to_numpy(y_pred[:, 5]).reshape(num_x, num_y)
+        for j in range(0, 6):
+            Predictions[j, i, :, :] = to_numpy(y_pred[:, 0]).reshape(num_x, num_y)
 
-        ## phi
-        fig, ax = newfig(2.0, 1.1)
-        ax.axis('off') 
-        gs0 = gridspec.GridSpec(1, 2)
-        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-        h = ax.imshow(phi_test[i,:,:], interpolation='nearest', cmap='rainbow', 
-                # extent=[t.min(), t.max(), x.min(), x.max()], 
-                    origin='lower', aspect='auto')
-        fig.colorbar(h)
-        ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
-        line = np.linspace(xt.min(), xt.max(), 2)[:,None]
-        fig.savefig('./phi_'+str(i+1000)+'.png')
-        plt.close()
-
-        ## psi_1
-        fig, ax = newfig(2.0, 1.1)
-        ax.axis('off') 
-        gs0 = gridspec.GridSpec(1, 2)
-        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-        h = ax.imshow(psi_1_test[i,:,:], interpolation='nearest', cmap='rainbow', 
-                # extent=[t.min(), t.max(), x.min(), x.max()], 
-                    origin='lower', aspect='auto')
-        fig.colorbar(h)
-        ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
-        line = np.linspace(xt.min(), xt.max(), 2)[:,None]
-        fig.savefig('./psi_1_'+str(i+1000)+'.png')
-        plt.close()
-
-        ## psi_2
-        fig, ax = newfig(2.0, 1.1)
-        ax.axis('off') 
-        gs0 = gridspec.GridSpec(1, 2)
-        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-        h = ax.imshow(psi_2_test[i,:,:], interpolation='nearest', cmap='rainbow', 
-                # extent=[t.min(), t.max(), x.min(), x.max()], 
-                    origin='lower', aspect='auto')
-        fig.colorbar(h)
-        ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
-        line = np.linspace(xt.min(), xt.max(), 2)[:,None]
-        fig.savefig('./psi_2_'+str(i+1000)+'.png')
-        plt.close()
-
-        ## u
-        fig, ax = newfig(2.0, 1.1)
-        ax.axis('off') 
-        gs0 = gridspec.GridSpec(1, 2)
-        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-        h = ax.imshow(u_test[i,:,:], interpolation='nearest', cmap='rainbow', 
-                # extent=[t.min(), t.max(), x.min(), x.max()], 
-                    origin='lower', aspect='auto')
-        fig.colorbar(h)
-        ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
-        line = np.linspace(xt.min(), xt.max(), 2)[:,None]
-        fig.savefig('./u_'+str(i+1000)+'.png')
-        plt.close()
-
-        ## v
-        fig, ax = newfig(2.0, 1.1)
-        ax.axis('off') 
-        gs0 = gridspec.GridSpec(1, 2)
-        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-        h = ax.imshow(v_test[i,:,:], interpolation='nearest', cmap='rainbow', 
-                # extent=[t.min(), t.max(), x.min(), x.max()], 
-                    origin='lower', aspect='auto')
-        fig.colorbar(h)
-        ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
-        line = np.linspace(xt.min(), xt.max(), 2)[:,None]
-        fig.savefig('./v_'+str(i+1000)+'.png')
-        plt.close()
+    for i in range(0, num_t):
+        print(f'Saving Step: {i}')
+        for j in range(0, 6):
+            fig, ax = newfig(2.0, 1.1)
+            ax.axis('off') 
+            gs0 = gridspec.GridSpec(1, 2)
+            gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+            h = ax.imshow(Predictions[j,i,:,:], interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
+            fig.colorbar(h)
+            ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
+            line = np.linspace(xt.min(), xt.max(), 2)[:,None]
+            fig.savefig(path_list[j]+str(i+1000)+'.png')
+            plt.close()
         
-        np.savetxt('loss.his', loss_his)
+    np.savetxt('loss.his', loss_his)
 
 if __name__ == '__main__':
     main()
