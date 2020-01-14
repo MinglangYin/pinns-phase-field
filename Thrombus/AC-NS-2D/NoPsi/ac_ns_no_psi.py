@@ -44,7 +44,7 @@ rho =1
 eta = 1
 lmd_e = 0
 lmd = 1
-K = 0.01
+K = 0.1
 gamma = 1
 rho = 1
 tau = 1
@@ -161,7 +161,7 @@ def to_numpy(input):
 def AC_2D_init(x):
     ## bubble (psi field is very tricky)
     u_init = np.zeros((x.shape[0]))
-    u_init = 20*(-x[:, 2]**2 + 0.25**2) ##assume the symmetry of the channel
+    u_init = 10*(-x[:, 2]**2 + 0.25**2) ##assume the symmetry of the channel
     v_init = np.zeros((x.shape[0]))
     phi_init = np.tanh( (0.2-np.sqrt((x[:,1] + 0.5)**2 + (x[:,2] + 0.25)**2)) / (np.sqrt(2)*0.03) )
     return u_init, v_init, phi_init
