@@ -328,7 +328,7 @@ def main():
         xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.float32).to(device)
         y_pred = model(xt_tensor)
         for j in range(0, 4):
-            Predictions[j, i, :, :] = to_numpy(y_pred[:, 0]).reshape(num_x, num_y)
+            Predictions[j, i, :, :] = to_numpy(y_pred[:, j]).reshape(num_x, num_y)
 
     for i in range(0, num_t):
         print(f'Saving Step: {i}')
