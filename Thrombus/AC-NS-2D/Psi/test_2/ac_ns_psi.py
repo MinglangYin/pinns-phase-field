@@ -199,7 +199,7 @@ def AC_2D_init(x):
             # u_init[i] = (-(x[i,2]**2)+1)*0.01
             # u_init[i] = 0.25-x[i,2]**2
     v_init = np.zeros((x.shape[0]))
-    phi_init = (np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2]+1.0)**2)) / (np.sqrt(2)*0.03) ) + 1)/2
+    phi_init = (-np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2]+1.0)**2)) / (np.sqrt(2)*0.09) ) + 1)/2
     psi_1_init = -x[:, 2]
     psi_2_init = x[:, 1]
     return u_init, v_init, phi_init, psi_1_init, psi_2_init

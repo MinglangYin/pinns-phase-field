@@ -24,6 +24,7 @@ Author: Minglang Yin
 """
 
 import sys
+import os
 sys.path.insert(0,'../../../Utils')
 
 import torch
@@ -163,7 +164,7 @@ def AC_2D_init(x):
     u_init = np.zeros((x.shape[0]))
     u_init = 10*(-x[:, 2]**2 + 0.25**2) ##assume the symmetry of the channel
     v_init = np.zeros((x.shape[0]))
-    phi_init = np.tanh( (0.2-np.sqrt((x[:,1] + 0.5)**2 + (x[:,2] + 0.25)**2)) / (np.sqrt(2)*0.03) )
+    phi_init = (-np.tanh( (0.2-np.sqrt((x[:,1] + 0.5)**2 + (x[:,2] + 0.25)**2)) / (np.sqrt(2)*0.09)) + 1)/2
     return u_init, v_init, phi_init
 
 def left_bound_vel(x_l):
@@ -183,6 +184,7 @@ def main():
     num_f_train = 100000   # inner sampling points
     num_i_train = 10000   # initial sampling points 
     num_t_train = 10
+    path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/']
 
     x_min, x_max = -1, 1
     y_min, y_max = -0.25, 0.25
@@ -199,28 +201,30 @@ def main():
     xt_init = np.concatenate((np.zeros((num_x*num_y, 1)), x_2d), axis=1)
     u_init, v_init, phi_init = AC_2D_init(xt_init)
 
-    ## save init fig
-    ### phi
-    fig, ax = newfig(2.0, 1.1)
-    ax.axis('off') 
-    gs0 = gridspec.GridSpec(1, 2)
-    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    h = ax.imshow(phi_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect=asp_ratio)
-    fig.colorbar(h)
-    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
-    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
-    fig.savefig('./phi_init.png')
+    inits = np.zeros((3, num_x*num_y)) # [u, v, phi, psi_1, psi_2]
+    inits[0, :] = u_init
+    inits[1, :] = v_init
+    inits[2, :] = phi_init
+    init_list = ['u', 'v', 'phi']
+    init_path = './InitConds/'
 
-    ### u
-    fig, ax = newfig(2.0, 1.1)
-    ax.axis('off') 
-    gs0 = gridspec.GridSpec(1, 2)
-    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    h = ax.imshow(u_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect=asp_ratio)
-    fig.colorbar(h)
-    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
-    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
-    fig.savefig('./u_init.png')
+    ## save init fig
+    ## Create Folders
+    for path in path_list:
+        os.makedirs(path, exist_ok=True)
+    os.makedirs(init_path, exist_ok=True)
+
+    ## save init fig
+    for i in range(0, 3):
+        fig, ax = newfig(2.0, 1.1)
+        ax.axis('off') 
+        gs0 = gridspec.GridSpec(1, 2)
+        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+        h = ax.imshow(inits[i, :].reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect=asp_ratio)
+        fig.colorbar(h)
+        ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
+        line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
+        fig.savefig(init_path + init_list[i])
 
     ####
     x_2d_ext = np.tile(x_2d, [num_t,1])
@@ -315,28 +319,30 @@ def main():
     for epoch in range(0, epochs):    
         train(epoch)
     toc = time.time()
-    print(f'total training time: {(toc-tic)/60.0:.2f}', flush=True)
+    print(f'total training time: {int((toc-tic)/60)} min', flush=True)
 
     ## test
-    phi_test = np.zeros((num_t, num_x, num_y))
+    Predictions = np.zeros((4, num_t, num_x, num_y))
     for i in range(0, num_t):
         xt = np.concatenate((t[i]*np.ones((num_x*num_y, 1)), x_2d), axis=1)
         xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.float32).to(device)
         y_pred = model(xt_tensor)
-        phi_test[i,:,:] = to_numpy(y_pred[:, 3]).reshape(num_x, num_y)
+        for j in range(0, 4):
+            Predictions[j, i, :, :] = to_numpy(y_pred[:, 0]).reshape(num_x, num_y)
 
-        fig, ax = newfig(2.0, 1.1)
-        ax.axis('off') 
-        gs0 = gridspec.GridSpec(1, 2)
-        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-        h = ax.imshow(phi_test[i,:,:], interpolation='nearest', cmap='rainbow', 
-                # extent=[t.min(), t.max(), x.min(), x.max()], 
-                    origin='lower', aspect='auto')
-        fig.colorbar(h)
-        ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
-        line = np.linspace(xt.min(), xt.max(), 2)[:,None]
-        fig.savefig('./phi_'+str(i+1000)+'.png')
-        plt.close()
+    for i in range(0, num_t):
+        print(f'Saving Step: {i}')
+        for j in range(0, 4):
+            fig, ax = newfig(2.0, 1.1)
+            ax.axis('off') 
+            gs0 = gridspec.GridSpec(1, 2)
+            gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+            h = ax.imshow(Predictions[j,i,:,:], interpolation='nearest', cmap='rainbow', origin='lower', aspect=asp_ratio)
+            fig.colorbar(h)
+            ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
+            line = np.linspace(xt.min(), xt.max(), 2)[:,None]
+            fig.savefig(path_list[j]+str(i+1000)+'.png')
+            plt.close()
 
 
 if __name__ == '__main__':
