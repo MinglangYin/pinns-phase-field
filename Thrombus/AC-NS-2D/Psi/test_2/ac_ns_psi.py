@@ -61,7 +61,7 @@ class Model(nn.Module):
             self.net.add_module('linear_layer_%d' %(num), nn.Linear(15, 15))
             self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
             # self.net.add_module('lrelu_layer_%d' %(num), nn.LeakyReLU())
-        self.net.add_module('linear_layer_50', nn.Linear(20, 6))
+        self.net.add_module('linear_layer_50', nn.Linear(15, 6))
 
     def forward(self, x):
         return self.net(x)

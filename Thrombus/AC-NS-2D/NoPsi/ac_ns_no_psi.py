@@ -163,7 +163,7 @@ def AC_2D_init(x):
     u_init = np.zeros((x.shape[0]))
     u_init = -(x[:,2]**2)+1
     v_init = np.zeros((x.shape[0]))
-    phi_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2] + 1.0)**2)) / (np.sqrt(2)*0.03) )
+    phi_init = np.tanh( (0.2-np.sqrt((x[:,1] + 0.5)**2 + (x[:,2] + 0.25)**2)) / (np.sqrt(2)*0.03) )
     return u_init, v_init, phi_init
 
 def left_bound_vel(x_l):
@@ -184,8 +184,12 @@ def main():
     num_i_train = 10000   # initial sampling points 
     num_t_train = 10
 
-    x = np.linspace(-1, 1, num=num_x)
-    y = np.linspace(-1, 1, num=num_y)
+    x_min, x_max = -1, 1
+    y_min, y_max = -0.25, 0.25
+    asp_ratio = (y_max-y_min)/(x_max-x_min)
+
+    x = np.linspace(x_min, x_max, num=num_x)
+    y = np.linspace(y_min, y_max, num=num_y)
     t = np.linspace(0, 5, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
@@ -200,9 +204,7 @@ def main():
     ax.axis('off') 
     gs0 = gridspec.GridSpec(1, 2)
     gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    h = ax.imshow(phi_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', 
-            # extent=[t.min(), t.max(), x.min(), x.max()], 
-                origin='lower', aspect='auto')
+    h = ax.imshow(phi_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect=asp_ratio)
     fig.colorbar(h)
     ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
     line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
