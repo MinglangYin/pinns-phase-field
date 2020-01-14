@@ -110,19 +110,18 @@ class Model(nn.Module):
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
         
         ## Periodic
-        # y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
+        #y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
 
-        # u_l, v_l, p_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 2], y_l[:, 3]
-        # u_r, v_r, p_r, phi_r = y_r[:, 0], y_r[:, 1], y_r[:, 2], y_r[:, 3]
-        # u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
-        # u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3] 
+        #u_l, v_l, p_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 2], y_l[:, 3]
+        #u_r, v_r, p_r, phi_r = y_r[:, 0], y_r[:, 1], y_r[:, 2], y_r[:, 3]
+        #u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
+        #u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3] 
 
-        # phi_up_y = gradients(phi_up, x_up)[0][:, 2]
-        # phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
-        # return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() +\
-        #          ((phi_l - phi_r)**2).mean() + \
-        #         (u_up**2).mean() + (u_dw**2).mean() + (v_up**2).mean() + (v_dw**2).mean() +\
-        #         (phi_dw_y**2).mean() + (phi_up_y**2).mean() #+ ((p_l - p_r)**2).mean()
+        #phi_up_y = gradients(phi_up, x_up)[0][:, 2]
+        #phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
+        #return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((phi_l - phi_r)**2).mean() + \
+        #        (u_up**2).mean() + (u_dw**2).mean() + (v_up**2).mean() + (v_dw**2).mean() +\
+        #        (phi_dw_y**2).mean() + (phi_up_y**2).mean() #+ ((p_l - p_r)**2).mean()
 
         ## velocity inflow
         y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
@@ -171,7 +170,7 @@ def AC_2D_init(x):
     return u_init, v_init, phi_init
 
 def left_bound_vel(x):
-    return 4*x[:, 0]*(-x[:, 2]**2)
+    return 6*(-x[:, 2]**2 + 0.25**2)
 
 def main():
     ## parameters
@@ -310,7 +309,7 @@ def main():
             loss_pde = model.loss_pde(xt_f_train)
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train)
-            loss = loss_pde + loss_bc + 30*loss_ic
+            loss = loss_pde + 100*loss_bc + 30*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
             return loss
