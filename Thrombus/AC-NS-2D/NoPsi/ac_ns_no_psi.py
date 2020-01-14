@@ -45,7 +45,7 @@ rho =1
 eta = 1
 lmd_e = 0
 lmd = 1
-K = 0.1
+K = 0.01
 gamma = 1
 rho = 1
 tau = 1
@@ -108,36 +108,39 @@ class Model(nn.Module):
         return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_pf**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
-        y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
-
-        u_l, v_l, p_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 2], y_l[:, 3]
-        u_r, v_r, p_r, phi_r = y_r[:, 0], y_r[:, 1], y_r[:, 2], y_r[:, 3]
-        u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
-        u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3] 
-
-        phi_up_y = gradients(phi_up, x_up)[0][:, 2]
-        phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
-        return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() +\
-                 ((phi_l - phi_r)**2).mean() + \
-                (u_up**2).mean() + (u_dw**2).mean() + (v_up**2).mean() + (v_dw**2).mean() +\
-                (phi_dw_y**2).mean() + (phi_up_y**2).mean() #+ ((p_l - p_r)**2).mean()
-
-
-        # y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
         
-        # u_l, v_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 3]
-        # u_r, phi_r = y_r[:, 0], y_r[:, 3]
-        # u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
-        # u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3]
+        ## Periodic
+        # y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
 
-        # u_r_x = gradients(u_r, x_r)[0][:, 1]
-        # phi_r_x = gradients(phi_r, x_r)[0][:, 1]
-        # phi_l_x = gradients(phi_l, x_l)[0][:, 1]
+        # u_l, v_l, p_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 2], y_l[:, 3]
+        # u_r, v_r, p_r, phi_r = y_r[:, 0], y_r[:, 1], y_r[:, 2], y_r[:, 3]
+        # u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
+        # u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3] 
+
         # phi_up_y = gradients(phi_up, x_up)[0][:, 2]
         # phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
+        # return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() +\
+        #          ((phi_l - phi_r)**2).mean() + \
+        #         (u_up**2).mean() + (u_dw**2).mean() + (v_up**2).mean() + (v_dw**2).mean() +\
+        #         (phi_dw_y**2).mean() + (phi_up_y**2).mean() #+ ((p_l - p_r)**2).mean()
 
-        # return ((u_l - u_l_real)**2).mean() + (v_l**2).mean() + (phi_l_x**2).mean()  + (u_r_x**2).mean() + (phi_r_x**2).mean() \
-        #         + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean()
+        ## velocity inflow
+        y_l, y_r, y_up, y_dw = self.net(x_l), self.net(x_r), self.net(x_up), self.net(x_dw)
+        
+        u_l, v_l = y_l[:, 0], y_l[:, 1]
+        u_r, phi_r = y_r[:, 0], y_r[:, 3]
+        u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
+        u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3]
+
+        u_r_x = gradients(u_r, x_r)[0][:, 1]
+        phi_r_x = gradients(phi_r, x_r)[0][:, 1]
+        phi_up_y = gradients(phi_up, x_up)[0][:, 2]
+        phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
+
+        return ((u_l - u_l_real)**2).mean() + (v_l**2).mean()\
+                + (u_r_x**2).mean() + (phi_r_x**2).mean() \
+                + (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean()\
+                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean()
 
     def loss_ic(self, x_i, u_i, v_i, phi_i):
         y_pred = self.net(x_i)
@@ -162,13 +165,13 @@ def to_numpy(input):
 def AC_2D_init(x):
     ## bubble (psi field is very tricky)
     u_init = np.zeros((x.shape[0]))
-    u_init = 10*(-x[:, 2]**2 + 0.25**2) ##assume the symmetry of the channel
+    # u_init = 10*(-x[:, 2]**2 + 0.25**2) ##assume the symmetry of the channel
     v_init = np.zeros((x.shape[0]))
     phi_init = (-np.tanh( (0.2-np.sqrt((x[:,1] + 0.5)**2 + (x[:,2] + 0.25)**2)) / (np.sqrt(2)*0.09)) + 1)/2
     return u_init, v_init, phi_init
 
-def left_bound_vel(x_l):
-    return -(x_l[:, 2]**2)+1
+def left_bound_vel(x):
+    return 4*x[:, 0]*(-x[:, 2]**2)
 
 def main():
     ## parameters
@@ -181,7 +184,7 @@ def main():
     num_y = 100
     num_t = 10
     num_b_train = 100    # boundary sampling points
-    num_f_train = 100000   # inner sampling points
+    num_f_train = 50000   # inner sampling points
     num_i_train = 10000   # initial sampling points 
     num_t_train = 10
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/']
@@ -194,9 +197,11 @@ def main():
     y = np.linspace(y_min, y_max, num=num_y)
     t = np.linspace(0, 5, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
-    # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
-    
+
+    x_in_grid, y_in_grid = np.meshgrid(x[1:-1], y[1:-1])
+    x_in_2d = np.concatenate((x_in_grid.flatten()[:,None], y_in_grid.flatten()[:,None]), axis=1)
+
     ## initial condition
     xt_init = np.concatenate((np.zeros((num_x*num_y, 1)), x_2d), axis=1)
     u_init, v_init, phi_init = AC_2D_init(xt_init)
@@ -226,11 +231,11 @@ def main():
         line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
         fig.savefig(init_path + init_list[i])
 
-    ####
-    x_2d_ext = np.tile(x_2d, [num_t,1])
-    t_ext = np.zeros((num_t*num_x*num_y, 1))
-    for i in range (0, num_t):
-        t_ext[i*num_x*num_y:(i+1)*num_x*num_y,:] = t[i]
+    ## inner points
+    x_2d_ext = np.tile(x_in_2d, [num_t-1,1])
+    t_ext = np.zeros(((num_t-1)*(num_x-2)*(num_y-2), 1))
+    for i in range (1, num_t):
+        t_ext[(i-1)*(num_x-2)*(num_y-2):i*(num_x-2)*(num_y-2),:] = t[i]
     xt_2d_ext = np.concatenate((t_ext, x_2d_ext), axis=1)
     
     ## sampling
@@ -280,7 +285,7 @@ def main():
     x_i_train = torch.tensor(x_2d, requires_grad=True, dtype=torch.float32).to(device)
 
     u_i_train = torch.tensor(u_init, dtype=torch.float32).to(device)
-    u_l_train = torch.tensor(u_l, dtype=torch.float32).to(device)
+    ul_train = torch.tensor(u_l, dtype=torch.float32).to(device)
     v_i_train = torch.tensor(v_init, dtype=torch.float32).to(device)
     phi_i_train = torch.tensor(phi_init, dtype=torch.float32).to(device)
     
@@ -303,7 +308,7 @@ def main():
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
-            loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_l_train)
+            loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train)
             loss = loss_pde + loss_bc + 30*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
@@ -343,7 +348,6 @@ def main():
             line = np.linspace(xt.min(), xt.max(), 2)[:,None]
             fig.savefig(path_list[j]+str(i+1000)+'.png')
             plt.close()
-
 
 if __name__ == '__main__':
     main()
