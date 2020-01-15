@@ -48,7 +48,7 @@ rho =1
 eta = 1
 lmd_e = 0
 lmd = 1
-K = 0.1
+K = 0.001
 gamma = 0.01
 rho = 1
 tau = 1
@@ -108,7 +108,9 @@ class Model(nn.Module):
         # res_pf = phi_t + (u*phi_x + v*phi_y) + tau*w
         res_pf = phi_t + Eta**2*(u*phi_x + v*phi_y) + Gamma*w
 
-        return (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_pf**2).mean()
+        print(f'res_ns_x: {(res_ns_x**2).mean():6f}, res_nx_y:{(res_ns_y**2).mean():6f}, res_phi:{(res_pf**2).mean():6f}')
+
+        return (res_incomp**2).mean() + 100*(res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_pf**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw):
         
