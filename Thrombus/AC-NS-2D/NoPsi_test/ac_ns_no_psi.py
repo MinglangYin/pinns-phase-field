@@ -334,6 +334,8 @@ def main():
         for j in range(0, 4):
             Predictions[j, i, :, :] = to_numpy(y_pred[:, j]).reshape(num_x, num_y)
 
+    print('here 1')
+
     for i in range(0, num_t):
         print(f'Saving Step: {i}')
         for j in range(0, 4):
