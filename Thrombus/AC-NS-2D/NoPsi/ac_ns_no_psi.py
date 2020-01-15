@@ -38,6 +38,9 @@ import scipy.io
 
 from plotting import newfig, savefig
 
+import matplotlib
+matplotlib.use('Agg') 
+
 torch.manual_seed(123456)
 np.random.seed(123456)
 
@@ -341,12 +344,14 @@ def main():
             ax.axis('off') 
             gs0 = gridspec.GridSpec(1, 2)
             gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-            h = ax.imshow(Predictions[j,i,:,:], interpolation='nearest', cmap='rainbow', origin='lower', aspect=asp_ratio)
+            h = ax.imshow(Predictions[j,i,:,:], interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
             fig.colorbar(h)
             ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
             line = np.linspace(xt.min(), xt.max(), 2)[:,None]
             fig.savefig(path_list[j]+str(i+1000)+'.png')
             plt.close()
+        
+    np.savetxt('loss.his', loss_his)
 
 if __name__ == '__main__':
     main()
