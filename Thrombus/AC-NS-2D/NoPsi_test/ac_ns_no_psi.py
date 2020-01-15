@@ -67,7 +67,7 @@ class Model(nn.Module):
             self.net.add_module('linear_layer_%d' %(num), nn.Linear(15, 15))
             self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
             # self.net.add_module('lrelu_layer_%d' %(num), nn.LeakyReLU())
-        self.net.add_module('linear_layer_50', nn.Linear(20, 4))
+        self.net.add_module('linear_layer_50', nn.Linear(15, 4))
 
     def forward(self, x):
         return self.net(x)
@@ -176,14 +176,14 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 10000
+    epochs = 1
     lr = 0.001
 
     num_x = 100
     num_y = 100
     num_t = 10
     num_b_train = 100    # boundary sampling points
-    num_f_train = 50000   # inner sampling points
+    num_f_train = 70000   # inner sampling points
     num_i_train = 10000   # initial sampling points 
     num_t_train = 10
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/']
