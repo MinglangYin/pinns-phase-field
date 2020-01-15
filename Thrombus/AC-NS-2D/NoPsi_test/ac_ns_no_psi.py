@@ -170,13 +170,13 @@ def AC_2D_init(x):
     return u_init, v_init, phi_init
 
 def left_bound_vel(x):
-    return 6*(-x[:, 2]**2 + 0.25**2)
+    return 2*(-x[:, 2]**2 + 0.25**2)
 
 def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 1
+    epochs = 20000
     lr = 0.001
 
     num_x = 100
