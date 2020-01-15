@@ -45,7 +45,7 @@ rho =1
 eta = 1
 lmd_e = 0
 lmd = 1
-K = 0.01
+K = 0.1
 gamma = 1
 rho = 1
 tau = 1
@@ -60,14 +60,14 @@ class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         self.net = nn.Sequential()
-        self.net.add_module('linear_layer_1', nn.Linear(3, 20))
-        # self.net.add_module('tanh_layer_1', nn.Tanh())
-        self.net.add_module('lrelu_layer_1', nn.LeakyReLU())
-        for num in range(2,10):
-            self.net.add_module('linear_layer_%d' %(num), nn.Linear(20, 20))
-            # self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
-            self.net.add_module('lrelu_layer_%d' %(num), nn.LeakyReLU())
-        self.net.add_module('linear_layer_50', nn.Linear(20, 4))
+        self.net.add_module('linear_layer_1', nn.Linear(3, 15))
+        self.net.add_module('tanh_layer_1', nn.Tanh())
+        #self.net.add_module('lrelu_layer_1', nn.LeakyReLU())
+        for num in range(2,15):
+            self.net.add_module('linear_layer_%d' %(num), nn.Linear(15, 15))
+            self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
+            # self.net.add_module('lrelu_layer_%d' %(num), nn.LeakyReLU())
+        self.net.add_module('linear_layer_50', nn.Linear(15, 4))
 
     def forward(self, x):
         return self.net(x)
@@ -170,20 +170,20 @@ def AC_2D_init(x):
     return u_init, v_init, phi_init
 
 def left_bound_vel(x):
-    return 6*(-x[:, 2]**2 + 0.25**2)
+    return 2*(-x[:, 2]**2 + 0.25**2)
 
 def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 10000
+    epochs = 20000
     lr = 0.001
 
     num_x = 100
     num_y = 100
     num_t = 10
     num_b_train = 100    # boundary sampling points
-    num_f_train = 50000   # inner sampling points
+    num_f_train = 70000   # inner sampling points
     num_i_train = 10000   # initial sampling points 
     num_t_train = 10
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/']
@@ -309,7 +309,7 @@ def main():
             loss_pde = model.loss_pde(xt_f_train)
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train)
-            loss = loss_pde + 100*loss_bc + 30*loss_ic
+            loss = 100*loss_pde + 10*loss_bc + 20*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
             return loss
