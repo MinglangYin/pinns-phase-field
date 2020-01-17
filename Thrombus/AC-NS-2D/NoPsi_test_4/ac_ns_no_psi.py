@@ -45,18 +45,16 @@ torch.manual_seed(123456)
 np.random.seed(123456)
 
 rho =1 
-eta = 1
 lmd_e = 0
-lmd = 1
+lmd = 0.00001
 K = 0.05
 gamma = 0.01
 rho = 1
 tau = 1
-h = 1
+h = 0.03
 
 mu = 0.01
-Gamma = 0.01
-Eta = 0.1
+Gamma = 0.00001
 
 
 class Model(nn.Module):
@@ -103,10 +101,10 @@ class Model(nn.Module):
         ###phi
         F_g = phi*(phi-1)*(2*phi-1)
         #F_g = phi**3 - phi
-        w = -Eta**2*lmd*(phi_xx + phi_yy) + F_g # + lmd_e/2*(psi_1_x**2+psi_1_y**2 + psi_2_x**2+psi_2_y**2)
+        w = -h**2*(phi_xx + phi_yy) + F_g # + lmd_e/2*(psi_1_x**2+psi_1_y**2 + psi_2_x**2+psi_2_y**2)
 
         # res_pf = phi_t + (u*phi_x + v*phi_y) + tau*w
-        res_pf = phi_t + Eta**2*(u*phi_x + v*phi_y) + Gamma*w
+        res_pf = phi_t + h**2*(u*phi_x + v*phi_y) + Gamma*w
 
         print(f'res_ns_x: {(res_ns_x**2).mean():6f}, res_nx_y:{(res_ns_y**2).mean():6f}, res_phi:{(res_pf**2).mean():6f}')
 
@@ -177,11 +175,11 @@ def AC_2D_init(x):
     
     #phi_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2] + 0.0)**2)) / (np.sqrt(2)*0.03) ) ## og initial [-1, 1]
     
-    phi_init = (-np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2] + 0.0)**2)) / (np.sqrt(2)*0.03) ) + 1)/2 ## modified potential [0, 1]
+    phi_init = (-np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:,2] + 0.0)**2)) / (np.sqrt(2)*h) ) + 1)/2 ## modified potential [0, 1]
     return u_init, v_init, phi_init
 
 def left_bound_vel(x):
-    return np.tanh(x[:,0])*(-x[:, 2]**2 + 1)
+    return 0.2*np.tanh(x[:,0])*(-x[:, 2]**2 + 1)
 
 def main():
     ## parameters
