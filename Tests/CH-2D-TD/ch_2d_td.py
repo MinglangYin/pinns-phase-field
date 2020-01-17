@@ -144,7 +144,7 @@ def main():
     ## parameters
     cuda=0
     device = torch.device(f"cuda:{cuda}" if torch.cuda.is_available() else "cpu")
-    epochs = 1
+    epochs = 10000
     lr = 0.001
 
     num_x = 100
@@ -268,11 +268,12 @@ def main():
     for epoch in range(1, epochs + 1):    
         train(epoch)
     toc = time.time()
-    print(f'total training time: {toc-tic}')
+    print(f'total training time: {int((toc-tic)/60)} min')
 
     ## plotting and testing
     phi_test = np.zeros((num_t, num_x, num_y))
     for i in range(0, num_t):
+        print(f'printing step: {i}')
         xt = np.concatenate((t[i]*np.ones((num_x*num_y, 1)), x_2d), axis=1)
         xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.float32).to(device)
         y_pred = model(xt_tensor)
