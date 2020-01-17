@@ -179,7 +179,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 20000
+    epochs = 5000
     lr = 0.001
 
     num_x = 100
@@ -197,7 +197,7 @@ def main():
 
     x = np.linspace(x_min, x_max, num=num_x)
     y = np.linspace(y_min, y_max, num=num_y)
-    t = np.linspace(0, 5, num=num_t)[:, None]
+    t = np.linspace(0, 1, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
 
@@ -312,7 +312,7 @@ def main():
             loss_pde = model.loss_pde(xt_f_train)
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train)
-            loss = 100*loss_pde + 10*loss_bc + 20*loss_ic
+            loss = 50*loss_pde + 10*loss_bc + 50*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
             return loss
@@ -344,7 +344,7 @@ def main():
             ax.axis('off') 
             gs0 = gridspec.GridSpec(1, 2)
             gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-            h = ax.imshow(Predictions[j,i,:,:], interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
+            h = ax.imshow(Predictions[j,i,:,:], interpolation='nearest', cmap='rainbow', origin='lower', aspect=asp_ratio)
             fig.colorbar(h)
             ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
             line = np.linspace(xt.min(), xt.max(), 2)[:,None]

@@ -38,6 +38,9 @@ import scipy.io
 
 from plotting import newfig, savefig
 
+import matplotlib
+matplotlib.use('Agg')
+
 torch.manual_seed(123456)
 np.random.seed(123456)
 
@@ -183,7 +186,7 @@ def main():
     num_y = 100
     num_t = 10
     num_b_train = 100    # boundary sampling points
-    num_f_train = 70000   # inner sampling points
+    num_f_train = 60000   # inner sampling points
     num_i_train = 10000   # initial sampling points 
     num_t_train = 10
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/']
@@ -194,7 +197,7 @@ def main():
 
     x = np.linspace(x_min, x_max, num=num_x)
     y = np.linspace(y_min, y_max, num=num_y)
-    t = np.linspace(0, 5, num=num_t)[:, None]
+    t = np.linspace(0, 1, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
 
@@ -309,7 +312,7 @@ def main():
             loss_pde = model.loss_pde(xt_f_train)
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train)
-            loss = loss_pde + loss_bc + 30*loss_ic
+            loss = loss_pde + 100*loss_bc + 50*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
             return loss
@@ -326,22 +329,22 @@ def main():
     print(f'total training time: {int((toc-tic)/60)} min', flush=True)
 
     ## test
-    Predictions = np.zeros((6, num_t, num_x, num_y))
+    Predictions = np.zeros((4, num_t, num_x, num_y))
     for i in range(0, num_t):
         xt = np.concatenate((t[i]*np.ones((num_x*num_y, 1)), x_2d), axis=1)
         xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.float32).to(device)
         y_pred = model(xt_tensor)
-        for j in range(0, 6):
+        for j in range(0, 4):
             Predictions[j, i, :, :] = to_numpy(y_pred[:, j]).reshape(num_x, num_y)
 
     for i in range(0, num_t):
         print(f'Saving Step: {i}')
-        for j in range(0, 6):
+        for j in range(0, 4):
             fig, ax = newfig(2.0, 1.1)
             ax.axis('off') 
             gs0 = gridspec.GridSpec(1, 2)
             gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-            h = ax.imshow(Predictions[j,i,:,:], interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
+            h = ax.imshow(Predictions[j,i,:,:], interpolation='nearest', cmap='rainbow', origin='lower', aspect=asp_ratio)
             fig.colorbar(h)
             ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
             line = np.linspace(xt.min(), xt.max(), 2)[:,None]
