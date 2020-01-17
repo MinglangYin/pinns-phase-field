@@ -71,7 +71,7 @@ class Model(nn.Module):
         w_yy = gradients(w_y, x)[0][:,2]
 
         loss_1 = u_t - (w_xx + w_yy)
-        loss_2 = w + u_xx + u_yy + (u**3 - u)
+        loss_2 = w + eps**2*(u_xx + u_yy) - (u**3 - u)
         return (loss_1**2).mean() + (loss_2**2).mean()
 
     # x is on the domain boundary
@@ -256,8 +256,8 @@ def main():
             loss_bc = model.loss_bc(x_bh_train, x_bv_train)
             # loss_ic = model.loss_ic(x_i_train, u_i_train, w_i_train)
             loss_ic = model.loss_ic(x_i_train, u_i_train)
-            loss = loss_pde + loss_bc + loss_ic
-            print(f'epoch {epoch}: loss_pde {loss_pde:.6f}, loss_bc {loss_bc:.6f}, loss_ic {loss_ic:.6f}')
+            loss = loss_pde + loss_bc + 100*loss_ic
+            print(f'epoch {epoch}: loss_pde {loss_pde:.6f}, loss_bc {loss_bc:.6f}, loss_ic {loss_ic:.6f}', flush=True)
             loss.backward()
             return loss
         loss = optimizer.step(closure)
