@@ -15,6 +15,7 @@ Author: Minglang Yin
 """
 
 import sys
+import os
 sys.path.insert(0,'../../Utils')
 
 import torch
@@ -30,22 +31,27 @@ from scipy.misc import derivative
 from plotting import newfig, savefig
 from sympy import *
 from random_field import fftind, gaussian_random_field
-from image_gradient import *
+# from image_gradient import *
 
-# torch.manual_seed(1234)
-# np.random.seed(1234)
-eps = 1
+import matplotlib
+matplotlib.use('Agg') 
+
+torch.manual_seed(1234)
+np.random.seed(1234)
+
+
+eps = 0.1
 
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         self.net = nn.Sequential()
-        self.net.add_module('net_linear_1', nn.Linear(3, 30))
-        self.net.add_module('net_relu_1', nn.ReLU())
-        for num in range(2,6):
-            self.net.add_module('net_linear_%d' %(num), nn.Linear(30, 30))
-            self.net.add_module('net_relu_%d' %(num), nn.ReLU())
-        self.net.add_module('net_linear_50', nn.Linear(30, 2))
+        self.net.add_module('net_linear_1', nn.Linear(3, 20))
+        self.net.add_module('net_tanh_1', nn.Tanh())
+        for num in range(2,10):
+            self.net.add_module('net_linear_%d' %(num), nn.Linear(20, 20))
+            self.net.add_module('net_tanh_%d' %(num), nn.Tanh())
+        self.net.add_module('net_linear_50', nn.Linear(20, 2))
 
     def forward(self, x):
         return self.net(x)
@@ -65,7 +71,7 @@ class Model(nn.Module):
         w_yy = gradients(w_y, x)[0][:,2]
 
         loss_1 = u_t - (w_xx + w_yy)
-        loss_2 = w + u_xx + u_yy - u**3 + u
+        loss_2 = w + u_xx + u_yy + (u**3 - u)
         return (loss_1**2).mean() + (loss_2**2).mean()
 
     # x is on the domain boundary
@@ -86,11 +92,12 @@ class Model(nn.Module):
         u_bv_x, w_bv_x = u_bv_g[:,1], w_bv_g[:,1]
         return (u_bh_y**2).mean() + (w_bh_y**2).mean() + (u_bv_x**2).mean() + (w_bv_x**2).mean()
 
-    def loss_ic(self, x_i, u_i, w_i):
+    # def loss_ic(self, x_i, u_i, w_i):
+    def loss_ic(self, x_i, u_i):
         y = self.net(x_i)
         u_i_pred, w_i_pred = y[:,0], y[:,1]
         
-        return ((u_i_pred - u_i)**2).mean() + ((w_i_pred - w_i)**2).mean()
+        return ((u_i_pred - u_i)**2).mean() #+ ((w_i_pred - w_i)**2).mean()
 
 def gradients(outputs, inputs):
     return torch.autograd.grad(outputs, inputs, grad_outputs=torch.ones_like(outputs), create_graph=True)
@@ -103,21 +110,25 @@ def to_numpy(input):
     else:
         raise TypeError('Unknown type of input, expected torch.Tensor or '\
             'np.ndarray, but got {}'.format(type(input)))
+
 ############ bubble#############
-def CH_2D_init(x_init):
-    x, y = symbols('x y')
-    # u = tanh( (0.2-sqrt((x-0.0)**2 + (y - 0.0)**2)) / (sqrt(2)*0.03) )
-    u = sin(0.2*x+0.2*y)
-    u_x, u_y = u.diff(x), u.diff(y)
-    u_xx, u_yy = u_x.diff(x), u_y.diff(y)
+def CH_2D_init(x):
+    ######
+    # x, y = symbols('x y')
+    # u = sin(0.2*x+0.2*y)
+    # u_x, u_y = u.diff(x), u.diff(y)
+    # u_xx, u_yy = u_x.diff(x), u_y.diff(y)
 
-    f_u = lambdify([x, y], u, 'numpy')
-    f_u_xx = lambdify([x, y], u_xx, 'numpy')
-    f_u_yy = lambdify([x, y], u_yy, 'numpy')
+    # f_u = lambdify([x, y], u, 'numpy')
+    # f_u_xx = lambdify([x, y], u_xx, 'numpy')
+    # f_u_yy = lambdify([x, y], u_yy, 'numpy')
 
-    u_init = f_u(x_init[:,1], x_init[:,2])
-    w_init = -f_u_xx(x_init[:,1], x_init[:,2]) - f_u_yy(x_init[:,1],x_init[:,2]) + u_init**3 - u_init
-    return u_init, w_init
+    # u_init = f_u(x_init[:,1], x_init[:,2])
+    # w_init = -f_u_xx(x_init[:,1], x_init[:,2]) - f_u_yy(x_init[:,1],x_init[:,2]) + u_init**3 - u_init
+    # return u_init, w_init
+
+    u_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:, 2] - 0.0)**2)) / (np.sqrt(2)*0.03) )
+    return u_init
 
 ########### Random Field ###########
 # def get_w(u, sobol_filter):
@@ -153,21 +164,25 @@ def main():
     
     ## initialization
     xt_init = np.concatenate((np.zeros((num_x*num_y, 1)), x_2d), axis=1)
-    u_init, w_init = CH_2D_init(xt_init)
+    # u_init, w_init = CH_2D_init(xt_init)
+    u_init = CH_2D_init(xt_init)
     # u_init = gaussian_random_field(alpha = 8.0, size = num_x)[None,:][None,:]
 
     ############# save init fig #################
-    fig, ax = newfig(2.0, 1.1)
-    ax.axis('off') 
-    gs0 = gridspec.GridSpec(1, 2)
-    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    h = ax.imshow(w_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', 
-            # extent=[t.min(), t.max(), x.min(), x.max()], 
-                origin='lower', aspect='auto')
-    fig.colorbar(h)
-    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
-    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
-    fig.savefig('./w_init.png')
+    os.makedirs('InitConds', exist_ok=True)
+    os.makedirs('Predictions', exist_ok=True)
+
+    # fig, ax = newfig(2.0, 1.1)
+    # ax.axis('off') 
+    # gs0 = gridspec.GridSpec(1, 2)
+    # gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+    # h = ax.imshow(w_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', 
+    #         # extent=[t.min(), t.max(), x.min(), x.max()], 
+    #             origin='lower', aspect='auto')
+    # fig.colorbar(h)
+    # ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
+    # line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
+    # fig.savefig('./w_init.png')
 
     fig, ax = newfig(2.0, 1.1)
     ax.axis('off') 
@@ -179,7 +194,7 @@ def main():
     fig.colorbar(h)
     ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
     line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
-    fig.savefig('./u_init.png')
+    fig.savefig('./InitConds/u_init.png')
 
     #######################################
     x_2d_ext = np.tile(x_2d, [num_t,1])
@@ -220,7 +235,7 @@ def main():
 
     x_i_train = torch.tensor(xt_i, requires_grad=True, dtype=torch.float32).to(device)
     u_i_train = torch.tensor(u_init, dtype=torch.float32).to(device)
-    w_i_train = torch.tensor(w_init, dtype=torch.float32).to(device)
+    # w_i_train = torch.tensor(w_init, dtype=torch.float32).to(device)
     
     x_bh_train = torch.tensor(xt_bh, requires_grad=True, dtype=torch.float32).to(device)
     x_bv_train = torch.tensor(xt_bv, requires_grad=True, dtype=torch.float32).to(device)
@@ -238,7 +253,8 @@ def main():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(x_f_train)
             loss_bc = model.loss_bc(x_bh_train, x_bv_train)
-            loss_ic = model.loss_ic(x_i_train, u_i_train, w_i_train)
+            # loss_ic = model.loss_ic(x_i_train, u_i_train, w_i_train)
+            loss_ic = model.loss_ic(x_i_train, u_i_train)
             loss = loss_pde + loss_bc + loss_ic
             print(f'epoch {epoch}: loss_pde {loss_pde:.6f}, loss_bc {loss_bc:.6f}, loss_ic {loss_ic:.6f}')
             loss.backward()
@@ -272,7 +288,8 @@ def main():
         fig.colorbar(h)
         ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
         line = np.linspace(xt.min(), xt.max(), 2)[:,None]
-        fig.savefig('./phi_'+str(i+1000)+'.png')
+        fig.savefig('./Predictions/phi_'+str(i+1000)+'.png')
+        plt.close()
 
 if __name__ == '__main__':
     main()
