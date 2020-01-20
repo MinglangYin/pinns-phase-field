@@ -142,7 +142,7 @@ def main():
     u_pred = to_numpy(model(x_test))
     scipy.io.savemat('ac_data.mat',{'x':to_numpy(x_test), 'u':u_pred})
 
-    u_pred = u_pred.shape(num_t, num_x)
+    u_pred = u_pred.reshape(num_t, num_x)
     for tt in range(0, num_t):
         print(f'printing step: {tt}')
         fig, ax = plt.subplots()

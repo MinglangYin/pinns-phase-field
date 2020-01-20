@@ -39,26 +39,36 @@ matplotlib.use('Agg')
 torch.manual_seed(1234)
 np.random.seed(1234)
 
-
-eps = 0.1
+eps = 0.03
 
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
-        self.net = nn.Sequential()
-        self.net.add_module('net_linear_1', nn.Linear(3, 20))
-        self.net.add_module('net_tanh_1', nn.Tanh())
+        self.net_w = nn.Sequential()
+        self.net_w.add_module('net_w_linear_1', nn.Linear(2, 20))
+        self.net_w.add_module('net_w_tanh_1', nn.Tanh())
         for num in range(2,10):
-            self.net.add_module('net_linear_%d' %(num), nn.Linear(20, 20))
-            self.net.add_module('net_tanh_%d' %(num), nn.Tanh())
-        self.net.add_module('net_linear_50', nn.Linear(20, 2))
+            self.net_w.add_module('net_w_linear_%d' %(num), nn.Linear(20, 20))
+            self.net_w.add_module('net_w_tanh_%d' %(num), nn.Tanh())
+        self.net_w.add_module('net_w_linear_50', nn.Linear(20, 1))
+
+        self.net_u = nn.Sequential()
+        self.net_u.add_module('net_u_linear_1', nn.Linear(2, 20))
+        self.net_u.add_module('net_u_tanh_1', nn.Tanh())
+        for num in range(2,10):
+            self.net_u.add_module('net_u_linear_%d' %(num), nn.Linear(20, 20))
+            self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
+        self.net_u.add_module('net_u_linear_50', nn.Linear(20, 1))
 
     def forward(self, x):
-        return self.net(x)
+        w = self.net_w(x)
+        u = self.net_u(x)
+        output = torch.cat((u, w), dim=1)
+        return output
 
     def loss_pde(self, x):
-        y = self.net(x)
-        u, w = y[:,0], y[:,1]
+        u = self.net_u(x)
+        w = self.net_w(x)
 
         u_g = gradients(u, x)[0]
         u_t, u_x, u_y = u_g[:,0], u_g[:,1], u_g[:,2]
@@ -76,12 +86,8 @@ class Model(nn.Module):
 
     # x is on the domain boundary
     def loss_bc(self, x_bh, x_bv):
-
-        y_bh = self.net(x_bh)
-        y_bv = self.net(x_bv)
-
-        u_bh, w_bh = y_bh[:,0], y_bh[:,1]
-        u_bv, w_bv = y_bv[:,0], y_bv[:,1]
+        u_bh, u_bv = self.net_u(x_bh), self.net_u(x_bv)
+        w_bh, w_bv = self.net_w(x_bh), self.net_w(x_bv)
 
         u_bh_g = gradients(u_bh, x_bh)[0]
         w_bh_g = gradients(w_bh, x_bh)[0]
@@ -92,12 +98,10 @@ class Model(nn.Module):
         u_bv_x, w_bv_x = u_bv_g[:,1], w_bv_g[:,1]
         return (u_bh_y**2).mean() + (w_bh_y**2).mean() + (u_bv_x**2).mean() + (w_bv_x**2).mean()
 
-    # def loss_ic(self, x_i, u_i, w_i):
-    def loss_ic(self, x_i, u_i):
-        y = self.net(x_i)
-        u_i_pred, w_i_pred = y[:,0], y[:,1]
-        
-        return ((u_i_pred - u_i)**2).mean() #+ ((w_i_pred - w_i)**2).mean()
+    def loss_ic(self, x, u_init, w_init):
+    # def loss_ic(self, x_i, u_i):
+        u, w = self.net_u(x), self.net_w(x)
+        return ((u - u_init)**2).mean() + ((w - w_init)**2).mean()
 
 def gradients(outputs, inputs):
     return torch.autograd.grad(outputs, inputs, grad_outputs=torch.ones_like(outputs), create_graph=True)
@@ -112,23 +116,24 @@ def to_numpy(input):
             'np.ndarray, but got {}'.format(type(input)))
 
 ############ bubble#############
-def CH_2D_init(x):
+def CH_2D_init(x_init):
     ######
-    # x, y = symbols('x y')
+    x, y = symbols('x y')
     # u = sin(0.2*x+0.2*y)
-    # u_x, u_y = u.diff(x), u.diff(y)
-    # u_xx, u_yy = u_x.diff(x), u_y.diff(y)
+    u = tanh((0.2-sqrt((x-0.0)**2 + (y - 0.0)**2)) / (sqrt(2)*0.03) )
+    u_x, u_y = u.diff(x), u.diff(y)
+    u_xx, u_yy = u_x.diff(x), u_y.diff(y)
 
-    # f_u = lambdify([x, y], u, 'numpy')
-    # f_u_xx = lambdify([x, y], u_xx, 'numpy')
-    # f_u_yy = lambdify([x, y], u_yy, 'numpy')
+    f_u = lambdify([x, y], u, 'numpy')
+    f_u_xx = lambdify([x, y], u_xx, 'numpy')
+    f_u_yy = lambdify([x, y], u_yy, 'numpy')
 
-    # u_init = f_u(x_init[:,1], x_init[:,2])
-    # w_init = -f_u_xx(x_init[:,1], x_init[:,2]) - f_u_yy(x_init[:,1],x_init[:,2]) + u_init**3 - u_init
-    # return u_init, w_init
+    u_init = f_u(x_init[:,1], x_init[:,2])
+    w_init = -eps**2*(f_u_xx(x_init[:,1], x_init[:,2]) + f_u_yy(x_init[:,1],x_init[:,2])) + (u_init**3 - u_init)
+    return u_init[:, None], w_init[:, None]
 
-    u_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:, 2] - 0.0)**2)) / (np.sqrt(2)*0.03) )
-    return u_init
+    # u_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:, 2] - 0.0)**2)) / (np.sqrt(2)*0.03) )
+    # return u_init
 
 ########### Random Field ###########
 # def get_w(u, sobol_filter):
@@ -158,32 +163,32 @@ def main():
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 5, num=num_t)[:, None]
+    t = np.linspace(0, 1, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     
     ## initialization
     xt_init = np.concatenate((np.zeros((num_x*num_y, 1)), x_2d), axis=1)
-    # u_init, w_init = CH_2D_init(xt_init)
-    u_init = CH_2D_init(xt_init)
+    u_init, w_init = CH_2D_init(xt_init)
+    # u_init = CH_2D_init(xt_init)
     # u_init = gaussian_random_field(alpha = 8.0, size = num_x)[None,:][None,:]
 
     ############# save init fig #################
     os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
 
-    # fig, ax = newfig(2.0, 1.1)
-    # ax.axis('off') 
-    # gs0 = gridspec.GridSpec(1, 2)
-    # gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    # h = ax.imshow(w_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', 
-    #         # extent=[t.min(), t.max(), x.min(), x.max()], 
-    #             origin='lower', aspect='auto')
-    # fig.colorbar(h)
-    # ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
-    # line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
-    # fig.savefig('./w_init.png')
+    fig, ax = newfig(2.0, 1.1)
+    ax.axis('off') 
+    gs0 = gridspec.GridSpec(1, 2)
+    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+    h = ax.imshow(w_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', 
+            # extent=[t.min(), t.max(), x.min(), x.max()], 
+                origin='lower', aspect='auto')
+    fig.colorbar(h)
+    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
+    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
+    fig.savefig('./w_init.png')
 
     fig, ax = newfig(2.0, 1.1)
     ax.axis('off') 
@@ -236,7 +241,7 @@ def main():
 
     x_i_train = torch.tensor(xt_i, requires_grad=True, dtype=torch.float32).to(device)
     u_i_train = torch.tensor(u_init, dtype=torch.float32).to(device)
-    # w_i_train = torch.tensor(w_init, dtype=torch.float32).to(device)
+    w_i_train = torch.tensor(w_init, dtype=torch.float32).to(device)
     
     x_bh_train = torch.tensor(xt_bh, requires_grad=True, dtype=torch.float32).to(device)
     x_bv_train = torch.tensor(xt_bv, requires_grad=True, dtype=torch.float32).to(device)
@@ -254,8 +259,8 @@ def main():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(x_f_train)
             loss_bc = model.loss_bc(x_bh_train, x_bv_train)
-            # loss_ic = model.loss_ic(x_i_train, u_i_train, w_i_train)
-            loss_ic = model.loss_ic(x_i_train, u_i_train)
+            loss_ic = model.loss_ic(x_i_train, u_i_train, w_i_train)
+            # loss_ic = model.loss_ic(x_i_train, u_i_train)
             loss = loss_pde + loss_bc + 100*loss_ic
             print(f'epoch {epoch}: loss_pde {loss_pde:.6f}, loss_bc {loss_bc:.6f}, loss_ic {loss_ic:.6f}', flush=True)
             loss.backward()

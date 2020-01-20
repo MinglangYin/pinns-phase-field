@@ -37,15 +37,27 @@ lmd = 1.0e-2
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
-        self.net = nn.Sequential()
-        self.net.add_module('linear_layer_1', nn.Linear(3, 20))
-        self.net.add_module('tanh_layer_1', nn.Tanh())
-        for num in range(2,15):
-            self.net.add_module('linear_layer_%d' %(num), nn.Linear(20, 20))
-            self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
-        self.net.add_module('linear_layer_50', nn.Linear(20, 2))
+        self.net_w = nn.Sequential()
+        self.net_w.add_module('net_w_linear_1', nn.Linear(2, 20))
+        # self.net_w.add_module('net_w_relu_1', nn.ReLU())
+        self.net_w.add_module('net_w_tanh_1', nn.Tanh())
+        for num in range(2,5):
+            self.net_w.add_module('net_w_linear_%d' %(num), nn.Linear(20, 20))
+            # self.net_w.add_module('net_w_relu_%d' %(num), nn.ReLU())
+            self.net_w.add_module('net_w_tanh_%d' %(num), nn.Tanh())
+        self.net_w.add_module('net_w_linear_50', nn.Linear(20, 1))
 
-        self.lmd = torch.nn.Parameter( torch.tensor([1], requires_grad=True, dtype=torch.float32) )
+        self.net_u = nn.Sequential()
+        self.net_u.add_module('net_u_linear_1', nn.Linear(2, 20))
+        # self.net_u.add_module('net_u_relu_1', nn.ReLU())
+        self.net_u.add_module('net_u_tanh_1', nn.Tanh())
+        for num in range(2,5):
+            self.net_u.add_module('net_u_linear_%d' %(num), nn.Linear(20, 20))
+            # self.net_u.add_module('net_u_relu_%d' %(num), nn.ReLU())
+            self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
+        self.net_u.add_module('net_u_linear_50', nn.Linear(20, 1))
+
+        self.lmd = torch.nn.Parameter(torch.tensor([1], requires_grad=True, dtype=torch.float32) )
 
     def forward(self, x):
         return self.net(x)
