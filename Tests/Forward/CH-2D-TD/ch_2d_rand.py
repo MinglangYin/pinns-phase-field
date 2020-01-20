@@ -30,8 +30,6 @@ import scipy.io
 from scipy.misc import derivative
 from plotting import newfig, savefig
 from sympy import *
-from random_field import fftind, gaussian_random_field
-# from image_gradient import *
 
 import matplotlib
 matplotlib.use('Agg') 
