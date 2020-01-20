@@ -157,12 +157,12 @@ def main():
     cuda=0
     device = torch.device(f"cuda:{cuda}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 1
+    epochs = 10000
     lr = 0.001
 
     num_x = 100
     num_y = 100
-    num_t = 5
+    num_t = 10
     # num_b_train = 50    # boundary sampling points
     # num_f_train = 50000   # inner sampling points
     # num_i_train = 5000   # initial sampling points 
