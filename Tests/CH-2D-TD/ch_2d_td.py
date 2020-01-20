@@ -127,7 +127,7 @@ def CH_2D_init(x):
     # w_init = -f_u_xx(x_init[:,1], x_init[:,2]) - f_u_yy(x_init[:,1],x_init[:,2]) + u_init**3 - u_init
     # return u_init, w_init
 
-    u_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:, 2] - 0.0)**2)) / (np.sqrt(2)*0.03) )
+    u_init = np.tanh( (0.2-np.sqrt((x[:,1]-0.0)**2 + (x[:, 2] - 0.0)**2)) / (np.sqrt(2)*0.1) )
     return u_init
 
 ########### Random Field ###########
