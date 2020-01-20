@@ -47,7 +47,7 @@ class Model(nn.Module):
         self.net_w = nn.Sequential()
         self.net_w.add_module('net_w_linear_1', nn.Linear(2, 20))
         self.net_w.add_module('net_w_tanh_1', nn.Tanh())
-        for num in range(2,10):
+        for num in range(2,8):
             self.net_w.add_module('net_w_linear_%d' %(num), nn.Linear(20, 20))
             self.net_w.add_module('net_w_tanh_%d' %(num), nn.Tanh())
         self.net_w.add_module('net_w_linear_50', nn.Linear(20, 1))
@@ -55,7 +55,7 @@ class Model(nn.Module):
         self.net_u = nn.Sequential()
         self.net_u.add_module('net_u_linear_1', nn.Linear(2, 20))
         self.net_u.add_module('net_u_tanh_1', nn.Tanh())
-        for num in range(2,10):
+        for num in range(2,8):
             self.net_u.add_module('net_u_linear_%d' %(num), nn.Linear(20, 20))
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 1))
@@ -236,18 +236,19 @@ def main():
     xt_f = xt_2d_ext
 
     ## set data as tensor and send to device
-    x_f_train = torch.tensor(xt_f, requires_grad=True, dtype=torch.float32).to(device)
-    x_test = torch.tensor(xt_2d_ext, requires_grad=True, dtype=torch.float32).to(device)
+    x_f_train = torch.tensor(xt_f, requires_grad=True, dtype=torch.float64).to(device)
+    x_test = torch.tensor(xt_2d_ext, requires_grad=True, dtype=torch.float64).to(device)
 
-    x_i_train = torch.tensor(xt_i, requires_grad=True, dtype=torch.float32).to(device)
-    u_i_train = torch.tensor(u_init, dtype=torch.float32).to(device)
-    w_i_train = torch.tensor(w_init, dtype=torch.float32).to(device)
+    x_i_train = torch.tensor(xt_i, requires_grad=True, dtype=torch.float64).to(device)
+    u_i_train = torch.tensor(u_init, dtype=torch.float64).to(device)
+    w_i_train = torch.tensor(w_init, dtype=torch.float64).to(device)
     
-    x_bh_train = torch.tensor(xt_bh, requires_grad=True, dtype=torch.float32).to(device)
-    x_bv_train = torch.tensor(xt_bv, requires_grad=True, dtype=torch.float32).to(device)
+    x_bh_train = torch.tensor(xt_bh, requires_grad=True, dtype=torch.float64).to(device)
+    x_bv_train = torch.tensor(xt_bv, requires_grad=True, dtype=torch.float64).to(device)
 
     ## instantiate model
     model = Model().to(device)
+    model.double()
 
     # Loss and optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr = lr)
