@@ -181,9 +181,9 @@ def main():
     num_x = 100
     num_y = 100
     num_t = 10
-    num_b_train = 100    # boundary sampling points
-    num_f_train = 100000   # inner sampling points
-    num_i_train = 10000   # initial sampling points 
+    num_b_train = 50    # boundary sampling points
+    num_f_train = 50000   # inner sampling points
+    num_i_train = 5000   # initial sampling points 
     num_t_train = 10
 
     x = np.linspace(-1, 1, num=num_x)
@@ -228,13 +228,13 @@ def main():
     xt_2d_ext = np.concatenate((t_ext, x_2d_ext), axis=1)
     
     ## sampling
-    # id_f = np.random.choice(num_x*num_y*num_t, num_f_train, replace=False)
-    # id_b = np.random.choice(num_x, num_b_train, replace=False) ## Dirichlet
-    # id_i = np.random.choice(num_x*num_y, num_i_train, replace=False)
+    id_f = np.random.choice(num_x*num_y*num_t, num_f_train, replace=False)
+    id_b = np.random.choice(num_x, num_b_train, replace=False) ## Dirichlet
+    id_i = np.random.choice(num_x*num_y, num_i_train, replace=False)
     # id_t = np.random.choice(num_t, num_t_train, replace=False)
 
     ## boundary  
-    t_b = t #[id_t,:]
+    t_b = t#[id_t,:]
     t_b_ext = np.zeros((num_t_train*num_b_train, 1))
     for i in range(0, num_t_train):
         t_b_ext[i*num_b_train:(i+1)*num_b_train,:] = t_b[i]
@@ -244,10 +244,10 @@ def main():
     x_r = np.vstack((x_grid[:, -1], y_grid[:, -1])).T
     # x_bound = np.vstack((x_up, x_dw, x_l, x_r))
 
-    x_up_sample = x_up#[id_b, :]
-    x_dw_sample = x_dw#[id_b, :]
-    x_l_sample = x_l#[id_b, :]
-    x_r_sample = x_r#[id_b, :]
+    x_up_sample = x_up[id_b, :]
+    x_dw_sample = x_dw[id_b, :]
+    x_l_sample = x_l[id_b, :]
+    x_r_sample = x_r[id_b, :]
 
     x_up_ext = np.tile(x_up_sample, (num_t_train, 1))
     x_dw_ext = np.tile(x_dw_sample, (num_t_train, 1))
@@ -260,7 +260,7 @@ def main():
     xt_r = np.hstack((t_b_ext, x_r_ext))
 
     xt_i = xt_init #[id_i, :]
-    xt_f = xt_2d_ext #[id_f, :]
+    xt_f = xt_2d_ext[id_f, :]
 
     ## set data as tensor and send to device
     xt_f_train = torch.tensor(xt_f, requires_grad=True, dtype=torch.double).to(device)
