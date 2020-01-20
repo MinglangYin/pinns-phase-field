@@ -80,8 +80,9 @@ class Model(nn.Module):
         w_xx = gradients(w_x, x)[0][:,1]
         w_yy = gradients(w_y, x)[0][:,2]
 
-        loss_1 = u_t - (w_xx + w_yy)
-        loss_2 = w + eps**2*(u_xx + u_yy) - (u**3 - u)
+        loss_1 = u_t[:, None] - (w_xx[:, None] + w_yy[:, None])
+        loss_2 = w + eps**2*(u_xx[:, None] + u_yy[:, None]) - (u**3 - u)
+        # print(f'loss_2 shape:{loss_2.shape}')
         return (loss_1**2).mean() + (loss_2**2).mean()
 
     # x is on the domain boundary
