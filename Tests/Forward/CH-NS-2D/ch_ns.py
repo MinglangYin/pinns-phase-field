@@ -42,7 +42,6 @@ mu = 0.01
 H_o = 0.1
 k = 6*np.pi
 
-
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
@@ -159,7 +158,7 @@ def CH_2D_init(x_init):
     f_phi_yy = lambdify([x, y], phi_yy, 'numpy')
 
     phi_init = f_phi(x_init[:,1], x_init[:,2])
-    w_init = eta**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) - (u_init**3 - u_init)
+    w_init = eta**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) - (phi_init**3 - phi_init)
 
     return u_init, v_init, phi_init, w_init
     
@@ -173,7 +172,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 10000
+    epochs = 1
     lr = 0.001
 
     os.makedirs('InitConds', exist_ok=True)
@@ -182,14 +181,14 @@ def main():
     num_x = 100
     num_y = 100
     num_t = 10
-    num_b_train = 50    # boundary sampling points
-    num_f_train = 50000   # inner sampling points
-    num_i_train = 5000   # initial sampling points 
+    num_b_train = 100    # boundary sampling points
+    num_f_train = 100000   # inner sampling points
+    num_i_train = 10000   # initial sampling points 
     num_t_train = 10
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 30, num=num_t)[:, None]
+    t = np.linspace(0, 5, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
@@ -199,13 +198,23 @@ def main():
     u_init, v_init, phi_init, w_init = CH_2D_init(xt_init)
 
     ## save init fig
+    ### save w
     fig, ax = newfig(2.0, 1.1)
     ax.axis('off') 
     gs0 = gridspec.GridSpec(1, 2)
     gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-    h = ax.imshow(phi_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', 
-            # extent=[t.min(), t.max(), x.min(), x.max()], 
-                origin='lower', aspect='auto')
+    h = ax.imshow(w_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
+    fig.colorbar(h)
+    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
+    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
+    fig.savefig('./InitConds/w_init.png')
+
+    ### save phi
+    fig, ax = newfig(2.0, 1.1)
+    ax.axis('off') 
+    gs0 = gridspec.GridSpec(1, 2)
+    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+    h = ax.imshow(phi_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
     fig.colorbar(h)
     ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
     line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
@@ -219,13 +228,13 @@ def main():
     xt_2d_ext = np.concatenate((t_ext, x_2d_ext), axis=1)
     
     ## sampling
-    id_f = np.random.choice(num_x*num_y*num_t, num_f_train, replace=False)
-    id_b = np.random.choice(num_x, num_b_train, replace=False) ## Dirichlet
-    id_i = np.random.choice(num_x*num_y, num_i_train, replace=False)
-    id_t = np.random.choice(num_t, num_t_train, replace=False)
+    # id_f = np.random.choice(num_x*num_y*num_t, num_f_train, replace=False)
+    # id_b = np.random.choice(num_x, num_b_train, replace=False) ## Dirichlet
+    # id_i = np.random.choice(num_x*num_y, num_i_train, replace=False)
+    # id_t = np.random.choice(num_t, num_t_train, replace=False)
 
     ## boundary  
-    t_b = t[id_t,:]
+    t_b = t #[id_t,:]
     t_b_ext = np.zeros((num_t_train*num_b_train, 1))
     for i in range(0, num_t_train):
         t_b_ext[i*num_b_train:(i+1)*num_b_train,:] = t_b[i]
@@ -235,10 +244,10 @@ def main():
     x_r = np.vstack((x_grid[:, -1], y_grid[:, -1])).T
     # x_bound = np.vstack((x_up, x_dw, x_l, x_r))
 
-    x_up_sample = x_up[id_b, :]
-    x_dw_sample = x_dw[id_b, :]
-    x_l_sample = x_l[id_b, :]
-    x_r_sample = x_r[id_b, :]
+    x_up_sample = x_up#[id_b, :]
+    x_dw_sample = x_dw#[id_b, :]
+    x_l_sample = x_l#[id_b, :]
+    x_r_sample = x_r#[id_b, :]
 
     x_up_ext = np.tile(x_up_sample, (num_t_train, 1))
     x_dw_ext = np.tile(x_dw_sample, (num_t_train, 1))
@@ -250,12 +259,12 @@ def main():
     xt_l = np.hstack((t_b_ext, x_l_ext))
     xt_r = np.hstack((t_b_ext, x_r_ext))
 
-    xt_i = xt_init[id_i, :]
-    xt_f = xt_2d_ext[id_f, :]
+    xt_i = xt_init #[id_i, :]
+    xt_f = xt_2d_ext #[id_f, :]
 
     ## set data as tensor and send to device
     xt_f_train = torch.tensor(xt_f, requires_grad=True, dtype=torch.double).to(device)
-    xt_i_train = torch.tensor(xt_init, requires_grad=True, dtype=torch.double).to(device)
+    xt_i_train = torch.tensor(xt_i, requires_grad=True, dtype=torch.double).to(device)
 
     u_i_train = torch.tensor(u_init, dtype=torch.double).to(device)
     v_i_train = torch.tensor(v_init, dtype=torch.double).to(device)
