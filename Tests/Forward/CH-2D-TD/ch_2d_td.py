@@ -45,17 +45,17 @@ class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         self.net_w = nn.Sequential()
-        self.net_w.add_module('net_w_linear_1', nn.Linear(2, 20))
+        self.net_w.add_module('net_w_linear_1', nn.Linear(3, 20))
         self.net_w.add_module('net_w_tanh_1', nn.Tanh())
-        for num in range(2,8):
+        for num in range(2,5):
             self.net_w.add_module('net_w_linear_%d' %(num), nn.Linear(20, 20))
             self.net_w.add_module('net_w_tanh_%d' %(num), nn.Tanh())
         self.net_w.add_module('net_w_linear_50', nn.Linear(20, 1))
 
         self.net_u = nn.Sequential()
-        self.net_u.add_module('net_u_linear_1', nn.Linear(2, 20))
+        self.net_u.add_module('net_u_linear_1', nn.Linear(3, 20))
         self.net_u.add_module('net_u_tanh_1', nn.Tanh())
-        for num in range(2,8):
+        for num in range(2,5):
             self.net_u.add_module('net_u_linear_%d' %(num), nn.Linear(20, 20))
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 1))
@@ -96,17 +96,17 @@ class Model(nn.Module):
 
         u_bh_y, w_bh_y = u_bh_g[:,2], w_bh_g[:,2]
         u_bv_x, w_bv_x = u_bv_g[:,1], w_bv_g[:,1]
-        print(f'u_bh_y shape :{u_bh_y.shape}')
-        print(f'w_bh_y shape :{w_bh_y.shape}')
-        print(f'u_bv_x shape :{u_bv_x.shape}')
-        print(f'w_bv_x shape :{w_bv_x.shape}')
+        # print(f'u_bh_y shape :{u_bh_y.shape}')
+        # print(f'w_bh_y shape :{w_bh_y.shape}')
+        # print(f'u_bv_x shape :{u_bv_x.shape}')
+        # print(f'w_bv_x shape :{w_bv_x.shape}')
         return (u_bh_y**2).mean() + (w_bh_y**2).mean() + (u_bv_x**2).mean() + (w_bv_x**2).mean()
 
     def loss_ic(self, x, u_init, w_init):
     # def loss_ic(self, x_i, u_i):
         u, w = self.net_u(x), self.net_w(x)
-        print(f'u shape :{u.shape}')
-        print(f'w init shape :{w_init.shape}')
+        # print(f'u shape :{u.shape}')
+        # print(f'w init shape :{w_init.shape}')
         return ((u - u_init)**2).mean() + ((w - w_init)**2).mean()
 
 def gradients(outputs, inputs):
@@ -156,12 +156,12 @@ def main():
     cuda=0
     device = torch.device(f"cuda:{cuda}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 10000
+    epochs = 1
     lr = 0.001
 
     num_x = 100
     num_y = 100
-    num_t = 20
+    num_t = 5
     # num_b_train = 50    # boundary sampling points
     # num_f_train = 50000   # inner sampling points
     # num_i_train = 5000   # initial sampling points 
@@ -194,7 +194,7 @@ def main():
     fig.colorbar(h)
     ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
     line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
-    fig.savefig('./w_init.png')
+    fig.savefig('./InitConds/w_init.png')
 
     fig, ax = newfig(2.0, 1.1)
     ax.axis('off') 
@@ -242,15 +242,15 @@ def main():
     xt_f = xt_2d_ext
 
     ## set data as tensor and send to device
-    x_f_train = torch.tensor(xt_f, requires_grad=True, dtype=torch.float64).to(device)
-    x_test = torch.tensor(xt_2d_ext, requires_grad=True, dtype=torch.float64).to(device)
+    x_f_train = torch.tensor(xt_f, requires_grad=True, dtype=torch.double).to(device)
+    x_test = torch.tensor(xt_2d_ext, requires_grad=True, dtype=torch.double).to(device)
 
-    x_i_train = torch.tensor(xt_i, requires_grad=True, dtype=torch.float64).to(device)
-    u_i_train = torch.tensor(u_init, dtype=torch.float64).to(device)
-    w_i_train = torch.tensor(w_init, dtype=torch.float64).to(device)
+    x_i_train = torch.tensor(xt_i, requires_grad=True, dtype=torch.double).to(device)
+    u_i_train = torch.tensor(u_init, dtype=torch.double).to(device)
+    w_i_train = torch.tensor(w_init, dtype=torch.double).to(device)
     
-    x_bh_train = torch.tensor(xt_bh, requires_grad=True, dtype=torch.float64).to(device)
-    x_bv_train = torch.tensor(xt_bv, requires_grad=True, dtype=torch.float64).to(device)
+    x_bh_train = torch.tensor(xt_bh, requires_grad=True, dtype=torch.double).to(device)
+    x_bv_train = torch.tensor(xt_bv, requires_grad=True, dtype=torch.double).to(device)
 
     ## instantiate model
     model = Model().to(device)
@@ -288,7 +288,7 @@ def main():
     for i in range(0, num_t):
         print(f'printing step: {i}', flush=True)
         xt = np.concatenate((t[i]*np.ones((num_x*num_y, 1)), x_2d), axis=1)
-        xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.float32).to(device)
+        xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.double).to(device)
         y_pred = model(xt_tensor)
         phi_test[i,:,:] = to_numpy(y_pred[:, 0]).reshape(num_x, num_y)
 
