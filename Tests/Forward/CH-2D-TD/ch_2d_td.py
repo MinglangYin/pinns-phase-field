@@ -269,7 +269,7 @@ def main():
             loss_bc = model.loss_bc(x_bh_train, x_bv_train)
             loss_ic = model.loss_ic(x_i_train, u_i_train, w_i_train)
             # loss_ic = model.loss_ic(x_i_train, u_i_train)
-            loss = loss_pde + loss_bc + loss_ic
+            loss = loss_pde + loss_bc + 100*loss_ic
             print(f'epoch {epoch}: loss_pde {loss_pde:.6f}, loss_bc {loss_bc:.6f}, loss_ic {loss_ic:.6f}', flush=True)
             loss.backward()
             return loss
