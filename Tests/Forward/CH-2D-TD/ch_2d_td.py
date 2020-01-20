@@ -16,7 +16,7 @@ Author: Minglang Yin
 
 import sys
 import os
-sys.path.insert(0,'../../Utils')
+sys.path.insert(0,'../../../Utils')
 
 import torch
 import torch.nn as nn
@@ -45,7 +45,7 @@ class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         self.net_w = nn.Sequential()
-        self.net_w.add_module('net_w_linear_1', nn.Linear(2, 20))
+        self.net_w.add_module('net_w_linear_1', nn.Linear(3, 20))
         self.net_w.add_module('net_w_tanh_1', nn.Tanh())
         for num in range(2,8):
             self.net_w.add_module('net_w_linear_%d' %(num), nn.Linear(20, 20))
@@ -53,7 +53,7 @@ class Model(nn.Module):
         self.net_w.add_module('net_w_linear_50', nn.Linear(20, 1))
 
         self.net_u = nn.Sequential()
-        self.net_u.add_module('net_u_linear_1', nn.Linear(2, 20))
+        self.net_u.add_module('net_u_linear_1', nn.Linear(3, 20))
         self.net_u.add_module('net_u_tanh_1', nn.Tanh())
         for num in range(2,8):
             self.net_u.add_module('net_u_linear_%d' %(num), nn.Linear(20, 20))
@@ -150,7 +150,7 @@ def main():
     cuda=0
     device = torch.device(f"cuda:{cuda}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 10000
+    epochs = 10
     lr = 0.001
 
     num_x = 100
