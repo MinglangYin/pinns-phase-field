@@ -172,7 +172,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 1
+    epochs = 10000
     lr = 0.001
 
     os.makedirs('InitConds', exist_ok=True)
