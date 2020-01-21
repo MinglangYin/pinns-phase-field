@@ -7,7 +7,7 @@ Author: Minglang Yin
         w = \Delta\phi - f(\phi), \\
         \rho(\frac{\partial u}{\partial t} + (u \cdot \nabla) u) + \nabla p - \mu\Delta u + \lambda(\Delta\phi- f(\phi))\nabla \phi = 0,\\
         \nabla \cdot u = 0, \\
-        f(\phi) = F'(\phi) = 1/(\eta^2)(\phi^3- \phi) 
+        f(\phi) = F'(\phi) = 1/(h^2)(\phi^3- \phi) 
 
     where
         Input: [t, x, y]
@@ -33,11 +33,11 @@ from plotting import newfig, savefig
 torch.manual_seed(123456)
 np.random.seed(123456)
 
-eta = 0.1
-lmd = 0.01
-gamma = 0.01
+h = 0.01
+lmd = 0.4*0.00010607
+tau = 0.000001
 rho = 1
-mu = 0.01
+mu = 0.1
 
 H_o = 0.1
 k = 6*np.pi
@@ -96,14 +96,14 @@ class Model(nn.Module):
 
         ## PF
         F_g = phi**3 - phi
-        res_w = w + eta**2*(phi_xx + phi_yy) - F_g  
-        res_pf = phi_t + eta**2*(u*phi_x + v*phi_y) - gamma*(w_xx + w_yy)
+        res_w = w + h**2*(phi_xx + phi_yy) - F_g  
+        res_pf = phi_t + h**2*(u*phi_x + v*phi_y) - gamma*(w_xx + w_yy)
 
-        print(f'res_ns_x shape:{res_ns_x.shape}')
-        print(f'res_ns_y shape:{res_ns_y.shape}')
-        print(f'res_incomp shape:{res_incomp.shape}')
-        print(f'res_w shape:{res_w.shape}')
-        print(f'res_pf shape:{res_pf.shape}')
+        # print(f'res_ns_x shape:{res_ns_x.shape}')
+        # print(f'res_ns_y shape:{res_ns_y.shape}')
+        # print(f'res_incomp shape:{res_incomp.shape}')
+        # print(f'res_w shape:{res_w.shape}')
+        # print(f'res_pf shape:{res_pf.shape}')
 
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean()
 
@@ -150,7 +150,7 @@ def to_numpy(input):
 def CH_2D_init(x_init):
     ## u, v
     u_init = np.zeros((x_init.shape[0]))
-    u_init = (-(x_init[:,2]**2)+1)
+    u_init = 10*(-(x_init[:,2]**2)+1)
     v_init = np.zeros((x_init.shape[0]))
 
     #########
@@ -164,15 +164,10 @@ def CH_2D_init(x_init):
     f_phi_yy = lambdify([x, y], phi_yy, 'numpy')
 
     phi_init = f_phi(x_init[:,1], x_init[:,2])
-    w_init = -eta**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) + (phi_init**3 - phi_init)
+    w_init = -h**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) + (phi_init**3 - phi_init)
 
     return u_init, v_init, phi_init, w_init
     
-    ## wave
-    # u_init = np.zeros((x.shape[0]))
-    # v_init = np.zeros((x.shape[0]))
-    # phi_init = np.tanh((x[:, 2] - H_o*np.cos(k*x[:, 1]))/np.sqrt(2)/eta)
-    # return u_init, v_init, phi_init
 
 def main():
     ## parameters
@@ -190,11 +185,11 @@ def main():
     num_b_train = 50    # boundary sampling points
     num_f_train = 60000   # inner sampling points
     num_i_train = 5000   # initial sampling points 
-    num_t_train = 10
+    num_t_train = 5
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 5, num=num_t)[:, None]
+    t = np.linspace(0, 0.01, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
