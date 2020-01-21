@@ -11,7 +11,7 @@ Author: Minglang Yin
 
     where
         Input: [t, x, y]
-        Output: [u, v, p, phi], [w]
+        Output: [u, v, p], [phi], [w]
 """
 
 import sys
@@ -48,7 +48,7 @@ class Model(nn.Module):
         self.net_u = nn.Sequential()
         self.net_u.add_module('net_u_linear_1', nn.Linear(3, 20))
         self.net_u.add_module('net_u_tanh_1', nn.Tanh())
-        for num in range(2,5):
+        for num in range(2,8):
             self.net_u.add_module('net_u_linear_%d' %(num), nn.Linear(20, 20))
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 3))
@@ -56,7 +56,7 @@ class Model(nn.Module):
         self.net_phi = nn.Sequential()
         self.net_phi.add_module('net_phi_linear_1', nn.Linear(3, 20))
         self.net_phi.add_module('net_phi_tanh_1', nn.Tanh())
-        for num in range(2,5):
+        for num in range(2,8):
             self.net_phi.add_module('net_phi_linear_%d' %(num), nn.Linear(20, 20))
             self.net_phi.add_module('net_phi_tanh_%d' %(num), nn.Tanh())
         self.net_phi.add_module('net_phi_linear_50', nn.Linear(20, 1))
@@ -64,7 +64,7 @@ class Model(nn.Module):
         self.net_w = nn.Sequential()
         self.net_w.add_module('net_w_linear_1', nn.Linear(3, 20))
         self.net_w.add_module('net_w_tanh_1', nn.Tanh())
-        for num in range(2,5):
+        for num in range(2,8):
             self.net_w.add_module('net_w_linear_%d' %(num), nn.Linear(20, 20))
             self.net_w.add_module('net_w_tanh_%d' %(num), nn.Tanh())
         self.net_w.add_module('net_w_linear_50', nn.Linear(20, 1))
