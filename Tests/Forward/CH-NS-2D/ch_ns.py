@@ -150,7 +150,7 @@ def to_numpy(input):
 def CH_2D_init(x_init):
     ## u, v
     u_init = np.zeros((x_init.shape[0]))
-    u_init = 10*(-(x_init[:,2]**2)+1)
+    u_init = (-(x_init[:,2]**2)+1)
     v_init = np.zeros((x_init.shape[0]))
 
     #########
@@ -179,17 +179,17 @@ def main():
     os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
 
-    num_x = 100
-    num_y = 100
-    num_t = 10
-    num_b_train = 50    # boundary sampling points
+    num_x = 60
+    num_y = 60
+    num_t = 30
+    num_b_train = 40    # boundary sampling points
     num_f_train = 60000   # inner sampling points
-    num_i_train = 5000   # initial sampling points 
-    num_t_train = 5
+    num_i_train = 1800   # initial sampling points 
+    num_t_train = 20
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 0.1, num=num_t)[:, None]
+    t = np.linspace(0, 10, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
