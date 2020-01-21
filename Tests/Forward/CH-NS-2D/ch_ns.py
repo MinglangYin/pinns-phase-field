@@ -35,9 +35,9 @@ np.random.seed(123456)
 
 h = 0.01
 lmd = 0.4*0.00010607
-tau = 0.000001
+tau = 1
 rho = 1
-mu = 0.1
+mu = 0.01
 K = 1
 
 H_o = 0.1
@@ -98,7 +98,8 @@ class Model(nn.Module):
         ## PF
         F_g = phi**3 - phi
         res_w = w + h**2*(phi_xx + phi_yy) - F_g  
-        res_pf = phi_t + h**2*(u*phi_x + v*phi_y) - tau*(w_xx + w_yy)
+        # res_pf = phi_t + h**2*(u*phi_x + v*phi_y) - tau*(w_xx + w_yy)
+        res_pf = phi_t + (u*phi_x + v*phi_y) - tau*(w_xx + w_yy)
 
         # print(f'res_ns_x shape:{res_ns_x.shape}')
         # print(f'res_ns_y shape:{res_ns_y.shape}')
@@ -110,7 +111,7 @@ class Model(nn.Module):
 
     def loss_bc(self, x_l, x_r, x_up, x_dw):
         y_l, y_r, y_up, y_dw = self.net_u(x_l), self.net_u(x_r), self.net_u(x_up), self.net_u(x_dw)
-        w_l, w_r, w_up, w_dw = self.net_w(x_l), self.net_w(x_r), self.net_w(x_up), self.net_w(x_dw)
+        w_l, w_r, w_up, w_dw = self.net_w(x_l)[:,0], self.net_w(x_r)[:,0], self.net_w(x_up)[:,0], self.net_w(x_dw)[:,0]
 
         u_l, v_l, p_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 2], y_l[:, 3]
         u_r, v_r, p_r, phi_r = y_r[:, 0], y_r[:, 1], y_r[:, 2], y_r[:, 3]
@@ -122,6 +123,21 @@ class Model(nn.Module):
         w_up_y = gradients(w_up, x_up)[0][:, 2]
         w_dw_y = gradients(w_dw, x_dw)[0][:, 2]
 
+        # print(f'u_l - u_r shape: {((u_l - u_r)**2).shape}')
+        # print(f'v_l - v_r shape: {((v_l - v_r)**2).shape}')
+        # print(f'p_l - p_r shape: {((p_l - p_r)**2).shape}')
+        # print(f'phi_l - phi_r shape: {((phi_l - phi_r)**2).shape}')
+        # print(f'w_l - w_r shape: {((w_l - w_r)**2).shape}')
+
+        # print(f'u_up shape: {((u_up)**2).shape}')
+        # print(f'u_dw shape: {((u_dw)**2).shape}')
+        # print(f'v_up shape: {((v_up)**2).shape}')
+        # print(f'v_dw shape: {((v_dw)**2).shape}')
+        # print(f'phi_dw_y shape: {((phi_dw_y)**2).shape}')
+        # print(f'phi_up_y shape: {((phi_up_y)**2).shape}')
+        # print(f'w_up_y shape: {((w_up_y)**2).shape}')
+        # print(f'w_dw_y shape: {((w_dw_y)**2).shape}')
+
         return ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() +\
                 ((p_l - p_r)**2).mean() + ((phi_l - phi_r)**2).mean() + ((w_l - w_r)**2).mean() + \
                 (u_up**2).mean() + (u_dw**2).mean() + (v_up**2).mean() + (v_dw**2).mean() +\
@@ -131,10 +147,12 @@ class Model(nn.Module):
     def loss_ic(self, x, u_i, v_i, phi_i, w_i):
         y_pred, w_i_pred = self.net_u(x), self.net_w(x)[:, 0]
         u_i_pred, v_i_pred, phi_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3]
-        # print(f'u_loss: {((u_i_pred-u_i)**2).mean():6f}')
-        # print(f'v_loss: {((v_i_pred-v_i)**2).mean():6f}')
-        # print(f'phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}')
+
+        # print(f'u_loss: {((u_i_pred-u_i)**2).shape}')
+        # print(f'v_loss: {((v_i_pred-v_i)**2).shape}')
+        # print(f'phi_loss: {((phi_i_pred-phi_i)**2).shape}')
         # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
+        
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() + ((w_i_pred-w_i)**2).mean()
 
 def gradients(outputs, inputs):
@@ -183,15 +201,15 @@ def main():
 
     num_x = 60
     num_y = 60
-    num_t = 30
+    num_t = 20
     num_b_train = 40    # boundary sampling points
     num_f_train = 60000   # inner sampling points
     num_i_train = 1800   # initial sampling points 
-    num_t_train = 20
+    num_t_train = 10
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 10, num=num_t)[:, None]
+    t = np.linspace(0, 5, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
