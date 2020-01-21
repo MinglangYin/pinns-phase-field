@@ -102,8 +102,8 @@ class Model(nn.Module):
         ### there is another equivalent form see 5.13c
         # res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y)
         # res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy)
-        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) - lmd*w*phi_x
-        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) - lmd*w*phi_y
+        # res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) - lmd*w*phi_x
+        # res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) - lmd*w*phi_y
         res_incomp = u_x + v_y
 
         ## PF
@@ -208,15 +208,15 @@ def main():
 
     num_x = 100
     num_y = 100
-    num_t = 10
+    num_t = 50
     num_b_train = 50    # boundary sampling points
-    num_f_train = 50000   # inner sampling points
+    num_f_train = 100000   # inner sampling points
     num_i_train = 5000   # initial sampling points 
-    num_t_train = 10
+    num_t_train = 50
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 1, num=num_t)[:, None]
+    t = np.linspace(0, 30, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
