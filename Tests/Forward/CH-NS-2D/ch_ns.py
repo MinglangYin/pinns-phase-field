@@ -33,7 +33,7 @@ from plotting import newfig, savefig
 torch.manual_seed(123456)
 np.random.seed(123456)
 
-eta = 0.03
+eta = 0.05
 lmd = 0.01
 gamma = 0.01
 rho = 1
@@ -48,7 +48,7 @@ class Model(nn.Module):
         self.net_w = nn.Sequential()
         self.net_w.add_module('net_w_linear_1', nn.Linear(3, 20))
         self.net_w.add_module('net_w_tanh_1', nn.Tanh())
-        for num in range(2,10):
+        for num in range(2,6):
             self.net_w.add_module('net_w_linear_%d' %(num), nn.Linear(20, 20))
             self.net_w.add_module('net_w_tanh_%d' %(num), nn.Tanh())
         self.net_w.add_module('net_w_linear_50', nn.Linear(20, 1))
@@ -88,16 +88,16 @@ class Model(nn.Module):
 
         ## NS
         ### there is another equivalent form see 5.13c
-        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) \
-                    + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y)
-        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) \
-                    + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy)
+        # res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y)
+        # res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy)
+        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) - lmd*w.reshape(-1)*phi_x
+        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) - lmd*w.reshape(-1)*phi_y
         res_incomp = u_x + v_y
 
         ## PF
         F_g = phi**3 - phi
-        res_w = w.reshape(-1) - eta**2*(phi_xx + phi_yy) + F_g  
-        res_pf = phi_t + eta**2*(u*phi_x + v*phi_y) + gamma*(w_xx + w_yy)
+        res_w = w.reshape(-1) + eta**2*(phi_xx + phi_yy) - F_g  
+        res_pf = phi_t + eta**2*(u*phi_x + v*phi_y) - gamma*(w_xx + w_yy)
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw):
@@ -126,7 +126,6 @@ class Model(nn.Module):
         # print(f'u_loss: {((u_i_pred-u_i)**2).mean():6f}')
         # print(f'v_loss: {((v_i_pred-v_i)**2).mean():6f}')
         # print(f'phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}')
-
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() + ((w_i_pred-w_i)**2).mean()
 
 def gradients(outputs, inputs):
@@ -144,7 +143,7 @@ def to_numpy(input):
 def CH_2D_init(x_init):
     ## u, v
     u_init = np.zeros((x_init.shape[0]))
-    u_init = -(x_init[:,2]**2)+1
+    u_init = (-(x_init[:,2]**2)+1)
     v_init = np.zeros((x_init.shape[0]))
 
     #########
@@ -158,7 +157,7 @@ def CH_2D_init(x_init):
     f_phi_yy = lambdify([x, y], phi_yy, 'numpy')
 
     phi_init = f_phi(x_init[:,1], x_init[:,2])
-    w_init = eta**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) - (phi_init**3 - phi_init)
+    w_init = -eta**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) + (phi_init**3 - phi_init)
 
     return u_init, v_init, phi_init, w_init
     
@@ -172,8 +171,8 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 10000
-    lr = 0.001
+    epochs = 15000
+    lr = 0.0008
 
     os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
@@ -188,7 +187,7 @@ def main():
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 5, num=num_t)[:, None]
+    t = np.linspace(0, 1, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
@@ -198,6 +197,17 @@ def main():
     u_init, v_init, phi_init, w_init = CH_2D_init(xt_init)
 
     ## save init fig
+    ### save u
+    fig, ax = newfig(2.0, 1.1)
+    ax.axis('off') 
+    gs0 = gridspec.GridSpec(1, 2)
+    gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+    h = ax.imshow(u_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
+    fig.colorbar(h)
+    ax.plot(xt_init[:,1], xt_init[:,2], 'kx', label = 'Data (%d points)' % (xt_init.shape[0]), markersize = 4, clip_on = False)
+    line = np.linspace(xt_init.min(), xt_init.max(), 2)[:,None]
+    fig.savefig('./InitConds/u_init.png')
+
     ### save w
     fig, ax = newfig(2.0, 1.1)
     ax.axis('off') 
@@ -311,6 +321,7 @@ def main():
 
     ## test
     phi_test = np.zeros((num_t, num_x, num_y))
+    u_test = np.zeros((num_t, num_x, num_y))
     for i in range(0, num_t):
         print(f'printing step: {i}')
 
@@ -318,6 +329,20 @@ def main():
         xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.double).to(device)
         y_pred = model(xt_tensor)
         phi_test[i,:,:] = to_numpy(y_pred[:, 3]).reshape(num_x, num_y)
+        u_test[i,:,:] = to_numpy(y_pred[:, 0]).reshape(num_x, num_y)
+
+        fig, ax = newfig(2.0, 1.1)
+        ax.axis('off') 
+        gs0 = gridspec.GridSpec(1, 2)
+        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+        h = ax.imshow(u_test[i,:,:], interpolation='nearest', cmap='rainbow', 
+                # extent=[t.min(), t.max(), x.min(), x.max()], 
+                    origin='lower', aspect='auto')
+        fig.colorbar(h)
+        ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
+        line = np.linspace(xt.min(), xt.max(), 2)[:,None]
+        fig.savefig('./Predictions/phi_'+str(i+1000)+'.png')
+        plt.close()
 
         fig, ax = newfig(2.0, 1.1)
         ax.axis('off') 
