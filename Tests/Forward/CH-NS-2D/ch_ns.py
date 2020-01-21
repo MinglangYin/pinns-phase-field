@@ -33,7 +33,7 @@ from plotting import newfig, savefig
 torch.manual_seed(123456)
 np.random.seed(123456)
 
-eta = 0.05
+eta = 0.1
 lmd = 0.01
 gamma = 0.01
 rho = 1
