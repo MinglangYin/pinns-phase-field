@@ -38,6 +38,7 @@ lmd = 0.4*0.00010607
 tau = 0.000001
 rho = 1
 mu = 0.1
+K = 1
 
 H_o = 0.1
 k = 6*np.pi
@@ -88,8 +89,8 @@ class Model(nn.Module):
 
         ## NS
         ### there is another equivalent form see 5.13c
-        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y)
-        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy)
+        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) #+ mu*(1-phi)*u/(2*K)
+        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) #+ mu*(1-phi)*v/(2*K)
         # res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) - lmd*w.reshape(-1)*phi_x
         # res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) - lmd*w.reshape(-1)*phi_y
         res_incomp = u_x + v_y
@@ -128,11 +129,12 @@ class Model(nn.Module):
 
 
     def loss_ic(self, x, u_i, v_i, phi_i, w_i):
-        y_pred, w_i_pred = self.net_u(x), self.net_w(x)
+        y_pred, w_i_pred = self.net_u(x), self.net_w(x)[:, 0]
         u_i_pred, v_i_pred, phi_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3]
         # print(f'u_loss: {((u_i_pred-u_i)**2).mean():6f}')
         # print(f'v_loss: {((v_i_pred-v_i)**2).mean():6f}')
         # print(f'phi_loss: {((phi_i_pred-phi_i)**2).mean():6f}')
+        # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() + ((w_i_pred-w_i)**2).mean()
 
 def gradients(outputs, inputs):
