@@ -3,7 +3,7 @@ Author: Minglang Yin
     PINNs (physical-informed neural network) for solving time-dependent Cahn-Hilliard Navier-Stokes equation (2D).
 
     Governing equtions (Latex):
-        \frac{\partial\phi}{dt} + u\cdot(\nabla\phi) + \gamma\Delta w = 0, \\
+        \frac{\partial\phi}{dt} + u\cdot(\nabla\phi) + \tau\Delta w = 0, \\
         w = \Delta\phi - f(\phi), \\
         \rho(\frac{\partial u}{\partial t} + (u \cdot \nabla) u) + \nabla p - \mu\Delta u + \lambda(\Delta\phi- f(\phi))\nabla \phi = 0,\\
         \nabla \cdot u = 0, \\
@@ -97,7 +97,7 @@ class Model(nn.Module):
         ## PF
         F_g = phi**3 - phi
         res_w = w + h**2*(phi_xx + phi_yy) - F_g  
-        res_pf = phi_t + h**2*(u*phi_x + v*phi_y) - gamma*(w_xx + w_yy)
+        res_pf = phi_t + h**2*(u*phi_x + v*phi_y) - tau*(w_xx + w_yy)
 
         # print(f'res_ns_x shape:{res_ns_x.shape}')
         # print(f'res_ns_y shape:{res_ns_y.shape}')
