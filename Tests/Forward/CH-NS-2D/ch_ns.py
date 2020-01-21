@@ -33,7 +33,7 @@ from plotting import newfig, savefig
 torch.manual_seed(123456)
 np.random.seed(123456)
 
-eta = 0.01
+eta = 0.1
 lmd = 0.01
 gamma = 0.01
 rho = 1
@@ -48,7 +48,7 @@ class Model(nn.Module):
         self.net_w = nn.Sequential()
         self.net_w.add_module('net_w_linear_1', nn.Linear(3, 20))
         self.net_w.add_module('net_w_tanh_1', nn.Tanh())
-        for num in range(2,6):
+        for num in range(2,10):
             self.net_w.add_module('net_w_linear_%d' %(num), nn.Linear(20, 20))
             self.net_w.add_module('net_w_tanh_%d' %(num), nn.Tanh())
         self.net_w.add_module('net_w_linear_50', nn.Linear(20, 1))
@@ -69,7 +69,7 @@ class Model(nn.Module):
 
     def loss_pde(self, x):
         y = self.net_u(x)
-        w = self.net_w(x)
+        w = self.net_w(x)[:,0]
 
         u, v, p, phi = y[:, 0], y[:, 1], y[:, 2], y[:, 3]
         u_g, v_g, p_g, phi_g = gradients(u, x)[0], gradients(v, x)[0], gradients(p, x)[0], gradients(phi, x)[0]
@@ -88,16 +88,23 @@ class Model(nn.Module):
 
         ## NS
         ### there is another equivalent form see 5.13c
-        # res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y)
-        # res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy)
-        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) - lmd*w.reshape(-1)*phi_x
-        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) - lmd*w.reshape(-1)*phi_y
+        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y)
+        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy)
+        # res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) - lmd*w.reshape(-1)*phi_x
+        # res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) - lmd*w.reshape(-1)*phi_y
         res_incomp = u_x + v_y
 
         ## PF
         F_g = phi**3 - phi
-        res_w = w.reshape(-1) + eta**2*(phi_xx + phi_yy) - F_g  
+        res_w = w + eta**2*(phi_xx + phi_yy) - F_g  
         res_pf = phi_t + eta**2*(u*phi_x + v*phi_y) - gamma*(w_xx + w_yy)
+
+        print(f'res_ns_x shape:{res_ns_x.shape}')
+        print(f'res_ns_y shape:{res_ns_y.shape}')
+        print(f'res_incomp shape:{res_incomp.shape}')
+        print(f'res_w shape:{res_w.shape}')
+        print(f'res_pf shape:{res_pf.shape}')
+
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw):
