@@ -33,7 +33,7 @@ from plotting import newfig, savefig
 torch.manual_seed(123456)
 np.random.seed(123456)
 
-eta = 0.1
+eta = 0.01
 lmd = 0.01
 gamma = 0.01
 rho = 1
@@ -171,8 +171,8 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 15000
-    lr = 0.0008
+    epochs = 10000
+    lr = 0.001
 
     os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
@@ -187,7 +187,7 @@ def main():
 
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
-    t = np.linspace(0, 1, num=num_t)[:, None]
+    t = np.linspace(0, 2, num=num_t)[:, None]
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
@@ -341,7 +341,7 @@ def main():
         fig.colorbar(h)
         ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
         line = np.linspace(xt.min(), xt.max(), 2)[:,None]
-        fig.savefig('./Predictions/phi_'+str(i+1000)+'.png')
+        fig.savefig('./Predictions/u_'+str(i+1000)+'.png')
         plt.close()
 
         fig, ax = newfig(2.0, 1.1)
