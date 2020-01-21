@@ -179,9 +179,9 @@ def main():
 
     num_x = 100
     num_y = 100
-    num_t = 50
+    num_t = 30
     num_b_train = 50    # boundary sampling points
-    num_f_train = 100000   # inner sampling points
+    num_f_train = 60000   # inner sampling points
     num_i_train = 5000   # initial sampling points 
     num_t_train = 10
 

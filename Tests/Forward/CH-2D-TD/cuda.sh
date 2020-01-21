@@ -10,4 +10,4 @@
 #SBATCH -o MyCUDAJob-%j.out
 
 # Compile CUDA program and run
-~/Environments/PyTorch-GPU/bin/python ch_2d_td.py
+~/Environments/PyTorch-GPU/bin/python ch_2d_spinodal.py
