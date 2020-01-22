@@ -193,18 +193,18 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 5000
+    epochs = 20000
     lr = 0.001
 
     os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
 
-    num_x = 60
-    num_y = 60
+    num_x = 100
+    num_y = 100
     num_t = 20
-    num_b_train = 40    # boundary sampling points
+    num_b_train = 50    # boundary sampling points
     num_f_train = 60000   # inner sampling points
-    num_i_train = 1800   # initial sampling points 
+    num_i_train = 5000   # initial sampling points 
     num_t_train = 10
 
     x = np.linspace(-1, 1, num=num_x)
