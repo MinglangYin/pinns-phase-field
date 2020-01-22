@@ -10,4 +10,4 @@
 #SBATCH -o MyCUDAJob-%j.out
 
 # Compile CUDA program and run
-~/Environments/PyTorch-GPU/bin/python ac_ns_no_psi.py
+~/Environments/PyTorch-GPU/bin/python ch_ns_no_psi.py
