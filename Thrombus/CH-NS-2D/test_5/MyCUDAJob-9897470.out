@@ -1,0 +1,13 @@
+## SLURM PROLOG ###############################################################
+##    Job ID : 9897470
+##  Job Name : cuda.sh
+##  Nodelist : gpu1201
+##      CPUs : 1
+##   Mem/CPU : 2800 MB
+## Directory : /gpfs/scratch/myin2/NeuralNets/PINNs-PF/Thrombus/CH-NS-2D/test_5
+##   Started : Wed Jan 22 10:57:26 EST 2020
+###############################################################################
+  File "ch_ns_no_psi.py", line 152
+    ((p_l - p_r)**2).mean() + ((phi_l - phi_r)**2).mean() + ((w_l - w_r)**2).mean() + \
+    ^
+IndentationError: unexpected indent

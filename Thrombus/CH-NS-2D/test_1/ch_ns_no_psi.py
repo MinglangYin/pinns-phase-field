@@ -30,6 +30,9 @@ import scipy.io
 from sympy import *
 from plotting import newfig, savefig
 
+import matplotlib
+matplotlib.use('Agg')
+
 torch.manual_seed(123456)
 np.random.seed(123456)
 
@@ -106,6 +109,12 @@ class Model(nn.Module):
         # print(f'res_incomp shape:{res_incomp.shape}')
         # print(f'res_w shape:{res_w.shape}')
         # print(f'res_pf shape:{res_pf.shape}')
+
+        print(f'res_ns_x: {(res_ns_x**2).mean():6f}')
+        print(f'res_ns_y: {(res_ns_y**2).mean():6f}')
+        print(f'res_incomp: {(res_incomp**2).mean():6f}')
+        print(f'res_pf: {(res_pf**2).mean():6f}')
+        print(f'res_w: {(res_w**2).mean():6f}')
 
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean()
 
@@ -200,7 +209,7 @@ def to_numpy(input):
 def CH_2D_init(x_init):
     ## u, v
     u_init = np.zeros((x_init.shape[0]))
-    u_init = (1-x_init[:,2])*x_init[:,2]*2
+    u_init = (1-x_init[:,2])*x_init[:,2]
     v_init = np.zeros((x_init.shape[0]))
 
     #########
@@ -225,8 +234,8 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 10000
-    lr = 0.001
+    epochs = 20000
+    lr = 0.0008
 
     os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
