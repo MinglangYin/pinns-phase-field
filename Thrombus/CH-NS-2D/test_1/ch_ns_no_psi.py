@@ -38,10 +38,10 @@ np.random.seed(123456)
 
 h = 0.01
 lmd = 0.4*0.00010607
-tau = 1
+tau = 0.000001
 rho = 1
-mu = 0.1
-K = 1
+mu = 0.01
+K = 10
 
 H_o = 0.1
 k = 6*np.pi
@@ -52,7 +52,7 @@ class Model(nn.Module):
         self.net_w = nn.Sequential()
         self.net_w.add_module('net_w_linear_1', nn.Linear(3, 20))
         self.net_w.add_module('net_w_tanh_1', nn.Tanh())
-        for num in range(2,10):
+        for num in range(2,12):
             self.net_w.add_module('net_w_linear_%d' %(num), nn.Linear(20, 20))
             self.net_w.add_module('net_w_tanh_%d' %(num), nn.Tanh())
         self.net_w.add_module('net_w_linear_50', nn.Linear(20, 1))
@@ -60,7 +60,7 @@ class Model(nn.Module):
         self.net_u = nn.Sequential()
         self.net_u.add_module('net_u_linear_1', nn.Linear(3, 20))
         self.net_u.add_module('net_u_tanh_1', nn.Tanh())
-        for num in range(2,10):
+        for num in range(2,12):
             self.net_u.add_module('net_u_linear_%d' %(num), nn.Linear(20, 20))
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
@@ -214,7 +214,7 @@ def CH_2D_init(x_init):
 
     #########
     x, y = symbols('x y')
-    phi = 0.5*(tanh((x**2 + y**2-0.3**2) / (sqrt(2)*0.04) ) + tanh( (x**2 + y**2-0.7**2) / (sqrt(2)*0.04)))
+    phi = 0.5*(tanh((x**2 + y**2-0.3**2) / (sqrt(2)*0.01) ) + tanh( (x**2 + y**2-0.7**2) / (sqrt(2)*0.01)))
     phi_x, phi_y = phi.diff(x), phi.diff(y)
     phi_xx, phi_yy = phi_x.diff(x), phi_y.diff(y)
 
@@ -234,18 +234,18 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 20000
-    lr = 0.0008
+    epochs = 50000
+    lr = 0.0005
 
     os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
 
-    num_x = 60
-    num_y = 60
+    num_x = 100
+    num_y = 100
     num_t = 20
-    num_b_train = 60    # boundary sampling points
-    num_f_train = 40000   # inner sampling points
-    num_i_train = 3600   # initial sampling points 
+    num_b_train = 100    # boundary sampling points
+    num_f_train = 100000   # inner sampling points
+    num_i_train = 5000   # initial sampling points 
     num_t_train = 10
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
 
