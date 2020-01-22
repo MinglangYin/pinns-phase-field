@@ -240,10 +240,10 @@ def main():
     os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
 
-    num_x = 100
-    num_y = 100
+    num_x = 80
+    num_y = 80
     num_t = 20
-    num_b_train = 100    # boundary sampling points
+    num_b_train = 80    # boundary sampling points
     num_f_train = 100000   # inner sampling points
     num_i_train = 5000   # initial sampling points 
     num_t_train = 10
