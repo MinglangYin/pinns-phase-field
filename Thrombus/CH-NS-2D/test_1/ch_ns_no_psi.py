@@ -35,7 +35,7 @@ np.random.seed(123456)
 
 h = 0.01
 lmd = 0.4*0.00010607
-tau = 1
+tau = 1e-6
 rho = 1
 mu = 0.1
 K = 1
@@ -205,7 +205,7 @@ def CH_2D_init(x_init):
 
     #########
     x, y = symbols('x y')
-    phi = 0.5*(tanh((x**2 + y**2-0.3**2) / (sqrt(2)*0.04) ) + tanh( (x**2 + y**2-0.7**2) / (sqrt(2)*0.04) ) )
+    phi = 0.5*(tanh((x**2 + y**2-0.3**2) / (sqrt(2)*0.04) ) + tanh((x**2 + y**2-0.7**2) / (sqrt(2)*0.04)) )
     phi_x, phi_y = phi.diff(x), phi.diff(y)
     phi_xx, phi_yy = phi_x.diff(x), phi_y.diff(y)
 
