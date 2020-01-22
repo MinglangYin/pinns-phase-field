@@ -52,7 +52,7 @@ class Model(nn.Module):
         self.net_w = nn.Sequential()
         self.net_w.add_module('net_w_linear_1', nn.Linear(3, 20))
         self.net_w.add_module('net_w_tanh_1', nn.Tanh())
-        for num in range(2,12):
+        for num in range(2,10):
             self.net_w.add_module('net_w_linear_%d' %(num), nn.Linear(20, 20))
             self.net_w.add_module('net_w_tanh_%d' %(num), nn.Tanh())
         self.net_w.add_module('net_w_linear_50', nn.Linear(20, 1))
@@ -60,7 +60,7 @@ class Model(nn.Module):
         self.net_u = nn.Sequential()
         self.net_u.add_module('net_u_linear_1', nn.Linear(3, 20))
         self.net_u.add_module('net_u_tanh_1', nn.Tanh())
-        for num in range(2,12):
+        for num in range(2,10):
             self.net_u.add_module('net_u_linear_%d' %(num), nn.Linear(20, 20))
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
