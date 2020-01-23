@@ -154,6 +154,16 @@ class Model(nn.Module):
         
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() + ((w_i_pred-w_i)**2).mean()
 
+def left_bound_vel(x):
+    return 0.3*(3-x[:, 2])*x[:,2]
+
+def bound_ext(x, t):
+    num_t, num_x = t.shape[0], x.shape[0]
+    x_ext, t_ext = np.tile(x, [num_t,1]), np.zeros((num_t*num_x, 1))
+    for i in range (0, num_t):
+        t_ext[i*num_x:(i+1)*num_x,:] = t[i]
+    xt_ext = np.concatenate((t_ext, x_ext), axis=1)
+    return xt_ext
 
 def gradients(outputs, inputs):
     return torch.autograd.grad(outputs, inputs, grad_outputs=torch.ones_like(outputs), create_graph=True)
@@ -174,18 +184,23 @@ def main():
     print(device, flush=True)
     epochs = 10000
     lr = 0.001
+    init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
 
-    num_x = 60
-    num_y = 60
-    num_t = 20
-    num_b_train = 60    # boundary sampling points
-    num_f_train = 40000   # inner sampling points
-    num_i_train = 3600   # initial sampling points 
-    num_t_train = 10
+    file_start = 10
+    file_end = 19
+    dt = 0.03
 
-    x_min, x_max = -1, 1
-    y_min, y_max = -1, 1
+    num_x1 = 100
+    num_x2 = 100
+    num_t = file_end-file_start
+    num_bh_train = 500   # number of sampling points on verticle boundary over time
+    num_bv_train = 500   # number of sampling points on horizontal boundary over time
+    num_f_train = 40000   # inner sampling points
+    num_i_train = 5000   # initial sampling points 
+
+    x_min, x_max = 0, 6
+    y_min, y_max = 0, 3
     asp_ratio = (y_max-y_min)/(x_max-x_min)
 
     ## create new folders
@@ -193,63 +208,102 @@ def main():
     os.makedirs('Predictions', exist_ok=True)
 
     ## load data file
-    data = np.loadtxt( 'data.dat' )
+    for file_id in range(file_start, file_end):
+        name_u = '../../../Data/CH/phase_field_xiaoning/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/dat_phase/halfp' + str(file_id) + '.dat'
+        data_u = np.loadtxt(name_u)
+        data_phi = np.loadtxt(name_phi)
 
-"""
+        ## x_tmp: [t,x,y]   u_tmp:[u,v,p,phi]
+        x_tmp = np.concatenate(( file_id*dt*np.ones((data_u.shape[0], 1)), data_u[:,0:2]), axis=1)
+        y_tmp = np.concatenate(( data_u[:,2:4], data_u[:, 5:6], data_phi[:, 3:4]), axis=1)
+        
+        if file_id == file_start:
+            x_data = x_tmp
+            y_data = y_tmp
+
+            ## initial condition
+            xt_init = x_tmp
+            u_init = y_tmp[:, 0]
+            v_init = y_tmp[:, 1]
+            p_init = y_tmp[:, 2]
+            phi_init = y_tmp[:, 3]
+        else:
+            x_data = np.concatenate((x_data, x_tmp), axis=0)
+            y_data = np.concatenate((y_data, y_tmp), axis=0)
+
     ## geometry
-    x = np.linspace(x_min, x_max, num=num_x)
-    y = np.linspace(y_min, y_max, num=num_y)
-    t = np.linspace(0, 2, num=num_t)[:, None]
-    x_grid, y_grid = np.meshgrid(x, y)
-    x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
+    x1 = np.linspace(x_min, x_max, num=num_x1)
+    x2 = np.linspace(y_min, y_max, num=num_x2)
+    t = np.linspace(dt*(file_start+1), dt*(file_end+1), num=num_t+1)
 
-    x_in_grid, y_in_grid = np.meshgrid(x[1:-1], y[1:-1])
-    x_in_2d = np.concatenate((x_in_grid.flatten()[:,None], y_in_grid.flatten()[:,None]), axis=1)
+    x1_grid, x2_grid = np.meshgrid(x1, x2)
+    x_2d = np.concatenate((x1_grid.flatten()[:,None], x2_grid.flatten()[:,None]), axis=1)
 
     ## initial condition
-    xt_init = np.concatenate((np.zeros((num_x*num_y, 1)), x_2d), axis=1)
-    u_init, v_init, phi_init, w_init = CH_2D_init(xt_init)
+    xt_init = np.concatenate((np.zeros(( num_x1*num_x2, 1)), x_2d), axis=1)
+    inits = np.zeros((4, num_x1*num_x2 ))
 
-    inits = np.zeros((4, num_x*num_y)) # [u, v, phi, psi_1, psi_2]
     inits[0, :] = u_init
     inits[1, :] = v_init
-    inits[2, :] = phi_init
-    inits[3, :] = w_init
-    init_list = ['u', 'v', 'phi', 'w']
-    init_path = './InitConds/'
+    inits[2, :] = p_init
+    inits[3, :] = phi_init
+    
+    ## boundary condition
+    x_l = np.concatenate((x1_grid[:,0][:,None],x2_grid[:,0][:,None]), axis=1)
+    x_r = np.concatenate((x1_grid[:,-1][:,None], x2_grid[:,-1][:,None]), axis=1)
+    x_up = np.concatenate((x1_grid[-1,:][:,None], x2_grid[-1,:][:,None]), axis=1)
+    x_dw = np.concatenate((x1_grid[0,:][:,None], x2_grid[0,:][:,None]), axis=1)
+
+    xt_l_ext = bound_ext(x_l, t)
+    xt_r_ext = bound_ext(x_r, t)
+    xt_up_ext = bound_ext(x_up, t)
+    xt_dw_ext = bound_ext(x_dw, t)
+
+    u_l = left_bound_vel(xt_l_ext)
 
     ## save init fig
     ## Create Folders
     for path in path_list:
         os.makedirs(path, exist_ok=True)
     os.makedirs(init_path, exist_ok=True)
-
-    ## inner points
-    
     
     ## sampling
-    # id_f = np.random.choice(num_x*num_y*num_t, num_f_train, replace=False)
-    # id_b = np.random.choice(num_x, num_b_train, replace=False) ## Dirichlet
-    # id_i = np.random.choice(num_x*num_y, num_i_train, replace=False)
-    # id_t = np.random.choice(num_t, num_t_train, replace=False)
+    id_f = np.random.choice(num_x1*num_x2*num_t, num_f_train, replace=False)
+    id_bv = np.random.choice(num_x1*num_t, num_bv_train, replace=False)
+    id_bh = np.random.choice(num_x1*num_t, num_bh_train, replace=False)
+    id_i = np.random.choice(num_x1*num_x2, num_i_train, replace=False)
 
-    
+    ### initial
+    xt_i_sample = xt_init[id_i, :]
+    u_i_sample, v_i_sample, p_i_sample, phi_i_sample = u_init[id_i, 0], v_init[id_i, 1], p_init[id_i, 2], phi_init[id_i, 3]
+    ### boundary
+    u_l_sample = u_l[id_bv,:]
+    xt_l_sample, xt_r_sample = xt_l_ext[id_bv,:], xt_r_ext[id_bv,:]
+    xt_up_sample, xt_dw_sample = xt_up_ext[id_bh,:], xt_dw_ext[id_bh,:]
+    ### inner points
+    xt_f_sample = x_data[id_f,:]
+    u_f_sample, v_f_sample, p_f_sample, phi_f_sample = y_data[id_f,0], y_data[id_f,1], y_data[id_f,2], y_data[id_f,3]
+
     ## set data as tensor and send to device
-    xt_f_train = torch.tensor(xt_f, requires_grad=True, dtype=torch.double).to(device)
-    xt_i_train = torch.tensor(xt_init, requires_grad=True, dtype=torch.double).to(device)
-    x_i_train = torch.tensor(x_2d, requires_grad=True, dtype=torch.double).to(device)
+    xt_i_train = torch.tensor(xt_i_sample, requires_grad=True, dtype=torch.double).to(device)
+    u_i_train = torch.tensor(u_i_sample, dtype=torch.double).to(device)
+    v_i_train = torch.tensor(v_i_sample, dtype=torch.double).to(device)
+    p_i_train = torch.tensor(p_i_sample, dtype=torch.double).to(device)
+    phi_i_train = torch.tensor(phi_i_sample, dtype=torch.double).to(device)
 
-    u_i_train = torch.tensor(u_init, dtype=torch.double).to(device)
-    ul_train = torch.tensor(u_l, dtype=torch.double).to(device)
-    v_i_train = torch.tensor(v_init, dtype=torch.double).to(device)
-    phi_i_train = torch.tensor(phi_init, dtype=torch.double).to(device)
-    w_i_train = torch.tensor(w_init, dtype=torch.double).to(device)
+    xt_f_train = torch.tensor(xt_f_sample, requires_grad=True, dtype=torch.double).to(device)
+    u_f_train = torch.tensor(u_f_sample, dtype=torch.double).to(device)
+    v_f_train = torch.tensor(v_f_sample, dtype=torch.double).to(device)
+    p_f_train = torch.tensor(p_f_sample, dtype=torch.double).to(device)
+    phi_f_train = torch.tensor(phi_f_sample, dtype=torch.double).to(device)
     
-    xt_l_train = torch.tensor(xt_l, requires_grad=True, dtype=torch.double).to(device)
-    xt_r_train = torch.tensor(xt_r, requires_grad=True, dtype=torch.double).to(device)
-    xt_up_train = torch.tensor(xt_up, requires_grad=True, dtype=torch.double).to(device)
-    xt_dw_train = torch.tensor(xt_dw, requires_grad=True, dtype=torch.double).to(device)
-
+    xt_l_train = torch.tensor(xt_l_sample, requires_grad=True, dtype=torch.double).to(device)
+    xt_r_train = torch.tensor(xt_r_sample, requires_grad=True, dtype=torch.double).to(device)
+    xt_up_train = torch.tensor(xt_up_sample, requires_grad=True, dtype=torch.double).to(device)
+    xt_dw_train = torch.tensor(xt_dw_sample, requires_grad=True, dtype=torch.double).to(device)
+    ul_train = torch.tensor(u_l_sample, dtype=torch.double).to(device)
+    
     ## instantiate model
     model = Model().to(device)
     model.double()
@@ -265,14 +319,11 @@ def main():
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
-            loss_data = model.loss_data(xt_f_train)
-            loss = loss_data + loss_pde
-            
-            # loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
-            # loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train, w_i_train)
-            # loss = loss_pde + loss_bc + 100*loss_ic
-
-            print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_data:{loss_data:6f}', flush=True)
+            loss_data = model.loss_data(xt_f_train)        
+            loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
+            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train, w_i_train)
+            loss = loss_pde + loss_bc + loss_data + 100*loss_ic
+            print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
             return loss
         loss = optimizer.step(closure)
@@ -288,13 +339,13 @@ def main():
     print(f'total training time: {int((toc-tic)/60)} min', flush=True)
 
     ## test
-    Predictions = np.zeros((5, num_t, num_x, num_y))
+    Predictions = np.zeros((5, num_t, num_x1, num_x2))
     for i in range(0, num_t):
-        xt = np.concatenate((t[i]*np.ones((num_x*num_y, 1)), x_2d), axis=1)
+        xt = np.concatenate((t[i]*np.ones((num_x1*num_x2, 1)), x_2d), axis=1)
         xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.double).to(device)
         y_pred = model(xt_tensor)
         for j in range(0, 5):
-            Predictions[j, i, :, :] = to_numpy(y_pred[:, j]).reshape(num_x, num_y)
+            Predictions[j, i, :, :] = to_numpy(y_pred[:, j]).reshape(num_x1, num_x2)
 
     for i in range(0, num_t):
         print(f'Saving Step: {i}')

@@ -1,0 +1,7 @@
+"dat" file contains information of flow field:
+    format:
+    x   y   z   u   v   w   p   |   psi...
+
+"dat_phase" file contains information of phase field:
+    format:
+    x   y   z   phi
