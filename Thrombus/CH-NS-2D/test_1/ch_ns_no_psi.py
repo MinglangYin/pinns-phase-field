@@ -41,7 +41,7 @@ lmd = 0.4*0.00010607
 tau = 0.00001
 rho = 1
 mu = 0.01
-K = 0.1
+# K = 0.1
 
 H_o = 0.1
 k = 6*np.pi
@@ -89,6 +89,9 @@ class Model(nn.Module):
         w_g = gradients(w, x)[0]
         w_x, w_y = w_g[:, 1], w_g[:, 2]
         w_xx, w_yy = gradients(w_x, x)[0][:, 1], gradients(w_y, x)[0][:, 2]
+
+        ## field-dependent permeability
+        K = torch.tanh((phi)/(0.01)) + 1.01
 
         ## NS
         ### there is another equivalent form see 5.13c

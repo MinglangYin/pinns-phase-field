@@ -192,8 +192,11 @@ def main():
     os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
 
-    
+    ## load data file
+    data = np.loadtxt( 'data.dat' )
 
+"""
+    ## geometry
     x = np.linspace(x_min, x_max, num=num_x)
     y = np.linspace(y_min, y_max, num=num_y)
     t = np.linspace(0, 2, num=num_t)[:, None]
@@ -308,6 +311,7 @@ def main():
             plt.close()
         
     np.savetxt('loss.his', loss_his)
+"""
 
 if __name__ == '__main__':
     main()
