@@ -91,7 +91,7 @@ class Model(nn.Module):
         w_xx, w_yy = gradients(w_x, x)[0][:, 1], gradients(w_y, x)[0][:, 2]
 
         ## field-dependent permeability
-        K = torch.tanh((phi)/(0.01)) + 1.01
+        K = torch.tanh((phi)/(0.2)) + 1.01
 
         ## NS
         ### there is another equivalent form see 5.13c
@@ -237,8 +237,8 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 40000
-    lr = 0.0008
+    epochs = 100000
+    lr = 0.001
 
     os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
