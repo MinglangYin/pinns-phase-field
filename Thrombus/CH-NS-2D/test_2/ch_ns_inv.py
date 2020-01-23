@@ -108,50 +108,51 @@ class Model(nn.Module):
 
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean()
 
-    def loss_data(self, x_data, u_data):
+    def loss_data(self, x_data, u_data, v_data, p_data, phi_data):
+        y = self.net_u(x_data)
+        u, v, p, phi = y[:, 0], y[:, 1], y[:, 2], y[:, 3]
+        print(f'(u - u_data)**2: {((u - u_data)**2).shape}')
+        return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((p - p_data)**2).mean() + ((phi - phi_data)**2).mean()
+
+    def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
+        ## velocity inflow
+        y_l, y_r, y_up, y_dw = self.net_u(x_l), self.net_u(x_r), self.net_u(x_up), self.net_u(x_dw)
+        w_l, w_r, w_up, w_dw = self.net_w(x_l)[:,0], self.net_w(x_r)[:,0], self.net_w(x_up)[:,0], self.net_w(x_dw)[:,0]
         
-        return 
+        u_l, v_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 3]
+        u_r, phi_r = y_r[:, 0], y_r[:, 3]
+        u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
+        u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3]
 
-    # def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
-    #     ## velocity inflow
-    #     y_l, y_r, y_up, y_dw = self.net_u(x_l), self.net_u(x_r), self.net_u(x_up), self.net_u(x_dw)
-    #     w_l, w_r, w_up, w_dw = self.net_w(x_l)[:,0], self.net_w(x_r)[:,0], self.net_w(x_up)[:,0], self.net_w(x_dw)[:,0]
+        u_r_x = gradients(u_r, x_r)[0][:, 1]
+
+        phi_l_x = gradients(phi_l, x_l)[0][:, 1]
+        phi_r_x = gradients(phi_r, x_r)[0][:, 1]
+        phi_up_y = gradients(phi_up, x_up)[0][:, 2]
+        phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
+
+        w_l_x = gradients(w_l, x_l)[0][:, 1]
+        w_r_x = gradients(w_r, x_r)[0][:, 1]
+        w_up_y = gradients(w_up, x_up)[0][:, 2]
+        w_dw_y = gradients(w_dw, x_dw)[0][:, 2]
+
+        print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
+
+        return ((u_l - u_l_real)**2).mean() + (u_r_x**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
+                + (v_l**2).mean() + (v_up**2).mean() + (v_dw**2).mean() \
+                + (phi_l_x**2).mean() + (phi_r_x**2).mean() +  (phi_up_y**2).mean() + (phi_dw_y**2).mean() \
+                + (w_l_x**2).mean() + (w_r_x**2).mean() + (w_up_y**2).mean() + (w_dw_y**2).mean()
+
+    def loss_ic(self, x, u_i, v_i, phi_i, w_i):
+        y_pred, w_i_pred = self.net_u(x), self.net_w(x)[:, 0]
+        u_i_pred, v_i_pred, phi_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3]
+
+        # print(f'u_loss: {((u_i_pred-u_i)**2).shape}')
+        # print(f'v_loss: {((v_i_pred-v_i)**2).shape}')
+        # print(f'phi_loss: {((phi_i_pred-phi_i)**2).shape}')
+        # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
         
-    #     u_l, v_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 3]
-    #     u_r, phi_r = y_r[:, 0], y_r[:, 3]
-    #     u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
-    #     u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3]
-
-    #     u_r_x = gradients(u_r, x_r)[0][:, 1]
-
-    #     phi_l_x = gradients(phi_l, x_l)[0][:, 1]
-    #     phi_r_x = gradients(phi_r, x_r)[0][:, 1]
-    #     phi_up_y = gradients(phi_up, x_up)[0][:, 2]
-    #     phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
-
-    #     w_l_x = gradients(w_l, x_l)[0][:, 1]
-    #     w_r_x = gradients(w_r, x_r)[0][:, 1]
-    #     w_up_y = gradients(w_up, x_up)[0][:, 2]
-    #     w_dw_y = gradients(w_dw, x_dw)[0][:, 2]
-
-    #     print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
-
-    #     return ((u_l - u_l_real)**2).mean() + (u_r_x**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
-    #             + (v_l**2).mean() + (v_up**2).mean() + (v_dw**2).mean() \
-    #             + (phi_l_x**2).mean() + (phi_r_x**2).mean() +  (phi_up_y**2).mean() + (phi_dw_y**2).mean() \
-    #             + (w_l_x**2).mean() + (w_r_x**2).mean() + (w_up_y**2).mean() + (w_dw_y**2).mean()
-
-
-    # def loss_ic(self, x, u_i, v_i, phi_i, w_i):
-    #     y_pred, w_i_pred = self.net_u(x), self.net_w(x)[:, 0]
-    #     u_i_pred, v_i_pred, phi_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3]
-
-    #     # print(f'u_loss: {((u_i_pred-u_i)**2).shape}')
-    #     # print(f'v_loss: {((v_i_pred-v_i)**2).shape}')
-    #     # print(f'phi_loss: {((phi_i_pred-phi_i)**2).shape}')
-    #     # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
-        
-    #     return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() + ((w_i_pred-w_i)**2).mean()
+        return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() + ((w_i_pred-w_i)**2).mean()
 
 
 def gradients(outputs, inputs):
@@ -173,9 +174,7 @@ def main():
     print(device, flush=True)
     epochs = 10000
     lr = 0.001
-
-    os.makedirs('InitConds', exist_ok=True)
-    os.makedirs('Predictions', exist_ok=True)
+    path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
 
     num_x = 60
     num_y = 60
@@ -184,11 +183,16 @@ def main():
     num_f_train = 40000   # inner sampling points
     num_i_train = 3600   # initial sampling points 
     num_t_train = 10
-    path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
 
     x_min, x_max = -1, 1
     y_min, y_max = -1, 1
     asp_ratio = (y_max-y_min)/(x_max-x_min)
+
+    ## create new folders
+    os.makedirs('InitConds', exist_ok=True)
+    os.makedirs('Predictions', exist_ok=True)
+
+    
 
     x = np.linspace(x_min, x_max, num=num_x)
     y = np.linspace(y_min, y_max, num=num_y)
