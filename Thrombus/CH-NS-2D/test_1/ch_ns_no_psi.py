@@ -91,7 +91,9 @@ class Model(nn.Module):
         w_xx, w_yy = gradients(w_x, x)[0][:, 1], gradients(w_y, x)[0][:, 2]
 
         ## field-dependent permeability
-        K = torch.tanh((phi)/(0.2)) + 1.01
+        # K = torch.tanh((phi)/(0.2)) + 1.01
+        K = 1.01 + torch.clamp(phi, min=-1, max=1)
+        print(K)
 
         ## NS
         ### there is another equivalent form see 5.13c
@@ -113,11 +115,11 @@ class Model(nn.Module):
         # print(f'res_w shape:{res_w.shape}')
         # print(f'res_pf shape:{res_pf.shape}')
 
-        print(f'res_ns_x: {(res_ns_x**2).mean():6f}')
-        print(f'res_ns_y: {(res_ns_y**2).mean():6f}')
-        print(f'res_incomp: {(res_incomp**2).mean():6f}')
-        print(f'res_pf: {(res_pf**2).mean():6f}')
-        print(f'res_w: {(res_w**2).mean():6f}')
+        # print(f'res_ns_x: {(res_ns_x**2).mean():6f}')
+        # print(f'res_ns_y: {(res_ns_y**2).mean():6f}')
+        # print(f'res_incomp: {(res_incomp**2).mean():6f}')
+        # print(f'res_pf: {(res_pf**2).mean():6f}')
+        # print(f'res_w: {(res_w**2).mean():6f}')
 
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean()
 
@@ -237,7 +239,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 100000
+    epochs = 50000
     lr = 0.001
 
     os.makedirs('InitConds', exist_ok=True)
