@@ -111,7 +111,7 @@ class Model(nn.Module):
     def loss_data(self, x_data, u_data, v_data, p_data, phi_data):
         y = self.net_u(x_data)
         u, v, p, phi = y[:, 0], y[:, 1], y[:, 2], y[:, 3]
-        print(f'(u - u_data)**2: {((u - u_data)**2).shape}')
+        # print(f'(u - u_data)**2: {((u - u_data)**2).shape}')
         return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((p - p_data)**2).mean() + ((phi - phi_data)**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
@@ -136,7 +136,7 @@ class Model(nn.Module):
         w_up_y = gradients(w_up, x_up)[0][:, 2]
         w_dw_y = gradients(w_dw, x_dw)[0][:, 2]
 
-        print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
+        # print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
 
         return ((u_l - u_l_real)**2).mean() + (u_r_x**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
                 + (v_l**2).mean() + (v_up**2).mean() + (v_dw**2).mean() \
@@ -188,15 +188,15 @@ def main():
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
 
     file_start = 10
-    file_end = 19
+    file_end = 11
     dt = 0.03
 
     num_x1 = 100
     num_x2 = 100
     num_t = file_end-file_start
-    num_bh_train = 500   # number of sampling points on verticle boundary over time
-    num_bv_train = 500   # number of sampling points on horizontal boundary over time
-    num_f_train = 40000   # inner sampling points
+    num_bh_train = 50   # number of sampling points on verticle boundary over time
+    num_bv_train = 50   # number of sampling points on horizontal boundary over time
+    num_f_train = 6000   # inner sampling points
     num_i_train = 5000   # initial sampling points 
 
     x_min, x_max = 0, 6
@@ -224,10 +224,10 @@ def main():
 
             ## initial condition
             xt_init = x_tmp
-            u_init = y_tmp[:, 0]
-            v_init = y_tmp[:, 1]
-            p_init = y_tmp[:, 2]
-            phi_init = y_tmp[:, 3]
+            u_init = y_tmp[:, 0][:, None]
+            v_init = y_tmp[:, 1][:, None]
+            p_init = y_tmp[:, 2][:, None]
+            phi_init = y_tmp[:, 3][:, None]
         else:
             x_data = np.concatenate((x_data, x_tmp), axis=0)
             y_data = np.concatenate((y_data, y_tmp), axis=0)
@@ -242,12 +242,12 @@ def main():
 
     ## initial condition
     xt_init = np.concatenate((np.zeros(( num_x1*num_x2, 1)), x_2d), axis=1)
-    inits = np.zeros((4, num_x1*num_x2 ))
+    inits = np.zeros((num_x1*num_x2, 4 ))
 
-    inits[0, :] = u_init
-    inits[1, :] = v_init
-    inits[2, :] = p_init
-    inits[3, :] = phi_init
+    inits[:,0] = u_init[:,0]
+    inits[:,1] = v_init[:,0]
+    inits[:,2] = p_init[:,0]
+    inits[:,3] = phi_init[:,0]
     
     ## boundary condition
     x_l = np.concatenate((x1_grid[:,0][:,None],x2_grid[:,0][:,None]), axis=1)
@@ -260,7 +260,7 @@ def main():
     xt_up_ext = bound_ext(x_up, t)
     xt_dw_ext = bound_ext(x_dw, t)
 
-    u_l = left_bound_vel(xt_l_ext)
+    u_l = left_bound_vel(xt_l_ext) ## 1D array
 
     ## save init fig
     ## Create Folders
@@ -276,9 +276,9 @@ def main():
 
     ### initial
     xt_i_sample = xt_init[id_i, :]
-    u_i_sample, v_i_sample, p_i_sample, phi_i_sample = u_init[id_i, 0], v_init[id_i, 1], p_init[id_i, 2], phi_init[id_i, 3]
+    u_i_sample, v_i_sample, p_i_sample, phi_i_sample = u_init[id_i,:], v_init[id_i,:], p_init[id_i,:], phi_init[id_i,:]
     ### boundary
-    u_l_sample = u_l[id_bv,:]
+    u_l_sample = u_l[id_bv]
     xt_l_sample, xt_r_sample = xt_l_ext[id_bv,:], xt_r_ext[id_bv,:]
     xt_up_sample, xt_dw_sample = xt_up_ext[id_bh,:], xt_dw_ext[id_bh,:]
     ### inner points
@@ -319,9 +319,9 @@ def main():
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
-            loss_data = model.loss_data(xt_f_train)        
+            loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
-            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train, w_i_train)
+            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train)
             loss = loss_pde + loss_bc + loss_data + 100*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
@@ -362,7 +362,7 @@ def main():
             plt.close()
         
     np.savetxt('loss.his', loss_his)
-"""
+
 
 if __name__ == '__main__':
     main()
