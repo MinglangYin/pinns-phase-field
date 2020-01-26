@@ -143,16 +143,16 @@ class Model(nn.Module):
                 + (phi_l_x**2).mean() + (phi_r_x**2).mean() +  (phi_up_y**2).mean() + (phi_dw_y**2).mean() \
                 + (w_l_x**2).mean() + (w_r_x**2).mean() + (w_up_y**2).mean() + (w_dw_y**2).mean()
 
-    def loss_ic(self, x, u_i, v_i, phi_i, w_i):
-        y_pred, w_i_pred = self.net_u(x), self.net_w(x)[:, 0]
-        u_i_pred, v_i_pred, phi_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 3]
+    def loss_ic(self, x, u_i, v_i, p_i, phi_i):
+        y_pred = self.net_u(x)
+        u_i_pred, v_i_pred, p_i_pred, phi_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 2], y_pred[:, 3]
 
         # print(f'u_loss: {((u_i_pred-u_i)**2).shape}')
         # print(f'v_loss: {((v_i_pred-v_i)**2).shape}')
         # print(f'phi_loss: {((phi_i_pred-phi_i)**2).shape}')
         # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
         
-        return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() + ((w_i_pred-w_i)**2).mean()
+        return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() 
 
 def left_bound_vel(x):
     return 0.3*(3-x[:, 2])*x[:,2]
@@ -182,7 +182,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 10000
+    epochs = 3000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
@@ -200,7 +200,7 @@ def main():
     num_i_train = 5000   # initial sampling points 
 
     x_min, x_max = 0, 6
-    y_min, y_max = 0, 3
+    y_min, y_max = 0, 2
     asp_ratio = (y_max-y_min)/(x_max-x_min)
 
     ## create new folders
@@ -216,8 +216,8 @@ def main():
 
         ## x_tmp: [t,x,y]   u_tmp:[u,v,p,phi]
         x_tmp = np.concatenate(( file_id*dt*np.ones((data_u.shape[0], 1)), data_u[:,0:2]), axis=1)
-        y_tmp = np.concatenate(( data_u[:,2:4], data_u[:, 5:6], data_phi[:, 3:4]), axis=1)
-        
+        y_tmp = np.concatenate(( data_u[:,3:5], data_u[:,6:7], data_phi[:,3:4]), axis=1)
+
         if file_id == file_start:
             x_data = x_tmp
             y_data = y_tmp
@@ -241,7 +241,6 @@ def main():
     x_2d = np.concatenate((x1_grid.flatten()[:,None], x2_grid.flatten()[:,None]), axis=1)
 
     ## initial condition
-    xt_init = np.concatenate((np.zeros(( num_x1*num_x2, 1)), x_2d), axis=1)
     inits = np.zeros((num_x1*num_x2, 4 ))
 
     inits[:,0] = u_init[:,0]
@@ -320,10 +319,12 @@ def main():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
             loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train)        
-            loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
-            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train)
-            loss = loss_pde + loss_bc + loss_data + 100*loss_ic
-            print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
+            # loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
+            # loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train)
+            # loss = loss_pde + loss_bc + loss_data + 100*loss_ic
+            loss = loss_pde + loss_data
+            # print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
+            print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
             return loss
         loss = optimizer.step(closure)

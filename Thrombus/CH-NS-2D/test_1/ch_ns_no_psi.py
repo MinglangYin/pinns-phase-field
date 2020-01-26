@@ -41,7 +41,7 @@ lmd = 0.4*0.00010607
 tau = 0.00001
 rho = 1
 mu = 0.01
-# K = 0.1
+K = 0.1
 
 H_o = 0.1
 k = 6*np.pi
@@ -92,8 +92,8 @@ class Model(nn.Module):
 
         ## field-dependent permeability
         # K = torch.tanh((phi)/(0.2)) + 1.01
-        K = 1.01 + torch.clamp(phi, min=-1, max=1)
-        print(K)
+        # K = 1.01 + torch.clamp(phi, min=-1, max=1)
+        # print(K)
 
         ## NS
         ### there is another equivalent form see 5.13c
