@@ -1,6 +1,6 @@
 """
 Author: Minglang Yin
-    PINNs (physical-informed neural network) for solving time-dependent Cahn-Hilliard Navier-Stokes equation (2D).
+    PINNs_no_psi (physical-informed neural network) for solving time-dependent Cahn-Hilliard Navier-Stokes equation (2D).
 
     Governing equtions (Latex):
         \frac{\partial\phi}{dt} + u\cdot(\nabla\phi) + \tau\Delta w = 0, \\
@@ -90,15 +90,15 @@ class Model(nn.Module):
         w_xx, w_yy = gradients(w_x, x)[0][:, 1], gradients(w_y, x)[0][:, 2]
 
         ## NS
-        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/(2*K)
-        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + mu*(1-phi)*v/(2*K)
+        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - self.mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/(2*K)
+        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - self.mu*(v_xx + v_yy) + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + mu*(1-phi)*v/(2*K)
         res_incomp = u_x + v_y
 
         ## PF
         F_g = phi**3 - phi
         res_w = w + h**2*(phi_xx + phi_yy) - F_g  
         # res_pf = phi_t + h**2*(u*phi_x + v*phi_y) - tau*(w_xx + w_yy)
-        res_pf = phi_t + (u*phi_x + v*phi_y) - tau*(w_xx + w_yy)
+        res_pf = phi_t + (u*phi_x + v*phi_y) - tau*(w_xx + w_yy)/h**2
 
         # print(f'res_ns_x shape:{res_ns_x.shape}')
         # print(f'res_ns_y shape:{res_ns_y.shape}')
@@ -154,6 +154,28 @@ class Model(nn.Module):
         
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() 
 
+def CH_2D_init(x_init):
+    ## u, v
+    u_init = np.zeros((x_init.shape[0]))
+    u_init = (1-x_init[:,2])*x_init[:,2]
+    v_init = np.zeros((x_init.shape[0]))
+
+    #########
+    x, y = symbols('x y')
+    phi = 0.5*(tanh((x**2 + y**2-0.3**2) / (sqrt(2)*0.01) ) + tanh( (x**2 + y**2-0.7**2) / (sqrt(2)*0.01)))
+    phi_x, phi_y = phi.diff(x), phi.diff(y)
+    phi_xx, phi_yy = phi_x.diff(x), phi_y.diff(y)
+
+    f_phi = lambdify([x, y], phi, 'numpy')
+    f_phi_xx = lambdify([x, y], phi_xx, 'numpy')
+    f_phi_yy = lambdify([x, y], phi_yy, 'numpy')
+
+    phi_init = f_phi(x_init[:,1], x_init[:,2])
+    w_init = -h**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) + (phi_init**3 - phi_init)
+
+    return u_init, v_init, phi_init, w_init
+
+
 def left_bound_vel(x):
     return 0.3*(3-x[:, 2])*x[:,2]
 
@@ -188,7 +210,7 @@ def main():
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
 
     file_start = 10
-    file_end = 11
+    file_end = 20
     dt = 0.03
 
     num_x1 = 100
@@ -196,7 +218,7 @@ def main():
     num_t = file_end-file_start
     num_bh_train = 50   # number of sampling points on verticle boundary over time
     num_bv_train = 50   # number of sampling points on horizontal boundary over time
-    num_f_train = 6000   # inner sampling points
+    num_f_train = 30000   # inner sampling points
     num_i_train = 5000   # initial sampling points 
 
     x_min, x_max = 0, 6
@@ -315,16 +337,15 @@ def main():
 
     def train(epoch):
         model.train()
+        print(model.mu)
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
             loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train)        
-            # loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
-            # loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train)
-            # loss = loss_pde + loss_bc + loss_data + 100*loss_ic
-            loss = loss_pde + loss_data
-            # print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
-            print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_data:{loss_data:6f}', flush=True)
+            loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
+            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train)
+            loss = loss_pde + loss_bc + loss_data + loss_ic
+            print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
             return loss
         loss = optimizer.step(closure)
