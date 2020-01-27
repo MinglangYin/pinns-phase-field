@@ -112,6 +112,12 @@ class Model(nn.Module):
         y = self.net_u(x_data)
         u, v, p, phi = y[:, 0], y[:, 1], y[:, 2], y[:, 3]
         # print(f'(u - u_data)**2: {((u - u_data)**2).shape}')
+
+        # print(f'loss_data u shape: {((u - u_data)**2).shape}')
+        # print(f'loss_data v shape: {((v - v_data)**2).shape}')
+        # print(f'loss_data p shape: {((p - p_data)**2).shape}')
+        # print(f'loss_data phi shape: {((phi - phi_data)**2).shape}')
+
         return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((p - p_data)**2).mean() + ((phi - phi_data)**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
@@ -145,11 +151,15 @@ class Model(nn.Module):
 
     def loss_ic(self, x, u_i, v_i, p_i, phi_i):
         y_pred = self.net_u(x)
-        u_i_pred, v_i_pred, p_i_pred, phi_i_pred = y_pred[:, 0], y_pred[:, 1], y_pred[:, 2], y_pred[:, 3]
+        u_i_pred, v_i_pred, p_i_pred, phi_i_pred = y_pred[:, 0][:,None], y_pred[:, 1][:,None], y_pred[:, 2][:,None], y_pred[:, 3][:,None]
 
-        # print(f'u_loss: {((u_i_pred-u_i)**2).shape}')
-        # print(f'v_loss: {((v_i_pred-v_i)**2).shape}')
-        # print(f'phi_loss: {((phi_i_pred-phi_i)**2).shape}')
+        # print(f'u_i_pred shape: {u_i_pred.shape}')
+        # print(f'u_i shape: {u_i.shape}')
+
+        # print(f'loss_ic_u: {((u_i_pred-u_i)**2).shape}')
+        # print(f'loss_ic_v: {((v_i_pred-v_i)**2).shape}')
+        # print(f'loss_ic_p: {((p_i_pred-p_i)**2).shape}')
+        # print(f'loss_ic_phi: {((phi_i_pred-phi_i)**2).shape}')
         # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
         
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() 
@@ -297,7 +307,7 @@ def main():
 
     ### initial
     xt_i_sample = xt_init[id_i, :]
-    u_i_sample, v_i_sample, p_i_sample, phi_i_sample = u_init[id_i,:], v_init[id_i,:], p_init[id_i,:], phi_init[id_i,:]
+    u_i_sample, v_i_sample, p_i_sample, phi_i_sample = u_init[id_i], v_init[id_i], p_init[id_i], phi_init[id_i]
     ### boundary
     u_l_sample = u_l[id_bv]
     xt_l_sample, xt_r_sample = xt_l_ext[id_bv,:], xt_r_ext[id_bv,:]
