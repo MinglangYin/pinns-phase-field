@@ -100,9 +100,9 @@ class Model(nn.Module):
 
         ## PF
         F_g = phi**3 - phi
-        res_w = w + (phi_xx + phi_yy) - F_g/h**2 
+        res_w = w + h**2*(phi_xx + phi_yy) - F_g
         # res_pf = phi_t + h**2*(u*phi_x + v*phi_y) - tau*(w_xx + w_yy)
-        res_pf = phi_t + (u*phi_x + v*phi_y) - tau*(w_xx + w_yy)
+        res_pf = phi_t + (u*phi_x + v*phi_y) - tau*(w_xx + w_yy)/h**2
 
         # print(f'res_ns_x shape:{res_ns_x.shape}')
         # print(f'res_ns_y shape:{res_ns_y.shape}')
@@ -187,7 +187,7 @@ def CH_2D_init(x_init):
     f_phi_yy = lambdify([x, y], phi_yy, 'numpy')
 
     phi_init = f_phi(x_init[:,1], x_init[:,2])
-    w_init = -(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) + (phi_init**3 - phi_init)/h**2
+    w_init = -h**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) + (phi_init**3 - phi_init)
 
     return u_init, v_init, phi_init, w_init
     
