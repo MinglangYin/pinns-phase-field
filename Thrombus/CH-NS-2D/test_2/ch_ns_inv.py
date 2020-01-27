@@ -40,9 +40,6 @@ rho = 1
 mu = 0.1
 K = 1
 
-H_o = 0.1
-k = 6*np.pi
-
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
@@ -62,7 +59,7 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
-        self.mu = torch.nn.Parameter(torch.tensor([1], requires_grad=True, dtype=torch.double) )
+        self.K = torch.nn.Parameter(torch.tensor([10], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -90,8 +87,10 @@ class Model(nn.Module):
         w_xx, w_yy = gradients(w_x, x)[0][:, 1], gradients(w_y, x)[0][:, 2]
 
         ## NS
-        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - self.mu*(u_xx + u_yy) + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/(2*K)
-        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - self.mu*(v_xx + v_yy) + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + mu*(1-phi)*v/(2*K)
+        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + \
+                lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/(2*self.K)
+        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + \
+                lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + mu*(1-phi)*v/(2*self.K)
         res_incomp = u_x + v_y
 
         ## PF
@@ -214,7 +213,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 10000
+    epochs = 30000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
@@ -347,7 +346,7 @@ def main():
 
     def train(epoch):
         model.train()
-        print(model.mu)
+        print(model.K)
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
