@@ -120,7 +120,7 @@ class Model(nn.Module):
         w_l, w_r, w_up, w_dw = self.net_w(x_l)[:,0], self.net_w(x_r)[:,0], self.net_w(x_up)[:,0], self.net_w(x_dw)[:,0]
         
         u_l, v_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 3]
-        u_r, phi_r = y_r[:, 0], y_r[:, 3]
+        u_r, p_r, phi_r = y_r[:, 0], y_r[:, 2], y_r[:, 3]
         u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
         u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3]
 
@@ -139,7 +139,7 @@ class Model(nn.Module):
         # print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
 
         return ((u_l - u_l_real)**2).mean() + (u_r_x**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
-                + (v_l**2).mean() + (v_up**2).mean() + (v_dw**2).mean() \
+                + (v_l**2).mean() + (v_up**2).mean() + (v_dw**2).mean() + (p_r**2).mean()\
                 + (phi_l_x**2).mean() + (phi_r_x**2).mean() +  (phi_up_y**2).mean() + (phi_dw_y**2).mean() \
                 + (w_l_x**2).mean() + (w_r_x**2).mean() + (w_up_y**2).mean() + (w_dw_y**2).mean()
 
@@ -177,7 +177,7 @@ def CH_2D_init(x_init):
 
 
 def left_bound_vel(x):
-    return 0.3*(3-x[:, 2])*x[:,2]
+    return 0.3*(2-x[:, 2])*x[:,2]
 
 def bound_ext(x, t):
     num_t, num_x = t.shape[0], x.shape[0]
@@ -344,7 +344,7 @@ def main():
             loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train)
-            loss = loss_pde + loss_bc + loss_data + loss_ic
+            loss = loss_pde + loss_bc + loss_data + 100*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
             return loss
