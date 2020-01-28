@@ -30,6 +30,10 @@ import scipy.io
 from sympy import *
 from plotting import newfig, savefig
 
+import matplotlib
+matplotlib.use('Agg')
+
+
 torch.manual_seed(123456)
 np.random.seed(123456)
 
