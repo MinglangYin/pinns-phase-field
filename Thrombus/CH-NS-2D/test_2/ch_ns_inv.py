@@ -217,7 +217,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 30000
+    epochs = 1
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
@@ -347,6 +347,7 @@ def main():
 
     # training
     loss_his = np.zeros((epochs,1))
+    K_his = np.zeros((epochs,1))
 
     def train(epoch):
         model.train()
@@ -364,6 +365,7 @@ def main():
         loss = optimizer.step(closure)
         loss_value = loss.item() if not isinstance(loss, float) else loss
         loss_his[epoch,0] = loss_value
+        K_his[epoch, 0] = to_numpy(model.K)
         # print(f'epoch {epoch}: loss {loss_value:.6f}')
 
     print('start training...', flush=True)
@@ -397,6 +399,7 @@ def main():
             plt.close()
         
     np.savetxt('loss.his', loss_his)
+    np.savetxt('K.his', K_his)
 
 
 if __name__ == '__main__':
