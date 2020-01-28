@@ -188,7 +188,6 @@ def CH_2D_init(x_init):
 
     return u_init, v_init, phi_init, w_init
 
-
 def left_bound_vel(x):
     return 0.3*(2-x[:, 2])*x[:,2]
 
@@ -217,10 +216,13 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 100000
+    epochs = 300000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
+    model_path = 'CheckPts/model_chkpts.pt'
+    restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
+    check_step = 10000
 
     file_start = 10
     file_end = 20
@@ -241,6 +243,7 @@ def main():
     ## create new folders
     os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
+    os.makedirs('CheckPts', exist_ok=True)
 
     ## load data file
     for file_id in range(file_start, file_end):
@@ -338,14 +341,18 @@ def main():
     xt_dw_train = torch.tensor(xt_dw_sample, requires_grad=True, dtype=torch.double).to(device)
     ul_train = torch.tensor(u_l_sample, dtype=torch.double).to(device)
     
-    ## instantiate model
+    ## instantiate model/optimizer
     model = Model().to(device)
     model.double()
-
-    # Loss and optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr = lr)
 
-    # training
+    ## loading model/optimizer state
+    if restart == 0:
+        checkpoint = torch.load(model_path)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    
+    ## training
     loss_his = np.zeros((epochs,1))
     K_his = np.zeros((epochs,1))
 
@@ -367,6 +374,15 @@ def main():
         loss_his[epoch,0] = loss_value
         K_his[epoch, 0] = to_numpy(model.K)
         # print(f'epoch {epoch}: loss {loss_value:.6f}')
+        
+        ## checkpoint saving
+        if (epoch+1)%check_step == 0:
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': loss
+            }, model_path)
 
     print('start training...', flush=True)
     tic = time.time()
@@ -375,7 +391,7 @@ def main():
     toc = time.time()
     print(f'total training time: {int((toc-tic)/60)} min', flush=True)
 
-    ## test
+    ## testing
     Predictions = np.zeros((5, num_t, num_x1, num_x2))
     for i in range(0, num_t):
         xt = np.concatenate((t[i]*np.ones((num_x1*num_x2, 1)), x_2d), axis=1)
