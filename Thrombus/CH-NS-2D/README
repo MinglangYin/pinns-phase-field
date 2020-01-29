@@ -1,5 +1,4 @@
 test_1: bubble, no init cond for w
-test_2: inverse problem for inferring parameter from Nektar data
-test_3: same with test_1, but K = 1000
-test_4: same with test_3, but in a square region
-test_5: same with test_3, but Pout = 0
+test_2: inverse problem for inferring parameter from Nektar data, K = 1		, use phi, P, u, v
+test_3: inverse problem for inferring parameter from Nektar data, K = 0.01
+test_4: inverse problem for inferring parameter from Nektar data, K = 0.001

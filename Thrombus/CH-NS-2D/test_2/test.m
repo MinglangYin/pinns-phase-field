@@ -6,6 +6,8 @@ K = load('K.his');
 
 figure()
 plot(K)
+hold on
+yline(1)
 
 loss = load('loss.his');
 figure()
