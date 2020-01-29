@@ -347,7 +347,7 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr = lr)
 
     ## loading model/optimizer state
-    if restart == 0:
+    if restart == 1:
         checkpoint = torch.load(model_path)
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
