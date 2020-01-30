@@ -1,6 +1,12 @@
 test_1: bubble, no init cond for w
-test_2: inverse problem for inferring parameter from Nektar data, K = 1		, use phi, P, u, v
-test_3: inverse problem for inferring parameter from Nektar data, K = 0.01
-test_4: inverse problem for inferring parameter from Nektar data, K = 0.001
-test_5: inverse problem for inferring parameter from Nektar data, K = 100
-test_6: inverse problem for inferring parameter from Nektar data, K = 0.001, lmd_e = 0.5
+
+######## inverse, using phi, P, u, v ########
+test_2: no psi, K = 1		
+test_3: no psi, K = 0.01
+test_4: no psi, K = 0.001
+test_5: no psi, K = 100
+test_6: psi, K = 0.001, lmd_e = 0.5
+
+######## using phi ########
+test_7: no psi, K = 0.01
+
