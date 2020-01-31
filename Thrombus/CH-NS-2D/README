@@ -1,6 +1,6 @@
 test_1: bubble, no init cond for w
 
-######## inverse, using phi, P, u, v ########
+######## inverse, infer K, using phi, P, u, v ########
 test_2: no psi, K = 1		
 test_3: no psi, K = 0.01
 test_4: no psi, K = 0.001
@@ -8,12 +8,15 @@ test_5: no psi, K = 100
 test_6: psi, K = 1, lmd_e = 0.5
 test_12: psi, K = 1, lmd_e = 0.2
 
-######## using phi ########
+######## inverse, infer K, using phi ########
 test_7: no psi, K = 0.01
 test_8: no psi, K = 1
 test_9: no psi, K = 100
 test_10: no psi, K = 0.001
 
-######## using phi ########
+######## inverse, infer K, using phi ########
 test_11: no psi, K = 0.01, test Adaptive Activation
 
+######## inverse, infer K, lmd_e, using phi ########
+test_13: psi, K = 1, lmd_e = 0.2
+test_14: psi, K = 1, lmd_e = 0.5
