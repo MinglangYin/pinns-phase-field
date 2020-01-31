@@ -9,4 +9,10 @@ test_6: psi, K = 0.001, lmd_e = 0.5
 
 ######## using phi ########
 test_7: no psi, K = 0.01
+test_8: no psi, K = 1
+test_9: no psi, K = 100
+test_10: no psi, K = 0.001
+
+######## using phi ########
+test_11: no psi, K = 0.01, test Adaptive Activation
 
