@@ -43,7 +43,7 @@ lmd = 0.4*0.00010607
 tau = 1e-6
 rho = 1
 mu = 0.1
-K = 0.001
+K = 1
 
 
 class Model(nn.Module):
