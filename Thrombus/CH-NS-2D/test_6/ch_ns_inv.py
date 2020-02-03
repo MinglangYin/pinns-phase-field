@@ -97,9 +97,9 @@ class Model(nn.Module):
         psi_1_t, psi_1_x, psi_1_y = psi_1_g[:, 0], psi_1_g[:, 1], psi_1_g[:, 2]
         psi_2_t, psi_2_x, psi_2_y = psi_2_g[:, 0], psi_2_g[:, 1], psi_2_g[:, 2]
 
-        B_11 = (1+phi)/2*(psi_1_x**2 + psi_2_x**2)
-        B_21 = (1+phi)/2*(psi_1_x*psi_1_y + psi_2_x*psi_2_y)
-        B_22 = (1+phi)/2*(psi_1_y**2 + psi_2_y**2)
+        B_11 = (1-phi)/2*(psi_1_x**2 + psi_2_x**2)
+        B_21 = (1-phi)/2*(psi_1_x*psi_1_y + psi_2_x*psi_2_y)
+        B_22 = (1-phi)/2*(psi_1_y**2 + psi_2_y**2)
 
         B_11_g = gradients(B_11, x)[0]
         B_21_g = gradients(B_21, x)[0]
@@ -254,7 +254,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 300000
+    epochs = 100000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
