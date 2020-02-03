@@ -33,7 +33,6 @@ from plotting import newfig, savefig
 import matplotlib
 matplotlib.use('Agg')
 
-
 torch.manual_seed(123456)
 np.random.seed(123456)
 
@@ -98,9 +97,9 @@ class Model(nn.Module):
         psi_1_t, psi_1_x, psi_1_y = psi_1_g[:, 0], psi_1_g[:, 1], psi_1_g[:, 2]
         psi_2_t, psi_2_x, psi_2_y = psi_2_g[:, 0], psi_2_g[:, 1], psi_2_g[:, 2]
 
-        B_11 = (1-phi)*(psi_1_x**2 + psi_2_x**2)
-        B_21 = (1-phi)*(psi_1_x*psi_1_y + psi_2_x*psi_2_y)
-        B_22 = (1-phi)*(psi_1_y**2 + psi_2_y**2)
+        B_11 = (1+phi)/2*(psi_1_x**2 + psi_2_x**2)
+        B_21 = (1+phi)/2*(psi_1_x*psi_1_y + psi_2_x*psi_2_y)
+        B_22 = (1+phi)/2*(psi_1_y**2 + psi_2_y**2)
 
         B_11_g = gradients(B_11, x)[0]
         B_21_g = gradients(B_21, x)[0]
