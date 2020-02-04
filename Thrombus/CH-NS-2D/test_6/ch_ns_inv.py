@@ -64,7 +64,7 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 6))
 
-        self.lmd_e = torch.nn.Parameter(torch.tensor([10], requires_grad=True, dtype=torch.double) )
+        self.lmd_e = torch.nn.Parameter(torch.tensor([1], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -130,6 +130,8 @@ class Model(nn.Module):
         # print(f'res_psi_x shape:{res_psi_x.shape}')
         # print(f'res_psi_y shape:{res_psi_y.shape}')
 
+        print(f'res_ns_x: {(res_ns_x**2).mean()},  res_ns_y: {(res_ns_y**2).mean()}, res_psi_x: {(res_psi_x**2).mean()}, res_psi_y: {(res_psi_y**2).mean()}')
+
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean() \
              + (res_psi_x**2).mean() + (res_psi_y**2).mean()
 
@@ -142,6 +144,8 @@ class Model(nn.Module):
         # print(f'loss_data v shape: {((v - v_data)**2).shape}')
         # print(f'loss_data p shape: {((p - p_data)**2).shape}')
         # print(f'loss_data phi shape: {((phi - phi_data)**2).shape}')
+        # print(f'loss_data psi_1 shape: {((psi_1 - psi_1_data)**2).shape}')
+        # print(f'loss_data psi_2 shape: {((psi_2 - psi_2_data)**2).shape}')
 
         return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((p - p_data)**2).mean() \
             + ((phi - phi_data)**2).mean() + ((phi - phi_data)**2).mean() + ((phi - phi_data)**2).mean() \
@@ -179,6 +183,7 @@ class Model(nn.Module):
         psi_2_dw_y = gradients(psi_2_dw, x_dw)[0][:, 2]
 
         # print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
+
 
         return ((u_l - u_l_real)**2).mean() + (u_r_x**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
                 + (v_l**2).mean() + (v_up**2).mean() + (v_dw**2).mean() + (p_r**2).mean()\

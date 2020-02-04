@@ -22,3 +22,7 @@ test_11: no psi, K = 0.01, test Adaptive Activation
 ######## inverse, infer K, lmd_e, using phi ########
 test_13: psi, K = 1, lmd_e = 0.2
 test_14: psi, K = 1, lmd_e = 0.5
+
+######## inverse, infer K, using phi, P, u, v ########
+test_15: psi, K = 1, lmd_e = 0.5
+test_16: psi, K = 1, lmd_e = 0.2
