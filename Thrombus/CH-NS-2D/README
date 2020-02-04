@@ -24,5 +24,8 @@ test_13: psi, K = 1, lmd_e = 0.2
 test_14: psi, K = 1, lmd_e = 0.5
 
 ######## inverse, infer K, using phi, P, u, v ########
-test_15: psi, K = 1, lmd_e = 0.5
-test_16: psi, K = 1, lmd_e = 0.2
+test_15: psi, K = 1, lmd_e = 0.5, snapshot: 10-19
+test_16: psi, K = 1, lmd_e = 0.2, snapshot: 10-19
+test_17: psi, K = 1, lmd_e = 0.5, snapshot: 20-29
+test_18: psi, K = 1, lmd_e = 0.2, snapshot: 20-29
+test_19: psi, K = 1, lmd_e = 0.5, snapshot: 20-29, testing for new arch(use net_w to predict psi)
