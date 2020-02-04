@@ -38,7 +38,7 @@ np.random.seed(123456)
 
 h = 0.05
 lmd = 0.4*0.00010607
-lmd_e = 0.5
+lmd_e = 0.2
 tau = 1e-6
 rho = 1
 mu = 0.1
