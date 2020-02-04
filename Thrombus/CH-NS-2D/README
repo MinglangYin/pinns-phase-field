@@ -35,3 +35,28 @@ test_20: psi, K = 1, lmd_e = 0.5, snapshot: 15-25, more points, another initial 
 test_21: psi, K = 1, lmd_e = 0.5, snapshot: 15-25, more points, another initial point K = 0.001
 test_22: psi, K = 1, lmd_e = 0.2, snapshot: 15-25, more points, another initial point K = 0.1
 test_23: psi, K = 1, lmd_e = 0.2, snapshot: 15-25, more points, another initial point K = 0.001
+
+######## inverse, infer K, using phi, P, u, v, new arch ########
+test_24: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, more points, K = 1
+test_25: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 0-30, more points, K = 1
+
+######## inverse, infer lmd_e, using phi, P, u, v, new arch ########
+test_26: psi, K = 0.1, lmd_e = 0.5, snapshot: 20-30, more points, 0.5*(tanh(lmd_e)+1)
+test_27: psi, K = 0.1, lmd_e = 0.2, snapshot: 20-30, more points, 0.5*(tanh(lmd_e)+1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
