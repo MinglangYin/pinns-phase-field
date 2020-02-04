@@ -74,7 +74,7 @@ class Model(nn.Module):
     def loss_pde(self, x):
         y_u = self.net_u(x)
         y_w = self.net_w(x)
-        K_scal = (torch.tanh(self.K/10)+1)/2
+        K_scal = torch.tanh(self.K/10)+1
 
         ##net_u
         u, v, p, phi = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3]
@@ -244,7 +244,7 @@ class Model(nn.Module):
 #     return u_init, v_init, phi_init, w_init
 
 def left_bound_vel(x):
-    return 0.3*(2-x[:, 2])*x[:,2]*(1-np.cos(2*np.pi*x[:, 0]))/2
+    return 0.3*(2-x[:, 2])*x[:,2]*np.sin(2*np.pi*x[:, 0])
 
 def bound_ext(x, t):
     num_t, num_x = t.shape[0], x.shape[0]

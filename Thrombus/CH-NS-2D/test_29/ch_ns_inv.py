@@ -38,11 +38,11 @@ np.random.seed(123456)
 
 h = 0.05
 lmd = 0.4*0.00010607
-lmd_e = 0.5
+#lmd_e = 0.5
 tau = 1e-6
 rho = 1
 mu = 0.1
-# K = 1
+K = 0.1
 
 class Model(nn.Module):
     def __init__(self):
@@ -63,7 +63,7 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
-        self.K = torch.nn.Parameter(torch.tensor([1], requires_grad=True, dtype=torch.double) )
+        self.lmd_e = torch.nn.Parameter(torch.tensor([1], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -74,7 +74,6 @@ class Model(nn.Module):
     def loss_pde(self, x):
         y_u = self.net_u(x)
         y_w = self.net_w(x)
-        K_scal = torch.tanh(self.K/10)+1
 
         ##net_u
         u, v, p, phi = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3]
@@ -112,10 +111,10 @@ class Model(nn.Module):
 
         ## NS
         ### there is another equivalent form see 5.13c
-        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + mu*(1-phi)*u/(2*K_scal) \
-                + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + lmd_e*(B_11_x + B_21_y)
-        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + mu*(1-phi)*v/(2*K_scal) \
-                + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + lmd_e*(B_12_x + B_22_y)
+        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + mu*(1-phi)*u/(2*K) \
+                + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + self.lmd_e*(B_11_x + B_21_y)
+        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + mu*(1-phi)*v/(2*K) \
+                + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + self.lmd_e*(B_12_x + B_22_y)
         res_incomp = u_x + v_y
 
         ## PF
@@ -136,8 +135,8 @@ class Model(nn.Module):
         print(f'res_ns_x: {(res_ns_x**2).mean()},  res_ns_y: {(res_ns_y**2).mean()}, res_psi_x: {(res_psi_x**2).mean()},\
             res_psi_y: {(res_psi_y**2).mean()}, res_f: {(res_pf**2).mean()}')
         print(f'coh term: {((lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y))**2).mean()}')
-        print(f'vis-elas term: {((lmd_e*(B_12_x + B_22_y))**2).mean()}')
-        print(f'vis term: {((lmd_e*(B_12_x + B_22_y))**2).mean()}')
+        print(f'vis-elas term: {((self.lmd_e*(B_12_x + B_22_y))**2).mean()}')
+        print(f'vis term: {((self.lmd_e*(B_12_x + B_22_y))**2).mean()}')
 
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean() \
              + (res_psi_x**2).mean() + (res_psi_y**2).mean()
@@ -248,7 +247,7 @@ class Model(nn.Module):
 #     return u_init, v_init, phi_init, w_init
 
 def left_bound_vel(x):
-    return 0.3*(2-x[:, 2])*x[:,2]
+    return 0.3*(2-x[:, 2])*x[:,2]*(1-np.cos(2*np.pi*x[:, 0]))/2
 
 def bound_ext(x, t):
     num_t, num_x = t.shape[0], x.shape[0]
@@ -305,8 +304,8 @@ def main():
 
     ## load data file
     for file_id in range(file_start, file_end):
-        name_u = '../../../Data/CH/phase_field_xiaoning/K_1_lmd_e_02/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../../Data/CH/phase_field_xiaoning/K_1_lmd_e_02/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/K_01_lmd_e_05_cos/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_01_lmd_e_05_cos/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
@@ -420,11 +419,11 @@ def main():
     
     ## training
     loss_his = np.zeros((epochs,1))
-    K_his = np.zeros((epochs,1))
+    lmd_e_his = np.zeros((epochs,1))
 
     def train(epoch):
         model.train()
-        print(model.K)
+        print(model.lmd_e)
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
@@ -438,7 +437,7 @@ def main():
         loss = optimizer.step(closure)
         loss_value = loss.item() if not isinstance(loss, float) else loss
         loss_his[epoch,0] = loss_value
-        K_his[epoch, 0] = to_numpy(model.K)
+        lmd_e_his[epoch, 0] = to_numpy(model.lmd_e)
         # print(f'epoch {epoch}: loss {loss_value:.6f}')
         
         ## checkpoint saving
@@ -481,7 +480,7 @@ def main():
             plt.close()
         
     np.savetxt('loss.his', loss_his)
-    np.savetxt('K.his', K_his)
+    np.savetxt('lmd_e.his', lmd_e_his)
 
 
 if __name__ == '__main__':
