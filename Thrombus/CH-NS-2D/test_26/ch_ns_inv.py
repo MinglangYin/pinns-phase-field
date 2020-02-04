@@ -74,8 +74,7 @@ class Model(nn.Module):
     def loss_pde(self, x):
         y_u = self.net_u(x)
         y_w = self.net_w(x)
-
-	K_scal = (torch.tanh(self.K/10)+1)/2
+        K_scal = (torch.tanh(self.K/10)+1)/2
 
         ##net_u
         u, v, p, phi = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3]
