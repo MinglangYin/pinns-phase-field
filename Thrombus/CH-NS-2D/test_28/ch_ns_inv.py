@@ -38,11 +38,11 @@ np.random.seed(123456)
 
 h = 0.05
 lmd = 0.4*0.00010607
-lmd_e = 0.5
+#lmd_e = 0.5
 tau = 1e-6
 rho = 1
 mu = 0.1
-# K = 1
+K = 1
 
 class Model(nn.Module):
     def __init__(self):
@@ -63,7 +63,7 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
-        self.K = torch.nn.Parameter(torch.tensor([1], requires_grad=True, dtype=torch.double) )
+        self.lmd_e = torch.nn.Parameter(torch.tensor([1], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
