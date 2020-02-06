@@ -57,7 +57,8 @@ test_34: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, more points
 test_35: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 0-30, more points
 
 ######## inverse, infer two K, using phi, new arch ########
-test_36: no psi, K = 0.001, K = 1 ||
+test_36: no psi, K = 0.001, K = 1, init: Ks->10, Kf->10 ||
+test_37: no psi, K = 0.001, K = 1, init: Ks->0.1, Kf->5 ||
 
 
 
