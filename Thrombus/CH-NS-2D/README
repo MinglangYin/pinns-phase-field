@@ -56,7 +56,8 @@ test_33: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, infer lmd_e, 2 nets wit
 test_34: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, more points
 test_35: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 0-30, more points
 
-
+######## inverse, infer two K, using phi, new arch ########
+test_36: no psi, K = 0.001, K = 1 ||
 
 
 
