@@ -42,7 +42,7 @@ lmd = 0.4*0.00010607
 tau = 1e-6
 rho = 1
 mu = 0.1
-K = 0.01
+#K = 0.01
 
 class Model(nn.Module):
     def __init__(self):
@@ -200,7 +200,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 1
+    epochs = 300000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
