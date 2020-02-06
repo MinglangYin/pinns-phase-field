@@ -63,8 +63,10 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
-        self.Ks = torch.nn.Parameter(torch.tensor([10], requires_grad=True, dtype=torch.double) )
-        self.Kf = torch.nn.Parameter(torch.tensor([10], requires_grad=True, dtype=torch.double) )
+        self.a = torch.nn.Parameter(torch.tensor([1], requires_grad=True, dtype=torch.double) )
+        self.b = torch.nn.Parameter(torch.tensor([1], requires_grad=True, dtype=torch.double) )
+        self.c = torch.nn.Parameter(torch.tensor([1], requires_grad=True, dtype=torch.double) )
+        self.d = torch.nn.Parameter(torch.tensor([1], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -91,13 +93,15 @@ class Model(nn.Module):
         w_x, w_y = w_g[:, 1], w_g[:, 2]
         w_xx, w_yy = gradients(w_x, x)[0][:, 1], gradients(w_y, x)[0][:, 2]
 
+        ## K permebility
+        K = self.a*torch.tanh(self.b*phi+self.c)+self.d
+        print(K)
+
         ## NS
         res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + \
-                lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + \
-                mu*(1-phi)*u/(2*self.Ks) + mu*(1+phi)*u/(2*self.Kf)
+                lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/(2*K)
         res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + \
-                lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + \
-                mu*(1-phi)*v/(2*self.Ks) + mu*(1+phi)*v/(2*self.Kf)
+                lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + mu*(1-phi)*v/(2*K)
         res_incomp = u_x + v_y
 
         ## PF
@@ -197,7 +201,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 200000
+    epochs = 1
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
@@ -228,8 +232,8 @@ def main():
 
     ## load data file
     for file_id in range(file_start, file_end):
-        name_u = '../../../Data/CH/phase_field_xiaoning/K_0001/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../../Data/CH/phase_field_xiaoning/K_0001/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/K_1_0001/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_1_0001/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
@@ -332,12 +336,14 @@ def main():
     
     ## training
     loss_his = np.zeros((epochs,1))
-    K_his = np.zeros((epochs,2))
+    K_his = np.zeros((epochs,4))
 
     def train(epoch):
         model.train()
-        print(f'Ks: {model.Ks}')
-        print(f'Kf: {model.Kf}')
+        print(f'a: {model.a}')
+        print(f'b: {model.b}')
+        print(f'c: {model.c}')
+        print(f'd: {model.d}')
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
@@ -351,7 +357,7 @@ def main():
         loss = optimizer.step(closure)
         loss_value = loss.item() if not isinstance(loss, float) else loss
         loss_his[epoch,0] = loss_value
-        K_his[epoch, 0], K_his[epoch, 1] = to_numpy(model.Ks), to_numpy(model.Kf)
+        K_his[epoch, 0], K_his[epoch, 1], K_his[epoch, 2], K_his[epoch, 3] = to_numpy(model.a), to_numpy(model.b), to_numpy(model.c), to_numpy(model.d)
         # print(f'epoch {epoch}: loss {loss_value:.6f}')
         
         ## checkpoint saving
