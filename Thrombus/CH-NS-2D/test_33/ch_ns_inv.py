@@ -426,7 +426,7 @@ def main():
         loss_value = loss.item() if not isinstance(loss, float) else loss
         print(f'epoch {epoch}: loss {loss_value:.6f}')
 
-    for epoch in range(0, 2):    
+    for epoch in range(0, 10000):    
         pre_train(epoch)
 
     ## training
