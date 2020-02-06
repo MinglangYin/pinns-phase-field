@@ -95,7 +95,6 @@ class Model(nn.Module):
 
         ## K permebility
         K = self.a*torch.tanh(self.b*phi+self.c)+self.d
-        print(K)
 
         ## NS
         res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + \
