@@ -21,26 +21,26 @@ test_11: no psi, K = 0.01, test Adaptive Activation
 
 ######## inverse, infer K, lmd_e, using phi ########
 test_13: psi, K = 1, lmd_e = 0.2
-test_14: psi, K = 1, lmd_e = 0.5
+test_14: psi, K = 1, lmd_e = 0.5 || K = 0.36, lmd_e = -0.007, min_loss = 0.01
 
 ######## inverse, infer K, using phi, P, u, v ########
-test_15: psi, K = 1, lmd_e = 0.5, snapshot: 10-19
-test_16: psi, K = 1, lmd_e = 0.2, snapshot: 10-19
-test_17: psi, K = 1, lmd_e = 0.5, snapshot: 20-29
-test_18: psi, K = 1, lmd_e = 0.2, snapshot: 20-29
-test_19: psi, K = 1, lmd_e = 0.5, snapshot: 20-29, testing for new arch(use net_w to predict psi)
+test_15: psi, K = 1, lmd_e = 0.5, snapshot: 10-19 || K = 122 (Failed)
+test_16: psi, K = 1, lmd_e = 0.2, snapshot: 10-19 || K = 0.0744, min_loss = 0.02
+test_17: psi, K = 1, lmd_e = 0.5, snapshot: 20-29 || K = 94.05, min_loss = 0.03
+test_18: psi, K = 1, lmd_e = 0.2, snapshot: 20-29 || K = 66.56, min_loss = 0.03
+test_19: psi, K = 1, lmd_e = 0.5, snapshot: 20-29,(use net_w to predict psi) || K = 71.21, min_loss = 0.06
 
 ######## inverse, infer K, using phi, P, u, v, new arch ########
-test_20: psi, K = 1, lmd_e = 0.5, snapshot: 15-25, more points, another initial point K = 0.1
-test_21: psi, K = 1, lmd_e = 0.5, snapshot: 15-25, more points, another initial point K = 0.001
-test_22: psi, K = 1, lmd_e = 0.2, snapshot: 15-25, more points, another initial point K = 0.1
-test_23: psi, K = 1, lmd_e = 0.2, snapshot: 15-25, more points, another initial point K = 0.001
+test_20: psi, K = 1, lmd_e = 0.5, snapshot: 15-25, more points, another initial point K = 0.1 	||K = 48.40, min_loss = 0.01
+test_21: psi, K = 1, lmd_e = 0.5, snapshot: 15-25, more points, another initial point K = 0.001 ||K = 42.33, min_loss = 0.02
+test_22: psi, K = 1, lmd_e = 0.2, snapshot: 15-25, more points, another initial point K = 0.1	||K = 1.386, min_loss = 0.01
+test_23: psi, K = 1, lmd_e = 0.2, snapshot: 15-25, more points, another initial point K = 0.001 ||K = 0.9393, min_loss = 0.01
 
 ######## inverse, infer K, using phi, P, u, v, new arch ########
-test_24: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, more points, K = 1
-test_25: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 0-30, more points, K = 1
-test_26: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 20-30, more points, (tanh(K/10)+1)
-test_27: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 20-30, more points, (tanh(K/10)+1)
+test_24: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, more points, K = 1  		|| K = -55, min_loss = 0.04
+test_25: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 0-30, more points, K = 1		|| K = 0.0358, min_loss = 0.03
+test_26: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 20-30, more points, (tanh(K/10)+1)	|| K = 0.036, min_loss = 0.04
+test_27: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 20-30, more points, (tanh(K/10)+1)	|| K = 0.2513, min_loss = 0.07
 
 ######## inverse, infer lmd_e, using phi, P, u, v, new arch ########
 test_28: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, more points,
@@ -48,7 +48,9 @@ test_29: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 0-30, more points,
 test_30: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 20-30, more points, (tanh(K/10)+1)
 test_31: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 20-30, more points, (tanh(K/10)+1)
 
-
+######## inverse, infer lmd_e, using phi, P, u, v, new arch ########
+test_32: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, infer lmd_e, 3 nets
+test_32: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, infer lmd_e, 2 nets with pre-train
 
 
 

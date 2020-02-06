@@ -133,7 +133,8 @@ class Model(nn.Module):
         print(f'res_ns_x: {(res_ns_x**2).mean()},  res_ns_y: {(res_ns_y**2).mean()}, res_psi_x: {(res_psi_x**2).mean()}, res_psi_y: {(res_psi_y**2).mean()}')
         print(f'coh term: {((lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y))**2).mean()}')
         print(f'vis-elas term: {((lmd_e*(B_12_x + B_22_y))**2).mean()}')
-        print(f'vis term: {((lmd_e*(B_12_x + B_22_y))**2).mean()}')
+        print(f'vis term: {((mu*(u_xx+u_yy))**2).mean()}')
+        print(f'FSI term: {((mu*(1-phi)*u/(2*self.K))**2).mean()}')
 
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean() \
              + (res_psi_x**2).mean() + (res_psi_y**2).mean()
