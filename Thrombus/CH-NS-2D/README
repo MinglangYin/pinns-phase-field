@@ -43,16 +43,18 @@ test_26: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 20-30, more points, (tanh(K/1
 test_27: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 20-30, more points, (tanh(K/10)+1)	|| K = 0.2513, min_loss = 0.07
 
 ######## inverse, infer lmd_e, using phi, P, u, v, new arch ########
-test_28: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, more points,
-test_29: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 0-30, more points,
-test_30: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 20-30, more points, (tanh(K/10)+1)
-test_31: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 20-30, more points, (tanh(K/10)+1)
+test_28: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, more points || lmd_e = -0.0119, loss = 0.07
+test_29: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 0-30, more points || lmd_e = 5.56e-04, loss = 0.0361
+test_30: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 20-30, more points, (tanh(K/10)+1) || lmd_e = 8e-06, loss = 0.0618
+test_31: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 20-30, more points, (tanh(K/10)+1) || lmd_e = 0.0012, loss = 0.0417
 
 ######## inverse, infer lmd_e, using phi, P, u, v, new arch ########
 test_32: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, infer lmd_e, 3 nets
-test_32: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, infer lmd_e, 2 nets with pre-train
+test_33: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, infer lmd_e, 2 nets with pre-train
 
-
+######## inverse, infer lmd_e, using phi, new arch ########
+test_34: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, more points
+test_35: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 0-30, more points
 
 
 
