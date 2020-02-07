@@ -350,49 +350,48 @@ def main():
     # for epoch in range(0, 10000):    
     #     pre_train(epoch)
 
-"""
-    ## training
-    loss_his = np.zeros((epochs,1))
-    K_his = np.zeros((epochs,4))
+    # ## training
+    # loss_his = np.zeros((epochs,1))
+    # K_his = np.zeros((epochs,4))
 
-    def train(epoch):
-        model.train()
-        print(f'a: {model.a}')
-        print(f'b: {model.b}')
-        print(f'c: {model.c}')
-        print(f'd: {model.d}')
-        def closure():
-            optimizer.zero_grad()
-            loss_pde = model.loss_pde(xt_f_train)
-            loss_data = model.loss_data(xt_f_train, phi_f_train)        
-            loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
-            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train)
-            loss = loss_pde + loss_bc + loss_data + 100*loss_ic
-            print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
-            loss.backward()
-            return loss
-        loss = optimizer.step(closure)
-        loss_value = loss.item() if not isinstance(loss, float) else loss
-        loss_his[epoch,0] = loss_value
-        K_his[epoch, 0], K_his[epoch, 1], K_his[epoch, 2], K_his[epoch, 3] = to_numpy(model.a), to_numpy(model.b), to_numpy(model.c), to_numpy(model.d)
-        # print(f'epoch {epoch}: loss {loss_value:.6f}')
+    # def train(epoch):
+    #     model.train()
+    #     print(f'a: {model.a}')
+    #     print(f'b: {model.b}')
+    #     print(f'c: {model.c}')
+    #     print(f'd: {model.d}')
+    #     def closure():
+    #         optimizer.zero_grad()
+    #         loss_pde = model.loss_pde(xt_f_train)
+    #         loss_data = model.loss_data(xt_f_train, phi_f_train)        
+    #         loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
+    #         loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train)
+    #         loss = loss_pde + loss_bc + loss_data + 100*loss_ic
+    #         print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
+    #         loss.backward()
+    #         return loss
+    #     loss = optimizer.step(closure)
+    #     loss_value = loss.item() if not isinstance(loss, float) else loss
+    #     loss_his[epoch,0] = loss_value
+    #     K_his[epoch, 0], K_his[epoch, 1], K_his[epoch, 2], K_his[epoch, 3] = to_numpy(model.a), to_numpy(model.b), to_numpy(model.c), to_numpy(model.d)
+    #     # print(f'epoch {epoch}: loss {loss_value:.6f}')
         
-        ## checkpoint saving
-        if (epoch+1)%check_step == 0:
-            torch.save({
-                'epoch': epoch,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'loss': loss
-            }, model_path)
+    #     ## checkpoint saving
+    #     if (epoch+1)%check_step == 0:
+    #         torch.save({
+    #             'epoch': epoch,
+    #             'model_state_dict': model.state_dict(),
+    #             'optimizer_state_dict': optimizer.state_dict(),
+    #             'loss': loss
+    #         }, model_path)
 
-    print('start training...', flush=True)
-    tic = time.time()
-    for epoch in range(0, epochs):    
-        train(epoch)
-    toc = time.time()
-    print(f'total training time: {int((toc-tic)/60)} min', flush=True)
-"""
+    # print('start training...', flush=True)
+    # tic = time.time()
+    # for epoch in range(0, epochs):    
+    #     train(epoch)
+    # toc = time.time()
+    # print(f'total training time: {int((toc-tic)/60)} min', flush=True)
+
     ## testing
     Predictions = np.zeros((5, num_t, num_x1, num_x2))
     for i in range(0, num_t):
