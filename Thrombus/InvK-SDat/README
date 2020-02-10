@@ -1,0 +1,27 @@
+# Inference of permeability and its dependency on the number of data
+
+## K = 0.001
+test_1: num_pts: 100
+test_2: num_pts: 5000
+test_3: num_pts: 10000
+test_4: num_pts: 15000
+test_5: num_pts: 20000
+test_6: num_pts: 25000
+test_7: num_pts: 30000
+test_8: num_pts: 35000
+test_9: num_pts: 40000
+test_10: num_pts: 45000
+test_11: num_pts: 50000
+
+## K = 0.01
+test_12: num_pts: 100
+test_13: num_pts: 5000
+test_14: num_pts: 10000
+test_15: num_pts: 15000
+test_16: num_pts: 20000
+test_17: num_pts: 25000
+test_18: num_pts: 30000
+test_19: num_pts: 35000
+test_9: num_pts: 40000
+test_10: num_pts: 45000
+test_11: num_pts: 50000
