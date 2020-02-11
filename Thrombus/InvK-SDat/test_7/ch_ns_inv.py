@@ -42,7 +42,7 @@ lmd = 0.4*0.00010607
 tau = 1e-6
 rho = 1
 mu = 0.1
-K = 0.01
+# K = 0.01
 
 class Model(nn.Module):
     def __init__(self):
@@ -222,11 +222,12 @@ def main():
     os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
     os.makedirs('CheckPts', exist_ok=True)
+    os.makedirs('Omega', exist_ok=True)
 
     ## load data file
     for file_id in range(file_start, file_end):
-        name_u = '../../../Data/CH/phase_field_xiaoning/K_001/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../../Data/CH/phase_field_xiaoning/K_001/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/K_0001/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_0001/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
@@ -368,10 +369,20 @@ def main():
 
     ## testing
     Predictions = np.zeros((5, num_t, num_x1, num_x2))
+    Omega_pred = np.zeros((num_t, num_x1*num_x2, 8))
+    
     for i in range(0, num_t):
         xt = np.concatenate((t[i]*np.ones((num_x1*num_x2, 1)), x_2d), axis=1)
         xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.double).to(device)
         y_pred = model(xt_tensor)
+
+        ## save data points
+        print(f'Saving omega step: {i}')
+        Omega_pred[i,:,0:3] = to_numpy(xt_tensor)
+        Omega_pred[i,:,3:] = to_numpy(y_pred)
+        tmp_name = './Omega/Omega_' + str(i) + '.dat'
+        np.savetxt(tmp_name, Omega_pred[i])
+
         for j in range(0, 5):
             Predictions[j, i, :, :] = to_numpy(y_pred[:, j]).reshape(num_x1, num_x2)
 
@@ -388,7 +399,8 @@ def main():
             line = np.linspace(xt.min(), xt.max(), 2)[:,None]
             fig.savefig(path_list[j]+str(i+1000)+'.png')
             plt.close()
-        
+
+    
     np.savetxt('loss.his', loss_his)
     np.savetxt('K.his', K_his)
 
