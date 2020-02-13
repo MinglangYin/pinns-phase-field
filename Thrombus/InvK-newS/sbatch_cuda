@@ -1,0 +1,10 @@
+#!/bin/bash
+
+num_start=9
+num_end=15
+for ((i=num_start; i<=num_end; i++));do
+    echo ${i}
+    cd ./test_${i}
+    sbatch cuda.sh
+    cd ../
+done
