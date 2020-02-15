@@ -1,0 +1,10 @@
+README
+
+####### infer lmd_e #######
+test_1: 
+    psi, 
+    K = 0.01, 
+    u = 0.2*sin(1.2*PI*t), 
+    x = [0,6], y=[0,1],
+    left&right periodic, low is wall, upper plate is moving with u
+    mu = 0.03
