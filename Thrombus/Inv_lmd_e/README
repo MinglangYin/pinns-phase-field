@@ -8,3 +8,5 @@ test_1:
     x = [0,6], y=[0,1],
     left&right periodic, low is wall, upper plate is moving with u
     mu = 0.03
+
+test_2, use phi, u, v, p, psi

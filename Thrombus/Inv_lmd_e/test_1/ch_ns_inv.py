@@ -304,7 +304,7 @@ def main():
         data_phi = np.loadtxt(name_phi)
 
         ## x_tmp: [t,x,y]   u_tmp:[u,v,p,phi]
-        x_tmp = np.concatenate(( file_id*dt*np.ones((data_u.shape[0], 1)), data_u[:,0:2]), axis=1)
+        x_tmp = np.concatenate(( 0.02 + file_id*dt*np.ones((data_u.shape[0], 1)), data_u[:,0:2]), axis=1)
         y_tmp = np.concatenate(( data_u[:,3:5], data_u[:,6:7], data_phi[:,3:4], data_u[:, 7:9]), axis=1)
 
         if file_id == file_start:
@@ -424,7 +424,7 @@ def main():
             loss_data = model.loss_data(xt_f_train, phi_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_up_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + loss_data + 100*loss_ic
+            loss = loss_pde + 10*loss_bc + loss_data + 10*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
             return loss
