@@ -62,7 +62,7 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
-        self.lmd_e = torch.nn.Parameter(torch.tensor([1], requires_grad=True, dtype=torch.double) )
+        self.lmd_e = torch.nn.Parameter(torch.tensor([50], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -160,8 +160,8 @@ class Model(nn.Module):
         y_w_l, y_w_r, y_w_up, y_w_dw = self.net_w(x_l), self.net_w(x_r), self.net_w(x_up), self.net_w(x_dw)
         
         ## net_u
-        u_l, v_l, phi_l = y_u_l[:, 0], y_u_l[:, 1], y_u_l[:, 3]
-        u_r, v_r, phi_r = y_u_r[:, 0], y_u_r[:, 1], y_u_r[:, 3]
+        u_l, v_l, p_l, phi_l = y_u_l[:, 0], y_u_l[:, 1], y_u_l[:, 2], y_u_l[:, 3]
+        u_r, v_r, p_r, phi_r = y_u_r[:, 0], y_u_r[:, 1], y_u_r[:, 2], y_u_r[:, 3]
         u_up, v_up, phi_up = y_u_up[:, 0], y_u_up[:, 1], y_u_up[:, 3]
         u_dw, v_dw, phi_dw = y_u_dw[:, 0], y_u_dw[:, 1], y_u_dw[:, 3]
         ## net_w
@@ -185,14 +185,19 @@ class Model(nn.Module):
         psi_1_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2]
         psi_2_dw_y = gradients(psi_2_dw, x_dw)[0][:, 2]
 
-        # print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
+        # print(f'u_up - u_up_real: {((u_up - u_up_real)**2).shape}')
+        loss_up = ((u_up - u_up_real)**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() + (w_up_y**2).mean()\
+                + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean()
+        loss_dw = (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (w_dw_y**2).mean()\
+                + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()
+        loss_lr = ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((w_l - w_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
+                + ((p_l - p_r)**2).mean() + (psi_1_l_x**2).mean() + (psi_2_l_x**2).mean() + (psi_1_r_x**2).mean() + (psi_2_r_x**2).mean() 
+        
+        print(f'loss_up: {loss_up}')
+        print(f'loss_dw: {loss_dw}')
+        print(f'loss_lr: {loss_lr}')
 
-        return ((u_up - u_up_real)**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() + (w_up_y**2).mean()\
-                + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() \
-                + (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (w_dw_y**2).mean()\
-                + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()\
-                + ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((w_l - w_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
-                + (psi_1_l_x**2).mean() + (psi_2_l_x**2).mean() + (psi_1_r_x**2).mean() + (psi_2_r_x**2).mean() 
+        return loss_up + loss_dw + loss_lr
                  
     def loss_ic(self, x, u_i, v_i, p_i, phi_i, psi_1_i, psi_2_i):
         y_u_pred = self.net_u(x)
@@ -279,7 +284,7 @@ def main():
     num_t = file_end-file_start
     num_bh_train = 50   # number of sampling points on verticle boundary over time
     num_bv_train = 50   # number of sampling points on horizontal boundary over time
-    num_f_train = 50000   # inner sampling points
+    num_f_train = 10000   # inner sampling points
     num_i_train = 5000   # initial sampling points 
 
     x_min, x_max = 0, 6

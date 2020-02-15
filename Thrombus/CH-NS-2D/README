@@ -57,9 +57,9 @@ test_34: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, more points
 test_35: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 0-30, more points
 
 ######## inverse, infer two K, using phi, new arch ########
-test_36: no psi, K = 0.001, K = 1, a*tanh(b*x+c)+d ||
-
-
+test_36: no psi, K = 0.001, K = 1, a*tanh(b*x+c)+d, init a=1, b=1, c=1, d=1 ||
+test_37: no psi, K = 0.001, K = 1, a*tanh(b*x+c)+d, init a=0.5, b=5, c=2, d=0.5 ||
+test_38: no psi, K = 0.001, K = 1, a*tanh(b*x+c)+d, init a=0.5, b=5, c=2, d=0.5, pre-train ||
 
 
 
