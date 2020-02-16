@@ -276,7 +276,7 @@ def main():
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/', './Predictions/psi_1/', './Predictions/psi_2/']
     model_path = 'CheckPts/model_chkpts.pt'
-    restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
+    restart = 1 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
     file_start = 1
