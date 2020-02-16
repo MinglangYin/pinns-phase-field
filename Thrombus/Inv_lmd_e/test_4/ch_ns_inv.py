@@ -62,7 +62,7 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
-        self.lmd_e = torch.nn.Parameter(torch.tensor([30], requires_grad=True, dtype=torch.double) )
+        self.lmd_e = torch.nn.Parameter(torch.tensor([40], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -267,12 +267,12 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 1
+    epochs = 200000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/', './Predictions/psi_1/', './Predictions/psi_2/']
     model_path = 'CheckPts/model_chkpts.pt'
-    restart = 1 # restart = 0: start from beginning, restart = 1: resuming training
+    restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
     file_start = 1
@@ -284,7 +284,8 @@ def main():
     num_t = file_end-file_start
     num_bh_train = 50   # number of sampling points on verticle boundary over time
     num_bv_train = 50   # number of sampling points on horizontal boundary over time
-    num_f_train = 10000   # inner sampling points
+    num_f_train = 2000   # inner sampling points
+    num_ft_train = 10000 # sampling point around thrombus
     num_i_train = 5000   # initial sampling points 
 
     x_min, x_max = 0, 6
@@ -377,6 +378,36 @@ def main():
     xt_f_sample = x_data[id_f,:]
     u_f_sample, v_f_sample, p_f_sample, phi_f_sample, psi_1_f_sample, psi_2_f_sample = y_data[id_f,0], y_data[id_f,1], y_data[id_f,2], y_data[id_f,3], y_data[id_f,4], y_data[id_f,5]
 
+    ### sample around thrombus, concatenate
+    x_thb_l = 2.75
+    x_thb_r = 3.75
+    x_thb_data = np.zeros((1, 3))
+    y_thb_data = np.zeros((1, 6))
+    for i in range(0, x_data.shape[0]):
+        if x_data[i,1] >= x_thb_l and x_data[i, 1]<= x_thb_r:
+            x_thb_data = np.concatenate((x_thb_data, x_data[i,:][None,:]), axis=0)
+            y_thb_data = np.concatenate((y_thb_data, y_data[i,:][None,:]), axis=0)
+  
+    x_thb_data = np.delete(x_thb_data, 0, axis=0)
+    y_thb_data = np.delete(y_thb_data, 0, axis=0)
+
+    id_ft = np.random.choice(x_thb_data.shape[0], num_ft_train, replace=False)
+    x_thb_sample = x_thb_data[id_ft,:]
+    u_thb_sample = y_thb_data[id_ft, 0]
+    v_thb_sample = y_thb_data[id_ft, 1]
+    p_thb_sample = y_thb_data[id_ft, 2]
+    phi_thb_sample = y_thb_data[id_ft, 3]
+    psi_1_thb_sample = y_thb_data[id_ft, 4]
+    psi_2_thb_sample = y_thb_data[id_ft, 5]
+
+    xt_f_sample = np.concatenate((xt_f_sample, x_thb_sample), axis=1)
+    u_f_sample = np.concatenate((u_f_sample, u_thb_sample), axis=1)
+    v_f_sample = np.concatenate((v_f_sample, v_thb_sample), axis=1)
+    p_f_sample = np.concatenate((p_f_sample, p_thb_sample), axis=1)
+    phi_f_sample = np.concatenate((phi_f_sample, phi_thb_sample), axis=1)
+    psi_1_f_sample = np.concatenate((psi_1_f_sample, psi_1_thb_sample), axis=1)
+    psi_2_f_sample = np.concatenate((psi_2_f_sample, psi_2_thb_sample), axis=1)
+
     ## set data as tensor and send to device
     xt_i_train = torch.tensor(xt_i_sample, requires_grad=True, dtype=torch.double).to(device)
     u_i_train = torch.tensor(u_i_sample, dtype=torch.double).to(device)
@@ -387,12 +418,12 @@ def main():
     psi_2_i_train = torch.tensor(psi_2_i_sample, dtype=torch.double).to(device)
 
     xt_f_train = torch.tensor(xt_f_sample, requires_grad=True, dtype=torch.double).to(device)
-    # u_f_train = torch.tensor(u_f_sample, dtype=torch.double).to(device)
-    # v_f_train = torch.tensor(v_f_sample, dtype=torch.double).to(device)
-    # p_f_train = torch.tensor(p_f_sample, dtype=torch.double).to(device)
+    u_f_train = torch.tensor(u_f_sample, dtype=torch.double).to(device)
+    v_f_train = torch.tensor(v_f_sample, dtype=torch.double).to(device)
+    p_f_train = torch.tensor(p_f_sample, dtype=torch.double).to(device)
     phi_f_train = torch.tensor(phi_f_sample, dtype=torch.double).to(device)
-    # psi_1_f_train = torch.tensor(psi_1_f_sample, dtype=torch.double).to(device)
-    # psi_2_f_train = torch.tensor(psi_2_f_sample, dtype=torch.double).to(device)
+    psi_1_f_train = torch.tensor(psi_1_f_sample, dtype=torch.double).to(device)
+    psi_2_f_train = torch.tensor(psi_2_f_sample, dtype=torch.double).to(device)
     
     xt_l_train = torch.tensor(xt_l_sample, requires_grad=True, dtype=torch.double).to(device)
     xt_r_train = torch.tensor(xt_r_sample, requires_grad=True, dtype=torch.double).to(device)
@@ -475,7 +506,7 @@ def main():
         
     np.savetxt('loss.his', loss_his)
     np.savetxt('lmd_e.his', lmd_e_his)
-
+"""
 
 if __name__ == '__main__':
     main()
