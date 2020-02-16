@@ -10,3 +10,10 @@ test_1:
     mu = 0.03
 
 test_2, use phi, u, v, p, psi
+    wrong
+
+test_3, use phi, no thrombus sampling points
+
+test_4, use phi, with thrombus sampling points
+
+test_5, use phi, u, v, p, psi, with thrombus sampling points
