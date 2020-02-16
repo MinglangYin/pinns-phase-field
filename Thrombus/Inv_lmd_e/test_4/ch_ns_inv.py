@@ -400,13 +400,13 @@ def main():
     psi_1_thb_sample = y_thb_data[id_ft, 4]
     psi_2_thb_sample = y_thb_data[id_ft, 5]
 
-    xt_f_sample = np.concatenate((xt_f_sample, x_thb_sample), axis=1)
-    u_f_sample = np.concatenate((u_f_sample, u_thb_sample), axis=1)
-    v_f_sample = np.concatenate((v_f_sample, v_thb_sample), axis=1)
-    p_f_sample = np.concatenate((p_f_sample, p_thb_sample), axis=1)
-    phi_f_sample = np.concatenate((phi_f_sample, phi_thb_sample), axis=1)
-    psi_1_f_sample = np.concatenate((psi_1_f_sample, psi_1_thb_sample), axis=1)
-    psi_2_f_sample = np.concatenate((psi_2_f_sample, psi_2_thb_sample), axis=1)
+    xt_f_sample = np.concatenate((xt_f_sample, x_thb_sample), axis=0)
+    u_f_sample = np.concatenate((u_f_sample, u_thb_sample), axis=0)
+    v_f_sample = np.concatenate((v_f_sample, v_thb_sample), axis=0)
+    p_f_sample = np.concatenate((p_f_sample, p_thb_sample), axis=0)
+    phi_f_sample = np.concatenate((phi_f_sample, phi_thb_sample), axis=0)
+    psi_1_f_sample = np.concatenate((psi_1_f_sample, psi_1_thb_sample), axis=0)
+    psi_2_f_sample = np.concatenate((psi_2_f_sample, psi_2_thb_sample), axis=0)
 
     ## set data as tensor and send to device
     xt_i_train = torch.tensor(xt_i_sample, requires_grad=True, dtype=torch.double).to(device)
