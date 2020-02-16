@@ -506,7 +506,6 @@ def main():
         
     np.savetxt('loss.his', loss_his)
     np.savetxt('lmd_e.his', lmd_e_his)
-"""
 
 if __name__ == '__main__':
     main()
