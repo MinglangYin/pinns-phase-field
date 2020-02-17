@@ -474,7 +474,7 @@ def main():
             loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train, psi_1_f_train, psi_2_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_up_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = 100*loss_pde + 50*loss_bc + loss_data + 10*loss_ic
+            loss = loss_pde + loss_bc + loss_data + loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
             return loss
