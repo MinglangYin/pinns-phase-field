@@ -74,8 +74,7 @@ class Model(nn.Module):
         y_u = self.net_u(x)
         y_w = self.net_w(x)
 
-	self.lmd_e_tanh = 10*torch.tanh(0.25*self.lmd_e)+11
-
+        self.lmd_e_tanh = 10*torch.tanh(0.25*self.lmd_e) + 11
         ##net_u
         u, v, p, phi = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3]
         u_g, v_g, p_g, phi_g = gradients(u, x)[0], gradients(v, x)[0], gradients(p, x)[0], gradients(phi, x)[0]
