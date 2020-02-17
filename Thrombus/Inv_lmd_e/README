@@ -16,3 +16,9 @@ test_2, same as 1, with constraint 10*tanh(0.25x)+11
 test_3, same as 1, old arch
 
 test_4, same as 3, with constraint 10*tanh(0.25x)+11
+
+test_5, same as 3, with different initial value: 20 and loss weight
+
+test_6, same as 4, with different initial value: 10 and loss weight
+
+test_7, same as 2, with different initial value: 10
