@@ -37,7 +37,7 @@ np.random.seed(123456)
 
 h = 0.05
 lmd = 0.5*0.00010607
-#lmd_e = 0.5
+#lmd_e = 10
 tau = 1e-6
 rho = 1
 mu = 0.02
@@ -62,7 +62,7 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 6))
 
-        self.lmd_e = torch.nn.Parameter(torch.tensor([45], requires_grad=True, dtype=torch.double) )
+        self.lmd_e = torch.nn.Parameter(torch.tensor([20], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -486,7 +486,7 @@ def main():
             loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train, psi_1_f_train, psi_2_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_up_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + 100*loss_data + loss_ic
+            loss = loss_pde + loss_bc + 50*loss_data + 100*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
             return loss
