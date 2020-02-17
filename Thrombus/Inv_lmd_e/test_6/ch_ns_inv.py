@@ -375,7 +375,7 @@ def main():
     xt_i_sample = xt_init[id_i, :]
     u_i_sample, v_i_sample, p_i_sample, phi_i_sample, psi_1_i_sample, psi_2_i_sample = u_init[id_i], v_init[id_i], p_init[id_i], phi_init[id_i], psi_1_init[id_i], psi_2_init[id_i]
     ### boundary
-    u_up_sample = u_up[id_bv]
+    u_up_sample = u_up[id_bh]
     xt_l_sample, xt_r_sample = xt_l_ext[id_bv,:], xt_r_ext[id_bv,:]
     xt_up_sample, xt_dw_sample = xt_up_ext[id_bh,:], xt_dw_ext[id_bh,:]
     ### inner points
