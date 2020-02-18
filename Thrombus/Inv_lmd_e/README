@@ -21,8 +21,10 @@ test_4, old arch, with constraint 10*tanh(0.25x)+11
 
 test_5, old arch, 10*loss_bc
 
-test_6, infer large v
+test_6, infer large v, with constraint
 
-test_7, infer small lmd_e 1, with constraint
+test_7, infer large v, without constraint
 
-test_8, infer small lmd_e 1, without constraint
+test_8, infer small lmd_e 1, with constraint
+
+test_9, infer small lmd_e 1, without constraint
