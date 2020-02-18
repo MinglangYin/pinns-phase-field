@@ -1,0 +1,9 @@
+#!/bin/bash
+
+file_start=1
+file_end=30
+
+for ((i=file_start; i<=file_end; i++)); do
+    let "j=3*${i}"
+    mv ./chanp${j}.dat ./halfp${i}.dat
+done
