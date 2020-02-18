@@ -73,7 +73,7 @@ class Model(nn.Module):
     def loss_pde(self, x):
         y_u = self.net_u(x)
         y_w = self.net_w(x)
-        self.lmd_e_tanh = 10*torch.tanh(0.2*self.lmd_e) + 11
+        self.lmd_e_tanh = 5*torch.tanh(0.2*self.lmd_e) + 5.01
 
         ##net_u
         u, v, p, phi = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3]
@@ -283,7 +283,7 @@ def main():
     restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
-    file_start = 1
+    file_start = 5
     file_end = 25
     dt = 0.06
 
@@ -308,7 +308,7 @@ def main():
     ## load data file
     for file_id in range(file_start, file_end):
         name_u = '../../../Data/CH/phase_field_xiaoning/K_001_lmd_e_1/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../../Data/CH/phase_field_xiaoning/K_001_lmd_e_1/dat_phase/halfp' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_001_lmd_e_1/dat_phase/chanp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 

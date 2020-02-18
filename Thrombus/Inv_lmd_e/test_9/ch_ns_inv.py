@@ -62,7 +62,7 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
-        self.lmd_e = torch.nn.Parameter(torch.tensor([45], requires_grad=True, dtype=torch.double) )
+        self.lmd_e = torch.nn.Parameter(torch.tensor([20], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -307,7 +307,7 @@ def main():
     ## load data file
     for file_id in range(file_start, file_end):
         name_u = '../../../Data/CH/phase_field_xiaoning/K_001_lmd_e_1/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../../Data/CH/phase_field_xiaoning/K_001_lmd_e_1/dat_phase/halfp' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_001_lmd_e_1/dat_phase/chanp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
