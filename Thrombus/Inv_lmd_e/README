@@ -3,17 +3,20 @@ README
 ####### infer lmd_e #######
 test_1: 
     	u, v, p, phi, psi, 
-	snapshot: 15-33
+	    snapshot: 15-33
+        2 nets
     	K = 0.01, 
     	u = 0.2*sin(1.2*PI*t), 
     	x = [0,6], y=[0,1],
     	left&right periodic, low is wall, upper plate is moving with u
     	mu = 0.02
-	lmd = 0.5*0.00010607
+	    lmd = 0.5*0.00010607
 
-test_2, same as 1, with constraint 10*tanh(0.25x)+11
 
-test_3, same as 1, old arch
+test_2, 2 nets, with constraint 10*tanh(0.25x)+11
 
-test_4, same as 3, with constraint 10*tanh(0.25x)+11
+test_3, old arch
 
+test_4, old arch, with constraint 10*tanh(0.25x)+11
+
+test_5, 2 nets, 10*loss_bc
