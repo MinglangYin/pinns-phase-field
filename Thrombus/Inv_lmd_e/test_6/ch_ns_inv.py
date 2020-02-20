@@ -227,26 +227,6 @@ class Model(nn.Module):
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() \
             + ((phi_i_pred-phi_i)**2).mean() + ((psi_1_i_pred-psi_1_i)**2).mean() + ((psi_2_i_pred-psi_2_i)**2).mean()
 
-# def CH_2D_init(x_init):
-#     ## u, v
-#     u_init = np.zeros((x_init.shape[0]))
-#     u_init = (1-x_init[:,2])*x_init[:,2]
-#     v_init = np.zeros((x_init.shape[0]))
-
-#     #########
-#     x, y = symbols('x y')
-#     phi = 0.5*(tanh((x**2 + y**2-0.3**2) / (sqrt(2)*0.01) ) + tanh( (x**2 + y**2-0.7**2) / (sqrt(2)*0.01)))
-#     phi_x, phi_y = phi.diff(x), phi.diff(y)
-#     phi_xx, phi_yy = phi_x.diff(x), phi_y.diff(y)
-
-#     f_phi = lambdify([x, y], phi, 'numpy')
-#     f_phi_xx = lambdify([x, y], phi_xx, 'numpy')
-#     f_phi_yy = lambdify([x, y], phi_yy, 'numpy')
-
-#     phi_init = f_phi(x_init[:,1], x_init[:,2])
-#     w_init = -h**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) + (phi_init**3 - phi_init)
-
-#     return u_init, v_init, phi_init, w_init
 
 def left_bound_vel(x):
     return 0.6*np.sin(1.2*np.pi*x[:, 0])

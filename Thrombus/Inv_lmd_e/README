@@ -28,3 +28,8 @@ test_7, infer large v, without constraint
 test_8, infer small lmd_e 1, with constraint
 
 test_9, infer small lmd_e 1, without constraint
+
+test_10: same as 6, snapshot: 5-15: lmd_e = 1.07
+test_11: same as 7, snapshot: 5-15: lmd_e = 0.671
+test_12: same as 8, snapshot: 5-15: lmd_e = 0.01
+test_13: same as 9, snapshot: 5-15: lmd_e = 0.002

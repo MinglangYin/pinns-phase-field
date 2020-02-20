@@ -62,7 +62,7 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
-        self.lmd_e = torch.nn.Parameter(torch.tensor([45], requires_grad=True, dtype=torch.double) )
+        self.lmd_e = torch.nn.Parameter(torch.tensor([30], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
