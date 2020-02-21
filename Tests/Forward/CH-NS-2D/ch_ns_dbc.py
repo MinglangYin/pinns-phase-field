@@ -113,48 +113,33 @@ class Model(nn.Module):
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
+        ## velocity inflow
         y_l, y_r, y_up, y_dw = self.net_u(x_l), self.net_u(x_r), self.net_u(x_up), self.net_u(x_dw)
         w_l, w_r, w_up, w_dw = self.net_w(x_l)[:,0], self.net_w(x_r)[:,0], self.net_w(x_up)[:,0], self.net_w(x_dw)[:,0]
-
+        
         u_l, v_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 3]
         u_r, p_r, phi_r = y_r[:, 0], y_r[:, 2], y_r[:, 3]
         u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
         u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3]
 
-        phi_up_y = gradients(phi_up, x_up)[0][:, 2]
-        w_up_y = gradients(w_up, x_up)[0][:, 2]
-        
-        phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
-        w_dw_y = gradients(w_dw, x_dw)[0][:, 2]
+        u_r_x = gradients(u_r, x_r)[0][:, 1]
 
         phi_l_x = gradients(phi_l, x_l)[0][:, 1]
-        w_l_x = gradients(w_l, x_l)[0][:, 1]
-
-        u_r_x = gradients(u_r, x_r)[0][:, 1]
         phi_r_x = gradients(phi_r, x_r)[0][:, 1]
+        phi_up_y = gradients(phi_up, x_up)[0][:, 2]
+        phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
+
+        w_l_x = gradients(w_l, x_l)[0][:, 1]
         w_r_x = gradients(w_r, x_r)[0][:, 1]
+        w_up_y = gradients(w_up, x_up)[0][:, 2]
+        w_dw_y = gradients(w_dw, x_dw)[0][:, 2]
 
-        # print(f'u_l - u_r shape: {((u_l - u_r)**2).shape}')
-        # print(f'v_l - v_r shape: {((v_l - v_r)**2).shape}')
-        # print(f'p_l - p_r shape: {((p_l - p_r)**2).shape}')
-        # print(f'phi_l - phi_r shape: {((phi_l - phi_r)**2).shape}')
-        # print(f'w_l - w_r shape: {((w_l - w_r)**2).shape}')
+        print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
 
-        # print(f'u_up shape: {((u_up)**2).shape}')
-        # print(f'u_dw shape: {((u_dw)**2).shape}')
-        # print(f'v_up shape: {((v_up)**2).shape}')
-        # print(f'v_dw shape: {((v_dw)**2).shape}')
-        # print(f'phi_dw_y shape: {((phi_dw_y)**2).shape}')
-        # print(f'phi_up_y shape: {((phi_up_y)**2).shape}')
-        # print(f'w_up_y shape: {((w_up_y)**2).shape}')
-        # print(f'w_dw_y shape: {((w_dw_y)**2).shape}')
-
-        print(f'u_l - u_l_real shape: {((u_l - u_l_real)**2).shape}')
-        return ((u_l - u_l_real)**2).mean() + (v_l**2).mean() +(p_r**2).mean() + (phi_l_x**2).mean() + (w_l_x**2).mean() + \
-                (u_r_x**2).mean() + (p_r**2).mean() + (phi_r_x**2).mean() + (w_r_x**2).mean() +\
-                (u_up**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() + (w_up_y**2).mean() +\
-                (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean()  + (w_dw_y**2).mean()
-
+        return ((u_l - u_l_real)**2).mean() + (u_r_x**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
+                + (v_l**2).mean() + (v_up**2).mean() + (v_dw**2).mean() + (p_r**2).mean()\
+                + (phi_l_x**2).mean() + (phi_r_x**2).mean() +  (phi_up_y**2).mean() + (phi_dw_y**2).mean() \
+                + (w_l_x**2).mean() + (w_r_x**2).mean() + (w_up_y**2).mean() + (w_dw_y**2).mean()
 
     def loss_ic(self, x, u_i, v_i, phi_i, w_i):
         y_pred, w_i_pred = self.net_u(x), self.net_w(x)[:, 0]
