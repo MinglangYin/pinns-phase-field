@@ -17,3 +17,7 @@ test_3, use phi, no thrombus sampling points
 test_4, use phi, with thrombus sampling points
 
 test_5, use phi, u, v, p, psi, with thrombus sampling points
+
+test_6: snapshot, 23:33, use u, v, phi, p, psi, with thrombus sampling points. more points on the boundary
+
+test_7: same as test_6, with tanh constraint for lmd_e
