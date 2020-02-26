@@ -73,7 +73,7 @@ class Model(nn.Module):
     def loss_pde(self, x):
         y_u = self.net_u(x)
         y_w = self.net_w(x)
-	self.lmd_tanh = torch.tanh(0.1*self.lmd_e)+1.1
+        self.lmd_tanh = torch.tanh(0.1*self.lmd_e)+1.1
 
         ##net_u
         u, v, p, phi = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3]
@@ -132,14 +132,14 @@ class Model(nn.Module):
         # print(f'res_psi_x shape:{res_psi_x.shape}')
         # print(f'res_psi_y shape:{res_psi_y.shape}')
 
-        print(f'res_ns_x: {(res_ns_x**2).mean()}')
-        print(f'res_ns_y: {(res_ns_y**2).mean()}')
-        print(f'res_psi_x: {(res_psi_x**2).mean()}')
-        print(f'res_psi_y: {(res_psi_y**2).mean()}')
-        print(f'res_pf: {(res_pf**2).mean()}')
-        print(f'coh term: {((lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y))**2).mean()}')
-        print(f'vis-elas term: {((self.lmd_e*(B_12_x + B_22_y))**2).mean()}')
-        print(f'FSI term: {(mu*(1-phi)*u/(2*K)).mean()}')
+        # print(f'res_ns_x: {(res_ns_x**2).mean()}')
+        # print(f'res_ns_y: {(res_ns_y**2).mean()}')
+        # print(f'res_psi_x: {(res_psi_x**2).mean()}')
+        # print(f'res_psi_y: {(res_psi_y**2).mean()}')
+        # print(f'res_pf: {(res_pf**2).mean()}')
+        # print(f'coh term: {((lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y))**2).mean()}')
+        # print(f'vis-elas term: {((self.lmd_e*(B_12_x + B_22_y))**2).mean()}')
+        # print(f'FSI term: {(mu*(1-phi)*u/(2*K)).mean()}')
 
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean() \
              + (res_psi_x**2).mean() + (res_psi_y**2).mean()
@@ -201,9 +201,9 @@ class Model(nn.Module):
         loss_lr = ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((w_l - w_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
                 + ((p_l - p_r)**2).mean() + (psi_1_l_x**2).mean() + (psi_2_l_x**2).mean() + (psi_1_r_x**2).mean() + (psi_2_r_x**2).mean() 
         
-        print(f'loss_up: {loss_up}')
-        print(f'loss_dw: {loss_dw}')
-        print(f'loss_lr: {loss_lr}')
+        # print(f'loss_up: {loss_up}')
+        # print(f'loss_dw: {loss_dw}')
+        # print(f'loss_lr: {loss_lr}')
 
         return loss_up + loss_dw + loss_lr
                  
@@ -335,7 +335,7 @@ def main():
     ## geometry
     x1 = np.linspace(x_min, x_max, num=num_x1)
     x2 = np.linspace(y_min, y_max, num=num_x2)
-    t = np.linspace(dt*(file_start+1), dt*(file_end+1), num=num_t+1)
+    t = np.linspace(0.02+dt*file_start, 0.02+dt*file_end, num=num_t+1)
 
     x1_grid, x2_grid = np.meshgrid(x1, x2)
     x_2d = np.concatenate((x1_grid.flatten()[:,None], x2_grid.flatten()[:,None]), axis=1)
