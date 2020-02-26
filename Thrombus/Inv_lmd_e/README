@@ -2,22 +2,48 @@ README
 
 ####### infer lmd_e #######
 test_1: 
-    psi, 
-    K = 0.01, 
-    u = 0.2*sin(1.2*PI*t), 
-    x = [0,6], y=[0,1],
-    left&right periodic, low is wall, upper plate is moving with u
-    mu = 0.03
+    	u, v, p, phi, psi, 
+	    snapshot: 15-33
+        2 nets
+    	K = 0.01, 
+    	u = 0.2*sin(1.2*PI*t), 
+    	x = [0,6], y=[0,1],
+    	left&right periodic, low is wall, upper plate is moving with u
+    	mu = 0.02
+	    lmd = 0.5*0.00010607
 
-test_2, use phi, u, v, p, psi
-    wrong
 
-test_3, use phi, no thrombus sampling points
+test_2, 2 nets, with constraint 10*tanh(0.25x)+11
 
-test_4, use phi, with thrombus sampling points
+test_3, old arch
 
+<<<<<<< HEAD
 test_5, use phi, u, v, p, psi, with thrombus sampling points
 
 test_6: snapshot, 23:33, use u, v, phi, p, psi, with thrombus sampling points. more points on the boundary
 
 test_7: same as test_6, with tanh constraint for lmd_e
+=======
+test_4, old arch, with constraint 10*tanh(0.25x)+11
+
+test_5, old arch, 10*loss_bc
+
+test_6, infer large v, with constraint
+
+test_7, infer large v, without constraint
+
+test_8, infer small lmd_e 1, with constraint
+
+test_9, infer small lmd_e 1, without constraint
+
+test_10: same as 6, snapshot: 5-15: lmd_e = 1.07
+test_11: same as 7, snapshot: 5-15: lmd_e = 0.671
+test_12: same as 8, snapshot: 5-15: lmd_e = 0.01
+test_13: same as 9, snapshot: 5-15: lmd_e = 0.002
+
+###########
+test_14: case_14, no constraint
+test_15: case_14, constraint
+test_16: case_15, no constraint
+test_17: case_16, constraint
+

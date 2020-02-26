@@ -36,11 +36,11 @@ torch.manual_seed(123456)
 np.random.seed(123456)
 
 h = 0.05
-lmd = 0.4*0.00010607
+lmd = 0.5*0.00010607
 #lmd_e = 0.5
 tau = 1e-6
 rho = 1
-mu = 0.03
+mu = 0.02
 K = 0.01
 
 class Model(nn.Module):
@@ -52,7 +52,7 @@ class Model(nn.Module):
         for num in range(2,10):
             self.net_w.add_module('net_w_linear_%d' %(num), nn.Linear(20, 20))
             self.net_w.add_module('net_w_tanh_%d' %(num), nn.Tanh())
-        self.net_w.add_module('net_w_linear_50', nn.Linear(20, 3))
+        self.net_w.add_module('net_w_linear_50', nn.Linear(20, 1))
 
         self.net_u = nn.Sequential()
         self.net_u.add_module('net_u_linear_1', nn.Linear(3, 20))
@@ -60,9 +60,9 @@ class Model(nn.Module):
         for num in range(2,10):
             self.net_u.add_module('net_u_linear_%d' %(num), nn.Linear(20, 20))
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
-        self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
+        self.net_u.add_module('net_u_linear_50', nn.Linear(20, 6))
 
-        self.lmd_e = torch.nn.Parameter(torch.tensor([40], requires_grad=True, dtype=torch.double) )
+        self.lmd_e = torch.nn.Parameter(torch.tensor([10], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -73,10 +73,16 @@ class Model(nn.Module):
     def loss_pde(self, x):
         y_u = self.net_u(x)
         y_w = self.net_w(x)
+        self.lmd_e_tanh = 10*torch.tanh(0.2*self.lmd_e) + 11
 
         ##net_u
-        u, v, p, phi = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3]
-        u_g, v_g, p_g, phi_g = gradients(u, x)[0], gradients(v, x)[0], gradients(p, x)[0], gradients(phi, x)[0]
+        u, v, p, phi, psi_1, psi_2 = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3], y_u[:, 4], y_u[:, 5]
+        u_g = gradients(u, x)[0]
+        v_g = gradients(v, x)[0]
+        p_g = gradients(p, x)[0]
+        phi_g = gradients(phi, x)[0]
+        psi_1_g = gradients(psi_1, x)[0]
+        psi_2_g = gradients(psi_2, x)[0]
 
         u_t, u_x, u_y = u_g[:, 0], u_g[:, 1], u_g[:, 2]
         v_t, v_x, v_y = v_g[:, 0], v_g[:, 1], v_g[:, 2]
@@ -88,7 +94,7 @@ class Model(nn.Module):
         phi_xx, phi_xy, phi_yy = gradients(phi_x, x)[0][:, 1], gradients(phi_x, x)[0][:, 2], gradients(phi_y, x)[0][:, 2]
 
         ##net_w
-        w, psi_1, psi_2 = y_w[:, 0], y_w[:, 1], y_w[:, 2]
+        w = y_w[:, 0]
         w_g = gradients(w, x)[0]
         w_x, w_y = w_g[:, 1], w_g[:, 2]
         w_xx, w_yy = gradients(w_x, x)[0][:, 1], gradients(w_y, x)[0][:, 2]
@@ -111,9 +117,9 @@ class Model(nn.Module):
         ## NS
         ### there is another equivalent form see 5.13c
         res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + mu*(1-phi)*u/(2*K) \
-                + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + self.lmd_e*(B_11_x + B_21_y)
+                + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + self.lmd_e_tanh*(B_11_x + B_21_y)
         res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + mu*(1-phi)*v/(2*K) \
-                + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + self.lmd_e*(B_12_x + B_22_y)
+                + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + self.lmd_e_tanh*(B_12_x + B_22_y)
         res_incomp = u_x + v_y
 
         ## PF
@@ -131,21 +137,21 @@ class Model(nn.Module):
         # print(f'res_psi_x shape:{res_psi_x.shape}')
         # print(f'res_psi_y shape:{res_psi_y.shape}')
 
-        print(f'res_ns_x: {(res_ns_x**2).mean()},  res_ns_y: {(res_ns_y**2).mean()}, res_psi_x: {(res_psi_x**2).mean()},\
-            res_psi_y: {(res_psi_y**2).mean()}, res_f: {(res_pf**2).mean()}')
+        print(f'res_ns_x: {(res_ns_x**2).mean()}')
+        print(f'res_ns_y: {(res_ns_y**2).mean()}')
+        print(f'res_psi_x: {(res_psi_x**2).mean()}')
+        print(f'res_psi_y: {(res_psi_y**2).mean()}')
+        print(f'res_pf: {(res_pf**2).mean()}')
         print(f'coh term: {((lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y))**2).mean()}')
         print(f'vis-elas term: {((self.lmd_e*(B_12_x + B_22_y))**2).mean()}')
-        print(f'vis term: {((self.lmd_e*(B_12_x + B_22_y))**2).mean()}')
+        print(f'FSI term: {(mu*(1-phi)*u/(2*K)).mean()}')
 
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean() \
              + (res_psi_x**2).mean() + (res_psi_y**2).mean()
 
     def loss_data(self, x_data, u_data, v_data, p_data, phi_data, psi_1_data, psi_2_data):
         y_u = self.net_u(x_data)
-        w_u = self.net_w(x_data)
-        u, v, p, phi = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3]
-        psi_1, psi_2 = w_u[:, 1], w_u[:, 2]
-
+        u, v, p, phi, psi_1, psi_2 = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3], y_u[:, 4], y_u[:, 5]
 
         # print(f'(u - u_data)**2: {((u - u_data)**2).shape}')
         # print(f'loss_data u shape: {((u - u_data)**2).shape}')
@@ -158,21 +164,22 @@ class Model(nn.Module):
         return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((p - p_data)**2).mean() + \
             ((phi - phi_data)**2).mean() + ((psi_1 - psi_1_data)**2).mean() + ((psi_2 - psi_2_data)**2).mean()
 
+
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_up_real):
         ## periodic left&right, low wall, up moving
         y_u_l, y_u_r, y_u_up, y_u_dw = self.net_u(x_l), self.net_u(x_r), self.net_u(x_up), self.net_u(x_dw)
         y_w_l, y_w_r, y_w_up, y_w_dw = self.net_w(x_l), self.net_w(x_r), self.net_w(x_up), self.net_w(x_dw)
         
         ## net_u
-        u_l, v_l, p_l, phi_l = y_u_l[:, 0], y_u_l[:, 1], y_u_l[:, 2], y_u_l[:, 3]
-        u_r, v_r, p_r, phi_r = y_u_r[:, 0], y_u_r[:, 1], y_u_r[:, 2], y_u_r[:, 3]
-        u_up, v_up, phi_up = y_u_up[:, 0], y_u_up[:, 1], y_u_up[:, 3]
-        u_dw, v_dw, phi_dw = y_u_dw[:, 0], y_u_dw[:, 1], y_u_dw[:, 3]
+        u_l, v_l, p_l, phi_l, psi_1_l, psi_2_l = y_u_l[:, 0], y_u_l[:, 1], y_u_l[:, 2], y_u_l[:, 3], y_u_l[:, 4], y_u_l[:, 5]
+        u_r, v_r, p_r, phi_r, psi_1_r, psi_2_r = y_u_r[:, 0], y_u_r[:, 1], y_u_r[:, 2], y_u_r[:, 3], y_u_r[:, 4], y_u_r[:, 5]
+        u_up, v_up, phi_up, psi_1_up, psi_2_up = y_u_up[:, 0], y_u_up[:, 1], y_u_up[:, 3], y_u_up[:, 4], y_u_up[:, 5]
+        u_dw, v_dw, phi_dw, psi_1_dw, psi_2_dw = y_u_dw[:, 0], y_u_dw[:, 1], y_u_dw[:, 3], y_u_dw[:, 4], y_u_dw[:, 5]
         ## net_w
-        w_l, psi_1_l, psi_2_l = y_w_l[:, 0], y_w_l[:, 1], y_w_l[:, 2]
-        w_r, psi_1_r, psi_2_r = y_w_r[:, 0], y_w_r[:, 1], y_w_r[:, 2]
-        w_up, psi_1_up, psi_2_up = y_w_up[:, 0], y_w_up[:, 1], y_w_up[:, 2]
-        w_dw, psi_1_dw, psi_2_dw = y_w_dw[:, 0], y_w_dw[:, 1], y_w_dw[:, 2]
+        w_l = y_w_l[:, 0]
+        w_r = y_w_r[:, 0]
+        w_up = y_w_up[:, 0]
+        w_dw = y_w_dw[:, 0]
 
         phi_up_y = gradients(phi_up, x_up)[0][:, 2]
         phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
@@ -201,13 +208,23 @@ class Model(nn.Module):
         print(f'loss_dw: {loss_dw}')
         print(f'loss_lr: {loss_lr}')
 
+        # print(f'u_up shape: {(u_up - u_up_real).shape}')
+        # print(f'u_l - u_r shape: {(u_l - u_r).shape}')
+        # print(f'v_l - v_r shape: {(v_l - v_r).shape}')
+        # print(f'w_l - w_r shape: {(w_l - w_r).shape}')
+        # print(f'phi_l - phi_r shape: {(phi_l - phi_r).shape}')
+        # print(f'p_l - p_r shape: {(p_l - p_r).shape}')
+
         return loss_up + loss_dw + loss_lr
                  
     def loss_ic(self, x, u_i, v_i, p_i, phi_i, psi_1_i, psi_2_i):
         y_u_pred = self.net_u(x)
-        y_w_pred = self.net_w(x)
-        u_i_pred, v_i_pred, p_i_pred, phi_i_pred = y_u_pred[:, 0][:,None], y_u_pred[:, 1][:,None], y_u_pred[:, 2][:,None], y_u_pred[:, 3][:,None]
-        psi_1_i_pred, psi_2_i_pred = y_w_pred[:, 1][:,None], y_w_pred[:, 2][:,None]
+        u_i_pred = y_u_pred[:, 0][:,None]
+        v_i_pred = y_u_pred[:, 1][:,None]
+        p_i_pred = y_u_pred[:, 2][:,None]
+        phi_i_pred = y_u_pred[:, 3][:,None]
+        psi_1_i_pred = y_u_pred[:, 4][:,None]
+        psi_2_i_pred = y_u_pred[:, 5][:,None]
 
         # print(f'u_i_pred shape: {u_i_pred.shape}')
         # print(f'u_i shape: {u_i.shape}')
@@ -216,7 +233,6 @@ class Model(nn.Module):
         # print(f'loss_ic_v: {((v_i_pred-v_i)**2).shape}')
         # print(f'loss_ic_p: {((p_i_pred-p_i)**2).shape}')
         # print(f'loss_ic_phi: {((phi_i_pred-phi_i)**2).shape}')
-        # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
         # print(f'psi_1_loss: {((psi_1_i_pred-psi_1_i)**2).shape}')
         # print(f'psi_2_loss: {((psi_2_i_pred-psi_2_i)**2).shape}')
         
@@ -271,24 +287,24 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 200000
+    epochs = 100000
     lr = 0.001
     init_path = './InitConds/'
-    path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/', './Predictions/psi_1/', './Predictions/psi_2/']
+    path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/psi_1/', './Predictions/psi_2/', './Predictions/w/']
     model_path = 'CheckPts/model_chkpts.pt'
     restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
-    file_start = 1
+    file_start = 15
     file_end = 33
     dt = 0.06
 
     num_x1 = 100
     num_x2 = 100
     num_t = file_end-file_start
-    num_bh_train = 50   # number of sampling points on verticle boundary over time
-    num_bv_train = 50   # number of sampling points on horizontal boundary over time
-    num_f_train = 2000   # inner sampling points
+    num_bh_train = 1500   # number of sampling points on verticle boundary over time
+    num_bv_train = 1500   # number of sampling points on horizontal boundary over time
+    num_f_train = 20000   # inner sampling points
     num_ft_train = 10000 # sampling point around thrombus
     num_i_train = 5000   # initial sampling points 
 
@@ -338,7 +354,6 @@ def main():
 
     ## initial condition
     inits = np.zeros((num_x1*num_x2, 6 ))
-
     inits[:,0] = u_init[:,0]
     inits[:,1] = v_init[:,0]
     inits[:,2] = p_init[:,0]
@@ -373,14 +388,25 @@ def main():
 
     ### initial
     xt_i_sample = xt_init[id_i, :]
-    u_i_sample, v_i_sample, p_i_sample, phi_i_sample, psi_1_i_sample, psi_2_i_sample = u_init[id_i], v_init[id_i], p_init[id_i], phi_init[id_i], psi_1_init[id_i], psi_2_init[id_i]
+    u_i_sample = u_init[id_i]
+    v_i_sample = v_init[id_i]
+    p_i_sample = p_init[id_i]
+    phi_i_sample = phi_init[id_i]
+    psi_1_i_sample = psi_1_init[id_i]
+    psi_2_i_sample = psi_2_init[id_i]
     ### boundary
-    u_up_sample = u_up[id_bv]
     xt_l_sample, xt_r_sample = xt_l_ext[id_bv,:], xt_r_ext[id_bv,:]
     xt_up_sample, xt_dw_sample = xt_up_ext[id_bh,:], xt_dw_ext[id_bh,:]
+    u_up_sample = u_up[id_bh]
     ### inner points
     xt_f_sample = x_data[id_f,:]
-    u_f_sample, v_f_sample, p_f_sample, phi_f_sample, psi_1_f_sample, psi_2_f_sample = y_data[id_f,0], y_data[id_f,1], y_data[id_f,2], y_data[id_f,3], y_data[id_f,4], y_data[id_f,5]
+    u_f_sample = y_data[id_f,0]
+    v_f_sample = y_data[id_f,1]
+    p_f_sample = y_data[id_f,2]
+    phi_f_sample = y_data[id_f,3]
+    psi_1_f_sample = y_data[id_f,4]
+    psi_2_f_sample = y_data[id_f,5]
+
 
     ### sample around thrombus, concatenate
     x_thb_l = 2.75
@@ -396,6 +422,7 @@ def main():
     y_thb_data = np.delete(y_thb_data, 0, axis=0)
 
     id_ft = np.random.choice(x_thb_data.shape[0], num_ft_train, replace=False)
+    print(f'x_thb length: {x_thb_data.shape[0]}')
     x_thb_sample = x_thb_data[id_ft,:]
     u_thb_sample = y_thb_data[id_ft, 0]
     v_thb_sample = y_thb_data[id_ft, 1]
@@ -434,7 +461,8 @@ def main():
     xt_up_train = torch.tensor(xt_up_sample, requires_grad=True, dtype=torch.double).to(device)
     xt_dw_train = torch.tensor(xt_dw_sample, requires_grad=True, dtype=torch.double).to(device)
     u_up_train = torch.tensor(u_up_sample, dtype=torch.double).to(device)
-    
+
+
     ## instantiate model/optimizer
     model = Model().to(device)
     model.double()
@@ -456,10 +484,10 @@ def main():
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
-            loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train, psi_1_f_train, psi_2_f_sample)        
+            loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train, psi_1_f_train, psi_2_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_up_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + 10*loss_bc + loss_data + 10*loss_ic
+            loss = loss_pde + loss_bc + loss_data + loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
             return loss
