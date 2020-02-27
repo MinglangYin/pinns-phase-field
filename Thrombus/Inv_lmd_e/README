@@ -42,8 +42,15 @@ test_12: same as 8, snapshot: 5-15: lmd_e = 0.01
 test_13: same as 9, snapshot: 5-15: lmd_e = 0.002
 
 ###########
-test_14: case_14, no constraint
-test_15: case_14, constraint
-test_16: case_15, no constraint
-test_17: case_16, constraint
+test_14: lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint
+test_15: lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), constraint
+test_16: lmd_e 1, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint
+test_17: lmd_e 1, K = 0.1, v = 0.6sin(1.2*pi*t), constraint
+
+
+###########
+test_18: lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint, snapshot 10-15
+test_19: lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint, snapshot 15-20
+
+
 
