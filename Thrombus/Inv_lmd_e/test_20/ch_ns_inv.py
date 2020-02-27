@@ -260,8 +260,8 @@ def main():
     num_x1 = 100
     num_x2 = 100
     num_t = file_end-file_start
-    num_bh_train = 800   # number of sampling points on verticle boundary over time
-    num_bv_train = 800   # number of sampling points on horizontal boundary over time
+    num_bh_train = 500   # number of sampling points on verticle boundary over time
+    num_bv_train = 500   # number of sampling points on horizontal boundary over time
     num_f_train = 40000   # inner sampling points
     num_ft_train = 1 # sampling point around thrombus
     num_i_train = 10000   # initial sampling points 
