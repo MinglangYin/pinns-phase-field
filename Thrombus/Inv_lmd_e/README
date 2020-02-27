@@ -51,6 +51,8 @@ test_17: lmd_e 1, K = 0.1, v = 0.6sin(1.2*pi*t), constraint
 ###########
 test_18: lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint, snapshot 10-15
 test_19: lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint, snapshot 15-20
+test_20: (FFT-I), lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint, snapshot 10-15
+test_21: (FFT-I), lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint, snapshot 15-20
 
 
 
