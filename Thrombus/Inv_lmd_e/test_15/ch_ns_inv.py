@@ -73,7 +73,7 @@ class Model(nn.Module):
     def loss_pde(self, x):
         y_u = self.net_u(x)
         y_w = self.net_w(x)
-	self.lmd_tanh = 20*torch.tanh(0.1*self.lmd_e)+80
+        self.lmd_tanh = 20*torch.tanh(0.1*self.lmd_e)+80
 
         ##net_u
         u, v, p, phi = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3]
@@ -132,14 +132,14 @@ class Model(nn.Module):
         # print(f'res_psi_x shape:{res_psi_x.shape}')
         # print(f'res_psi_y shape:{res_psi_y.shape}')
 
-        print(f'res_ns_x: {(res_ns_x**2).mean()}')
-        print(f'res_ns_y: {(res_ns_y**2).mean()}')
-        print(f'res_psi_x: {(res_psi_x**2).mean()}')
-        print(f'res_psi_y: {(res_psi_y**2).mean()}')
-        print(f'res_pf: {(res_pf**2).mean()}')
-        print(f'coh term: {((lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y))**2).mean()}')
-        print(f'vis-elas term: {((self.lmd_e*(B_12_x + B_22_y))**2).mean()}')
-        print(f'FSI term: {(mu*(1-phi)*u/(2*K)).mean()}')
+        # print(f'res_ns_x: {(res_ns_x**2).mean()}')
+        # print(f'res_ns_y: {(res_ns_y**2).mean()}')
+        # print(f'res_psi_x: {(res_psi_x**2).mean()}')
+        # print(f'res_psi_y: {(res_psi_y**2).mean()}')
+        # print(f'res_pf: {(res_pf**2).mean()}')
+        # print(f'coh term: {((lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y))**2).mean()}')
+        # print(f'vis-elas term: {((self.lmd_e*(B_12_x + B_22_y))**2).mean()}')
+        # print(f'FSI term: {(mu*(1-phi)*u/(2*K)).mean()}')
 
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean() \
              + (res_psi_x**2).mean() + (res_psi_y**2).mean()
@@ -201,9 +201,9 @@ class Model(nn.Module):
         loss_lr = ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((w_l - w_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
                 + ((p_l - p_r)**2).mean() + (psi_1_l_x**2).mean() + (psi_2_l_x**2).mean() + (psi_1_r_x**2).mean() + (psi_2_r_x**2).mean() 
         
-        print(f'loss_up: {loss_up}')
-        print(f'loss_dw: {loss_dw}')
-        print(f'loss_lr: {loss_lr}')
+        # print(f'loss_up: {loss_up}')
+        # print(f'loss_dw: {loss_dw}')
+        # print(f'loss_lr: {loss_lr}')
 
         return loss_up + loss_dw + loss_lr
                  
@@ -212,9 +212,6 @@ class Model(nn.Module):
         y_w_pred = self.net_w(x)
         u_i_pred, v_i_pred, p_i_pred, phi_i_pred = y_u_pred[:, 0][:,None], y_u_pred[:, 1][:,None], y_u_pred[:, 2][:,None], y_u_pred[:, 3][:,None]
         psi_1_i_pred, psi_2_i_pred = y_w_pred[:, 1][:,None], y_w_pred[:, 2][:,None]
-
-        # print(f'u_i_pred shape: {u_i_pred.shape}')
-        # print(f'u_i shape: {u_i.shape}')
 
         # print(f'loss_ic_u: {((u_i_pred-u_i)**2).shape}')
         # print(f'loss_ic_v: {((v_i_pred-v_i)**2).shape}')
@@ -226,27 +223,6 @@ class Model(nn.Module):
         
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() \
             + ((phi_i_pred-phi_i)**2).mean() + ((psi_1_i_pred-psi_1_i)**2).mean() + ((psi_2_i_pred-psi_2_i)**2).mean()
-
-# def CH_2D_init(x_init):
-#     ## u, v
-#     u_init = np.zeros((x_init.shape[0]))
-#     u_init = (1-x_init[:,2])*x_init[:,2]
-#     v_init = np.zeros((x_init.shape[0]))
-
-#     #########
-#     x, y = symbols('x y')
-#     phi = 0.5*(tanh((x**2 + y**2-0.3**2) / (sqrt(2)*0.01) ) + tanh( (x**2 + y**2-0.7**2) / (sqrt(2)*0.01)))
-#     phi_x, phi_y = phi.diff(x), phi.diff(y)
-#     phi_xx, phi_yy = phi_x.diff(x), phi_y.diff(y)
-
-#     f_phi = lambdify([x, y], phi, 'numpy')
-#     f_phi_xx = lambdify([x, y], phi_xx, 'numpy')
-#     f_phi_yy = lambdify([x, y], phi_yy, 'numpy')
-
-#     phi_init = f_phi(x_init[:,1], x_init[:,2])
-#     w_init = -h**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) + (phi_init**3 - phi_init)
-
-#     return u_init, v_init, phi_init, w_init
 
 def left_bound_vel(x):
     return 0.6*np.sin(1.2*np.pi*x[:, 0])
@@ -301,7 +277,7 @@ def main():
     asp_ratio = (y_max-y_min)/(x_max-x_min)
 
     ## create new folders
-    os.makedirs('InitConds', exist_ok=True)
+    # os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
     os.makedirs('CheckPts', exist_ok=True)
 
@@ -335,7 +311,7 @@ def main():
     ## geometry
     x1 = np.linspace(x_min, x_max, num=num_x1)
     x2 = np.linspace(y_min, y_max, num=num_x2)
-    t = np.linspace(dt*(file_start+1), dt*(file_end+1), num=num_t+1)
+    t = np.linspace(0.02+dt*file_start, 0.02+dt*file_end, num=num_t+1)
 
     x1_grid, x2_grid = np.meshgrid(x1, x2)
     x_2d = np.concatenate((x1_grid.flatten()[:,None], x2_grid.flatten()[:,None]), axis=1)
@@ -370,7 +346,7 @@ def main():
     
     ## sampling
     id_f = np.random.choice(num_x1*num_x2*num_t, num_f_train, replace=False)
-    id_bv = np.random.choice(num_x1*num_t, num_bv_train, replace=False)
+    id_bv = np.random.choice(num_x2*num_t, num_bv_train, replace=False)
     id_bh = np.random.choice(num_x1*num_t, num_bh_train, replace=False)
     id_i = np.random.choice(num_x1*num_x2, num_i_train, replace=False)
 

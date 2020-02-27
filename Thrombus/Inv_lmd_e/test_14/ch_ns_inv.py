@@ -62,7 +62,7 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
-        self.lmd_e = torch.nn.Parameter(torch.tensor([20], requires_grad=True, dtype=torch.double) )
+        self.lmd_e = torch.nn.Parameter(torch.tensor([100], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -131,17 +131,8 @@ class Model(nn.Module):
         # print(f'res_psi_x shape:{res_psi_x.shape}')
         # print(f'res_psi_y shape:{res_psi_y.shape}')
 
-        print(f'res_ns_x: {(res_ns_x**2).mean()}')
-        print(f'res_ns_y: {(res_ns_y**2).mean()}')
-        print(f'res_psi_x: {(res_psi_x**2).mean()}')
-        print(f'res_psi_y: {(res_psi_y**2).mean()}')
-        print(f'res_pf: {(res_pf**2).mean()}')
-        print(f'coh term: {((lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y))**2).mean()}')
-        print(f'vis-elas term: {((self.lmd_e*(B_12_x + B_22_y))**2).mean()}')
-        print(f'FSI term: {(mu*(1-phi)*u/(2*K)).mean()}')
-
-        return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean() \
-             + (res_psi_x**2).mean() + (res_psi_y**2).mean()
+        return (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_incomp**2).mean() + (res_pf**2).mean() \
+            + (res_w**2).mean()  + (res_psi_x**2).mean() + (res_psi_y**2).mean()
 
     def loss_data(self, x_data, u_data, v_data, p_data, phi_data, psi_1_data, psi_2_data):
         y_u = self.net_u(x_data)
@@ -149,13 +140,12 @@ class Model(nn.Module):
         u, v, p, phi = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3]
         psi_1, psi_2 = w_u[:, 1], w_u[:, 2]
 
-        # print(f'(u - u_data)**2: {((u - u_data)**2).shape}')
-        # print(f'loss_data u shape: {((u - u_data)**2).shape}')
-        # print(f'loss_data v shape: {((v - v_data)**2).shape}')
-        # print(f'loss_data p shape: {((p - p_data)**2).shape}')
-        # print(f'loss_data phi shape: {((phi - phi_data)**2).shape}')
-        # print(f'loss_data psi_1 shape: {((psi_1 - psi_1_data)**2).shape}')
-        # print(f'loss_data psi_2 shape: {((psi_2 - psi_2_data)**2).shape}')
+        # print(f'(u: {(u - u_data).shape}')
+        # print(f'(v: {(v - v_data).shape}')
+        # print(f'(p: {(p - p_data).shape}')
+        # print(f'(phi: {(phi - phi_data).shape}')
+        # print(f'(psi_1: {(psi_1 - psi_1_data).shape}')
+        # print(f'(psi_2: {(psi_2 - psi_2_data).shape}')
 
         return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((p - p_data)**2).mean() + \
             ((phi - phi_data)**2).mean() + ((psi_1 - psi_1_data)**2).mean() + ((psi_2 - psi_2_data)**2).mean()
@@ -192,17 +182,19 @@ class Model(nn.Module):
         psi_1_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2]
         psi_2_dw_y = gradients(psi_2_dw, x_dw)[0][:, 2]
 
-        # print(f'u_up - u_up_real: {((u_up - u_up_real)**2).shape}')
+        # print(f'u_up - u_up_real: {(u_up - u_up_real).shape}')
+        # print(f'u_l - u_r: {(u_l - u_r).shape}')
+        # print(f'v_l - v_r: {(v_l - v_r).shape}')
+        # print(f'w_l - w_r: {(w_l - w_r).shape}')
+        # print(f'phi_l - phi_r: {(phi_l - phi_r).shape}')
+        # print(f'p_l - p_r: {(p_l - p_r).shape}')
+
         loss_up = ((u_up - u_up_real)**2).mean() + (v_up**2).mean() + (phi_up_y**2).mean() + (w_up_y**2).mean()\
                 + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean()
         loss_dw = (u_dw**2).mean() + (v_dw**2).mean() + (phi_dw_y**2).mean() + (w_dw_y**2).mean()\
                 + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()
         loss_lr = ((u_l - u_r)**2).mean() + ((v_l - v_r)**2).mean() + ((w_l - w_r)**2).mean() + ((phi_l - phi_r)**2).mean() \
                 + ((p_l - p_r)**2).mean() + (psi_1_l_x**2).mean() + (psi_2_l_x**2).mean() + (psi_1_r_x**2).mean() + (psi_2_r_x**2).mean() 
-        
-        print(f'loss_up: {loss_up}')
-        print(f'loss_dw: {loss_dw}')
-        print(f'loss_lr: {loss_lr}')
 
         return loss_up + loss_dw + loss_lr
                  
@@ -215,37 +207,16 @@ class Model(nn.Module):
         # print(f'u_i_pred shape: {u_i_pred.shape}')
         # print(f'u_i shape: {u_i.shape}')
 
-        # print(f'loss_ic_u: {((u_i_pred-u_i)**2).shape}')
-        # print(f'loss_ic_v: {((v_i_pred-v_i)**2).shape}')
-        # print(f'loss_ic_p: {((p_i_pred-p_i)**2).shape}')
-        # print(f'loss_ic_phi: {((phi_i_pred-phi_i)**2).shape}')
-        # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
-        # print(f'psi_1_loss: {((psi_1_i_pred-psi_1_i)**2).shape}')
-        # print(f'psi_2_loss: {((psi_2_i_pred-psi_2_i)**2).shape}')
+        # print(f'loss_ic_u: {(u_i_pred-u_i).shape}')
+        # print(f'loss_ic_v: {(v_i_pred-v_i).shape}')
+        # print(f'loss_ic_p: {(p_i_pred-p_i).shape}')
+        # print(f'loss_ic_phi: {(phi_i_pred-phi_i).shape}')
+        # print(f'w_loss: {(w_i_pred-w_i).shape}')
+        # print(f'psi_1_loss: {(psi_1_i_pred-psi_1_i).shape}')
+        # print(f'psi_2_loss: {(psi_2_i_pred-psi_2_i).shape}')
         
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() \
             + ((phi_i_pred-phi_i)**2).mean() + ((psi_1_i_pred-psi_1_i)**2).mean() + ((psi_2_i_pred-psi_2_i)**2).mean()
-
-# def CH_2D_init(x_init):
-#     ## u, v
-#     u_init = np.zeros((x_init.shape[0]))
-#     u_init = (1-x_init[:,2])*x_init[:,2]
-#     v_init = np.zeros((x_init.shape[0]))
-
-#     #########
-#     x, y = symbols('x y')
-#     phi = 0.5*(tanh((x**2 + y**2-0.3**2) / (sqrt(2)*0.01) ) + tanh( (x**2 + y**2-0.7**2) / (sqrt(2)*0.01)))
-#     phi_x, phi_y = phi.diff(x), phi.diff(y)
-#     phi_xx, phi_yy = phi_x.diff(x), phi_y.diff(y)
-
-#     f_phi = lambdify([x, y], phi, 'numpy')
-#     f_phi_xx = lambdify([x, y], phi_xx, 'numpy')
-#     f_phi_yy = lambdify([x, y], phi_yy, 'numpy')
-
-#     phi_init = f_phi(x_init[:,1], x_init[:,2])
-#     w_init = -h**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) + (phi_init**3 - phi_init)
-
-#     return u_init, v_init, phi_init, w_init
 
 def left_bound_vel(x):
     return 0.6*np.sin(1.2*np.pi*x[:, 0])
@@ -300,7 +271,7 @@ def main():
     asp_ratio = (y_max-y_min)/(x_max-x_min)
 
     ## create new folders
-    os.makedirs('InitConds', exist_ok=True)
+    # os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
     os.makedirs('CheckPts', exist_ok=True)
 
@@ -334,7 +305,7 @@ def main():
     ## geometry
     x1 = np.linspace(x_min, x_max, num=num_x1)
     x2 = np.linspace(y_min, y_max, num=num_x2)
-    t = np.linspace(dt*(file_start+1), dt*(file_end+1), num=num_t+1)
+    t = np.linspace(0.02+dt*file_start, 0.02+dt*file_end, num=num_t+1)
 
     x1_grid, x2_grid = np.meshgrid(x1, x2)
     x_2d = np.concatenate((x1_grid.flatten()[:,None], x2_grid.flatten()[:,None]), axis=1)
@@ -369,7 +340,7 @@ def main():
     
     ## sampling
     id_f = np.random.choice(num_x1*num_x2*num_t, num_f_train, replace=False)
-    id_bv = np.random.choice(num_x1*num_t, num_bv_train, replace=False)
+    id_bv = np.random.choice(num_x2*num_t, num_bv_train, replace=False)
     id_bh = np.random.choice(num_x1*num_t, num_bh_train, replace=False)
     id_i = np.random.choice(num_x1*num_x2, num_i_train, replace=False)
 
@@ -393,7 +364,6 @@ def main():
     phi_f_sample = y_data[id_f,3]
     psi_1_f_sample = y_data[id_f,4]
     psi_2_f_sample = y_data[id_f,5]
-
 
     ### sample around thrombus, concatenate
     x_thb_l = 2.75
@@ -448,7 +418,6 @@ def main():
     xt_up_train = torch.tensor(xt_up_sample, requires_grad=True, dtype=torch.double).to(device)
     xt_dw_train = torch.tensor(xt_dw_sample, requires_grad=True, dtype=torch.double).to(device)
     u_up_train = torch.tensor(u_up_sample, dtype=torch.double).to(device)
-
 
     ## instantiate model/optimizer
     model = Model().to(device)
@@ -525,6 +494,7 @@ def main():
         
     np.savetxt('loss.his', loss_his)
     np.savetxt('lmd_e.his', lmd_e_his)
+"""
 
 if __name__ == '__main__':
     main()
