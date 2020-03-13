@@ -54,5 +54,12 @@ test_19: lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint, snapshot 15-20
 test_20: (FFT-I), lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint, snapshot 10-15 
 test_21: (FFT-I), lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint, snapshot 15-20
 
+###########
+Switch back to the channel flow with thrombus
+	mu = 0.1, tau = 1e-6, lmd = 0.4*0.00010607, lmd_e = 10,
+	u = sin(2*pi*t)*0.6*1.5*y*(2-y), 
+	x, y [0, 2]*[0, 6]
+
+test_22: FFT-I, lmd_e, no constraint, snapshot:
 
 
