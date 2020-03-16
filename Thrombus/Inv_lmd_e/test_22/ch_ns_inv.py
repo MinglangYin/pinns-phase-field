@@ -143,20 +143,22 @@ class Model(nn.Module):
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean() \
              + (res_psi_x**2).mean() + (res_psi_y**2).mean()
 
-    def loss_data(self, x_data, phi_data):
+    def loss_data(self, x_data, u_data, v_data, p_data, phi_data, psi_1_data, psi_2_data):
         y_u = self.net_u(x_data)
-        phi = y_u[:, 3]
+        w_u = self.net_w(x_data)
+        u, v, p, phi = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3]
+        psi_1, psi_2 = w_u[:, 1], w_u[:, 2]
 
         # print(f'(u - u_data)**2: {((u - u_data)**2).shape}')
         # print(f'loss_data u shape: {((u - u_data)**2).shape}')
         # print(f'loss_data v shape: {((v - v_data)**2).shape}')
         # print(f'loss_data p shape: {((p - p_data)**2).shape}')
-        print(f'loss_data phi shape: {((phi - phi_data)**2).shape}')
+        # print(f'loss_data phi shape: {((phi - phi_data)**2).shape}')
         # print(f'loss_data psi_1 shape: {((psi_1 - psi_1_data)**2).shape}')
         # print(f'loss_data psi_2 shape: {((psi_2 - psi_2_data)**2).shape}')
 
-        return ((phi - phi_data)**2).mean()
-
+        return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((p - p_data)**2).mean() + \
+            ((phi - phi_data)**2).mean() + ((psi_1 - psi_1_data)**2).mean() + ((psi_2 - psi_2_data)**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
         ## velocity inflow
@@ -180,7 +182,7 @@ class Model(nn.Module):
         w_up_y = gradients(w_up, x_up)[0][:, 2]
         w_dw_y = gradients(w_dw, x_dw)[0][:, 2]
 
-        print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
+        # print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
 
         return ((u_l - u_l_real)**2).mean() + (u_r_x**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
                 + (v_l**2).mean() + (v_up**2).mean() + (v_dw**2).mean() + (p_r**2).mean()\
@@ -196,13 +198,13 @@ class Model(nn.Module):
         # print(f'u_i_pred shape: {u_i_pred.shape}')
         # print(f'u_i shape: {u_i.shape}')
 
-        print(f'loss_ic_u: {((u_i_pred-u_i)**2).mean()}')
-        print(f'loss_ic_v: {((v_i_pred-v_i)**2).mean()}')
-        print(f'loss_ic_p: {((p_i_pred-p_i)**2).mean()}')
-        print(f'loss_ic_phi: {((phi_i_pred-phi_i)**2).mean()}')
+        # print(f'loss_ic_u: {((u_i_pred-u_i)**2).mean()}')
+        # print(f'loss_ic_v: {((v_i_pred-v_i)**2).mean()}')
+        # print(f'loss_ic_p: {((p_i_pred-p_i)**2).mean()}')
+        # print(f'loss_ic_phi: {((phi_i_pred-phi_i)**2).mean()}')
         # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
-        print(f'psi_1_loss: {((psi_1_i_pred-psi_1_i)**2).mean()}')
-        print(f'psi_2_loss: {((psi_2_i_pred-psi_2_i)**2).mean()}')
+        # print(f'psi_1_loss: {((psi_1_i_pred-psi_1_i)**2).mean()}')
+        # print(f'psi_2_loss: {((psi_2_i_pred-psi_2_i)**2).mean()}')
         
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() \
             + ((phi_i_pred-phi_i)**2).mean() + ((psi_1_i_pred-psi_1_i)**2).mean() + ((psi_2_i_pred-psi_2_i)**2).mean()
@@ -242,7 +244,7 @@ def main():
     restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
-    file_start = 0
+    file_start = 5
     file_end = 25
     dt = 0.06
 
@@ -347,12 +349,12 @@ def main():
     u_l_sample = u_l[id_bh]
     ### inner points
     xt_f_sample = x_data[id_f,:]
-    # u_f_sample = y_data[id_f,0]
-    # v_f_sample = y_data[id_f,1]
-    # p_f_sample = y_data[id_f,2]
+    u_f_sample = y_data[id_f,0]
+    v_f_sample = y_data[id_f,1]
+    p_f_sample = y_data[id_f,2]
     phi_f_sample = y_data[id_f,3]
-    # psi_1_f_sample = y_data[id_f,4]
-    # psi_2_f_sample = y_data[id_f,5]
+    psi_1_f_sample = y_data[id_f,4]
+    psi_2_f_sample = y_data[id_f,5]
 
     # ### sample around thrombus, concatenate
     # x_thb_l = 2.75
@@ -395,12 +397,12 @@ def main():
     psi_2_i_train = torch.tensor(psi_2_i_sample, dtype=torch.double).to(device)
 
     xt_f_train = torch.tensor(xt_f_sample, requires_grad=True, dtype=torch.double).to(device)
-    # u_f_train = torch.tensor(u_f_sample, dtype=torch.double).to(device)
-    # v_f_train = torch.tensor(v_f_sample, dtype=torch.double).to(device)
-    # p_f_train = torch.tensor(p_f_sample, dtype=torch.double).to(device)
+    u_f_train = torch.tensor(u_f_sample, dtype=torch.double).to(device)
+    v_f_train = torch.tensor(v_f_sample, dtype=torch.double).to(device)
+    p_f_train = torch.tensor(p_f_sample, dtype=torch.double).to(device)
     phi_f_train = torch.tensor(phi_f_sample, dtype=torch.double).to(device)
-    # psi_1_f_train = torch.tensor(psi_1_f_sample, dtype=torch.double).to(device)
-    # psi_2_f_train = torch.tensor(psi_2_f_sample, dtype=torch.double).to(device)
+    psi_1_f_train = torch.tensor(psi_1_f_sample, dtype=torch.double).to(device)
+    psi_2_f_train = torch.tensor(psi_2_f_sample, dtype=torch.double).to(device)
     
     xt_l_train = torch.tensor(xt_l_sample, requires_grad=True, dtype=torch.double).to(device)
     xt_r_train = torch.tensor(xt_r_sample, requires_grad=True, dtype=torch.double).to(device)
@@ -429,10 +431,10 @@ def main():
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
-            loss_data = model.loss_data(xt_f_train, phi_f_train)        
+            loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train, psi_1_f_train, psi_2_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_l_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + loss_data + loss_ic
+            loss = loss_pde + loss_bc + 50*loss_data + loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
             return loss
