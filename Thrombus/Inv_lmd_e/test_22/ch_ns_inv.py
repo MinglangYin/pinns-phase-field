@@ -35,12 +35,12 @@ matplotlib.use('Agg')
 torch.manual_seed(123456)
 np.random.seed(123456)
 
-h = 0.025
+h = 0.04
 lmd = 0.5*0.00010607
 #lmd_e = 0.5
 tau = 1e-6
 rho = 1
-mu = 0.02
+mu = 0.1
 K = 0.1
 
 class Model(nn.Module):
@@ -110,9 +110,9 @@ class Model(nn.Module):
 
         ## NS
         ### there is another equivalent form see 5.13c
-        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + mu*(1-phi)*u/(2*K) \
+        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) \
                 + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + self.lmd_e*(B_11_x + B_21_y)
-        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + mu*(1-phi)*v/(2*K) \
+        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) \
                 + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + self.lmd_e*(B_12_x + B_22_y)
         res_incomp = u_x + v_y
 
