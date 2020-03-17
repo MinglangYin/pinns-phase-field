@@ -36,12 +36,12 @@ torch.manual_seed(123456)
 np.random.seed(123456)
 
 h = 0.04
-lmd = 0.5*0.00010607
+lmd = 0.4*0.00010607
 #lmd_e = 0.5
 tau = 1e-6
 rho = 1
 mu = 0.1
-K = 0.1
+K = 0.01
 
 class Model(nn.Module):
     def __init__(self):
@@ -111,9 +111,9 @@ class Model(nn.Module):
         ## NS
         ### there is another equivalent form see 5.13c
         res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) \
-                + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + self.lmd_e*(B_11_x + B_21_y)
+                + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) - self.lmd_e*(B_11_x + B_21_y)
         res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) \
-                + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + self.lmd_e*(B_12_x + B_22_y)
+                + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) - self.lmd_e*(B_12_x + B_22_y)
         res_incomp = u_x + v_y
 
         ## PF
@@ -182,7 +182,7 @@ class Model(nn.Module):
         w_up_y = gradients(w_up, x_up)[0][:, 2]
         w_dw_y = gradients(w_dw, x_dw)[0][:, 2]
 
-        # print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
+        print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
 
         return ((u_l - u_l_real)**2).mean() + (u_r_x**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
                 + (v_l**2).mean() + (v_up**2).mean() + (v_dw**2).mean() + (p_r**2).mean()\
@@ -236,7 +236,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 300000
+    epochs = 200000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/', './Predictions/psi_1/', './Predictions/psi_2/']
@@ -244,8 +244,8 @@ def main():
     restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
-    file_start = 5
-    file_end = 25
+    file_start = 10
+    file_end = 20
     dt = 0.06
 
     num_x1 = 100
@@ -253,7 +253,7 @@ def main():
     num_t = file_end-file_start
     num_bh_train = 800   # number of sampling points on verticle boundary over time
     num_bv_train = 800   # number of sampling points on horizontal boundary over time
-    num_f_train = 60000   # inner sampling points
+    num_f_train = 10000   # inner sampling points
     # num_ft_train = 1 # sampling point around thrombus
     num_i_train = 5000   # initial sampling points 
 
