@@ -253,7 +253,7 @@ def main():
     num_t = file_end-file_start
     num_bh_train = 800   # number of sampling points on verticle boundary over time
     num_bv_train = 800   # number of sampling points on horizontal boundary over time
-    num_f_train = 10000   # inner sampling points
+    num_f_train = 60000   # inner sampling points
     # num_ft_train = 1 # sampling point around thrombus
     num_i_train = 5000   # initial sampling points 
 
@@ -434,7 +434,7 @@ def main():
             loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train, psi_1_f_train, psi_2_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_l_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + 50*loss_data + loss_ic
+            loss = loss_pde + loss_bc + loss_data + loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
             return loss
