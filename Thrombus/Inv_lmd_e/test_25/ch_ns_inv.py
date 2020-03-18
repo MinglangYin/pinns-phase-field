@@ -343,7 +343,7 @@ def main():
     ### boundary
     xt_l_sample, xt_r_sample = xt_l_ext[id_bv,:], xt_r_ext[id_bv,:]
     xt_up_sample, xt_dw_sample = xt_up_ext[id_bh,:], xt_dw_ext[id_bh,:]
-    u_l_sample = u_l[id_bh]
+    u_l_sample = u_l[id_bv]
     ### inner points
     xt_f_sample = x_data[id_f,:]
     u_f_sample = y_data[id_f,0]
