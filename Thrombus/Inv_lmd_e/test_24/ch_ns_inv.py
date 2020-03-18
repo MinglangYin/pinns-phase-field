@@ -62,7 +62,7 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
-        self.lmd_e = torch.nn.Parameter(torch.tensor([30], requires_grad=True, dtype=torch.double) )
+        self.lmd_e = torch.nn.Parameter(torch.tensor([15], requires_grad=True, dtype=torch.float32) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -163,8 +163,8 @@ class Model(nn.Module):
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
         ## velocity inflow
         y_l, y_r, y_up, y_dw = self.net_u(x_l), self.net_u(x_r), self.net_u(x_up), self.net_u(x_dw)
-        w_l, w_r, w_up, w_dw = self.net_w(x_l)[:,0], self.net_w(x_r)[:,0], self.net_w(x_up)[:,0], self.net_w(x_dw)[:,0]
-        
+        y_w_l, y_w_r, y_w_up, y_w_dw = self.net_w(x_l), self.net_w(x_r), self.net_w(x_up), self.net_w(x_dw)
+
         u_l, v_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 3]
         u_r, p_r, phi_r = y_r[:, 0], y_r[:, 2], y_r[:, 3]
         u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
@@ -177,17 +177,31 @@ class Model(nn.Module):
         phi_up_y = gradients(phi_up, x_up)[0][:, 2]
         phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
 
+        ## net_w
+        w_l, psi_1_l, psi_2_l = y_w_l[:, 0], y_w_l[:, 1], y_w_l[:, 2]
+        w_r, psi_1_r, psi_2_r = y_w_r[:, 0], y_w_r[:, 1], y_w_r[:, 2]
+        w_up, psi_1_up, psi_2_up = y_w_up[:, 0], y_w_up[:, 1], y_w_up[:, 2]
+        w_dw, psi_1_dw, psi_2_dw = y_w_dw[:, 0], y_w_dw[:, 1], y_w_dw[:, 2]
+
         w_l_x = gradients(w_l, x_l)[0][:, 1]
         w_r_x = gradients(w_r, x_r)[0][:, 1]
         w_up_y = gradients(w_up, x_up)[0][:, 2]
         w_dw_y = gradients(w_dw, x_dw)[0][:, 2]
+
+        psi_1_l_x, psi_2_l_x = gradients(psi_1_l, x_l)[0][:, 1], gradients(psi_2_l, x_l)[0][:, 1]
+        psi_1_r_x, psi_2_r_x = gradients(psi_1_r, x_r)[0][:, 1], gradients(psi_2_r, x_r)[0][:, 1]
+        psi_1_up_y, psi_2_up_y = gradients(psi_1_up, x_up)[0][:, 2], gradients(psi_2_up, x_up)[0][:, 2]
+        psi_1_dw_y, psi_2_dw_y = gradients(psi_1_dw, x_dw)[0][:, 1], gradients(psi_2_dw, x_dw)[0][:, 2]
 
         print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
 
         return ((u_l - u_l_real)**2).mean() + (u_r_x**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
                 + (v_l**2).mean() + (v_up**2).mean() + (v_dw**2).mean() + (p_r**2).mean()\
                 + (phi_l_x**2).mean() + (phi_r_x**2).mean() +  (phi_up_y**2).mean() + (phi_dw_y**2).mean() \
-                + (w_l_x**2).mean() + (w_r_x**2).mean() + (w_up_y**2).mean() + (w_dw_y**2).mean()
+                + (w_l_x**2).mean() + (w_r_x**2).mean() + (w_up_y**2).mean() + (w_dw_y**2).mean()\
+                + (psi_1_l_x**2).mean() + (psi_2_l_x**2).mean() + (psi_1_r_x**2).mean() + (psi_2_r_x**2).mean()\
+                + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()
+                 
                  
     def loss_ic(self, x, u_i, v_i, p_i, phi_i, psi_1_i, psi_2_i):
         y_u_pred = self.net_u(x)
@@ -244,7 +258,7 @@ def main():
     restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
-    file_start = 10
+    file_start = 0
     file_end = 20
     dt = 0.06
 
@@ -388,31 +402,30 @@ def main():
     # psi_2_f_sample = np.concatenate((psi_2_f_sample, psi_2_thb_sample), axis=0)
 
     ## set data as tensor and send to device
-    xt_i_train = torch.tensor(xt_i_sample, requires_grad=True, dtype=torch.double).to(device)
-    u_i_train = torch.tensor(u_i_sample, dtype=torch.double).to(device)
-    v_i_train = torch.tensor(v_i_sample, dtype=torch.double).to(device)
-    p_i_train = torch.tensor(p_i_sample, dtype=torch.double).to(device)
-    phi_i_train = torch.tensor(phi_i_sample, dtype=torch.double).to(device)
-    psi_1_i_train = torch.tensor(psi_1_i_sample, dtype=torch.double).to(device)
-    psi_2_i_train = torch.tensor(psi_2_i_sample, dtype=torch.double).to(device)
+    xt_i_train = torch.tensor(xt_i_sample, requires_grad=True, dtype=torch.float32).to(device)
+    u_i_train = torch.tensor(u_i_sample, dtype=torch.float32).to(device)
+    v_i_train = torch.tensor(v_i_sample, dtype=torch.float32).to(device)
+    p_i_train = torch.tensor(p_i_sample, dtype=torch.float32).to(device)
+    phi_i_train = torch.tensor(phi_i_sample, dtype=torch.float32).to(device)
+    psi_1_i_train = torch.tensor(psi_1_i_sample, dtype=torch.float32).to(device)
+    psi_2_i_train = torch.tensor(psi_2_i_sample, dtype=torch.float32).to(device)
 
-    xt_f_train = torch.tensor(xt_f_sample, requires_grad=True, dtype=torch.double).to(device)
-    u_f_train = torch.tensor(u_f_sample, dtype=torch.double).to(device)
-    v_f_train = torch.tensor(v_f_sample, dtype=torch.double).to(device)
-    p_f_train = torch.tensor(p_f_sample, dtype=torch.double).to(device)
-    phi_f_train = torch.tensor(phi_f_sample, dtype=torch.double).to(device)
-    psi_1_f_train = torch.tensor(psi_1_f_sample, dtype=torch.double).to(device)
-    psi_2_f_train = torch.tensor(psi_2_f_sample, dtype=torch.double).to(device)
+    xt_f_train = torch.tensor(xt_f_sample, requires_grad=True, dtype=torch.float32).to(device)
+    u_f_train = torch.tensor(u_f_sample, dtype=torch.float32).to(device)
+    v_f_train = torch.tensor(v_f_sample, dtype=torch.float32).to(device)
+    p_f_train = torch.tensor(p_f_sample, dtype=torch.float32).to(device)
+    phi_f_train = torch.tensor(phi_f_sample, dtype=torch.float32).to(device)
+    psi_1_f_train = torch.tensor(psi_1_f_sample, dtype=torch.float32).to(device)
+    psi_2_f_train = torch.tensor(psi_2_f_sample, dtype=torch.float32).to(device)
     
-    xt_l_train = torch.tensor(xt_l_sample, requires_grad=True, dtype=torch.double).to(device)
-    xt_r_train = torch.tensor(xt_r_sample, requires_grad=True, dtype=torch.double).to(device)
-    xt_up_train = torch.tensor(xt_up_sample, requires_grad=True, dtype=torch.double).to(device)
-    xt_dw_train = torch.tensor(xt_dw_sample, requires_grad=True, dtype=torch.double).to(device)
-    u_l_train = torch.tensor(u_l_sample, dtype=torch.double).to(device)
+    xt_l_train = torch.tensor(xt_l_sample, requires_grad=True, dtype=torch.float32).to(device)
+    xt_r_train = torch.tensor(xt_r_sample, requires_grad=True, dtype=torch.float32).to(device)
+    xt_up_train = torch.tensor(xt_up_sample, requires_grad=True, dtype=torch.float32).to(device)
+    xt_dw_train = torch.tensor(xt_dw_sample, requires_grad=True, dtype=torch.float32).to(device)
+    u_l_train = torch.tensor(u_l_sample, dtype=torch.float32).to(device)
 
     ## instantiate model/optimizer
     model = Model().to(device)
-    model.double()
     optimizer = torch.optim.Adam(model.parameters(), lr = lr)
 
     ## loading model/optimizer state
@@ -434,7 +447,7 @@ def main():
             loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train, psi_1_f_train, psi_2_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_l_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + loss_data + loss_ic
+            loss = loss_pde + loss_bc + loss_data + 10*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
             return loss
@@ -464,7 +477,7 @@ def main():
     Predictions = np.zeros((7, num_t, num_x1, num_x2))
     for i in range(0, num_t):
         xt = np.concatenate((t[i]*np.ones((num_x1*num_x2, 1)), x_2d), axis=1)
-        xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.double).to(device)
+        xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.float32).to(device)
         y_pred = model(xt_tensor)
         for j in range(0, 7):
             Predictions[j, i, :, :] = to_numpy(y_pred[:, j]).reshape(num_x1, num_x2)
