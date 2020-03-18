@@ -428,13 +428,13 @@ def main():
         def closure():
             optimizer.zero_grad()
             # loss_pde = model.loss_pde(xt_f_train)
-            loss_data = model.loss_data(xt_f_train, phi_f_train)        
+            # loss_data = model.loss_data(xt_f_train, phi_f_train)        
             # loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_l_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
             # loss = loss_pde + loss_bc + loss_data + loss_ic
-            loss = loss_data + loss_ic
+            loss = loss_ic
             # print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
-            print(f'epoch {epoch}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
+            print(f'epoch {epoch}, loss_ic:{loss_ic:6f}', flush=True)
             loss.backward()
             return loss
         loss = optimizer.step(closure)
