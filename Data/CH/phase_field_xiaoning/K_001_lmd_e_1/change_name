@@ -1,9 +1,0 @@
-#!/bin/bash
-
-file_start=1
-file_end=34
-
-for ((i=file_start; i<=file_end; i++)); do
-    let "j=3*${i}"
-    mv ./half${j}.dat ./half${i}.dat
-done

@@ -17,6 +17,13 @@ test_2, 2 nets, with constraint 10*tanh(0.25x)+11
 
 test_3, old arch
 
+<<<<<<< HEAD
+test_5, use phi, u, v, p, psi, with thrombus sampling points
+
+test_6: snapshot, 23:33, use u, v, phi, p, psi, with thrombus sampling points. more points on the boundary
+
+test_7: same as test_6, with tanh constraint for lmd_e
+=======
 test_4, old arch, with constraint 10*tanh(0.25x)+11
 
 test_5, old arch, 10*loss_bc
@@ -33,3 +40,42 @@ test_10: same as 6, snapshot: 5-15: lmd_e = 1.07
 test_11: same as 7, snapshot: 5-15: lmd_e = 0.671
 test_12: same as 8, snapshot: 5-15: lmd_e = 0.01
 test_13: same as 9, snapshot: 5-15: lmd_e = 0.002
+
+###########
+test_14: lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint		|| lmd_e:77.31
+test_15: lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), constraint		|| lmd_e:69.4
+test_16: lmd_e 1, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint
+test_17: lmd_e 1, K = 0.1, v = 0.6sin(1.2*pi*t), constraint			|| lmd_e:0.107
+
+
+###########
+test_18: lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint, snapshot 10-15 
+test_19: lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint, snapshot 15-20
+test_20: (FFT-I), lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint, snapshot 10-15 
+test_21: (FFT-I), lmd_e 80, K = 0.1, v = 0.6sin(1.2*pi*t), no constraint, snapshot 15-20
+
+###########
+Switch back to the channel flow with thrombus (Lmd_e_10)
+	mu = 0.1, tau = 1e-6, lmd = 0.4*0.00010607, lmd_e = 10,
+	u = sin(2*pi*t)*0.6*1.5*y*(2-y), 
+	x, y [0, 2]*[0, 6]
+
+test_22: FFT-I, lmd_e, no constraint, snapshot: 0-19, velo+phase+psi
+test_23: FFT-I, lmd_e, no constraint, snapshot: 0-19, phase
+
+###########
+(Lmd_e_10_K_001)
+test_24: FFT-I, lmd_e, no constraint, snapshot: 0-19, velo+phase+psi
+test_25: FFT-I, lmd_e, no constraint, snapshot: 0-19, phase
+
+###########
+test_26: (Lmd_e_10) FFT-I, lmd_e, no constraint, snapshot: 0-19, phase, sampling around thrombus
+test_27: (Lmd_e_10) FFT-I, lmd_e, no constraint, snapshot: 0-19, velo+phase+psi, sampling around thrombus
+test_28: (Lmd_e_10_K_001) FFT-I, lmd_e, no constraint, snapshot: 0-19, phase, sampling around thrombus
+test_29: (Lmd_e_10_K_001) FFT-I, lmd_e, no constraint, snapshot: 0-19, velo+phase+psi, sampling around thrombus
+
+
+
+
+
+
