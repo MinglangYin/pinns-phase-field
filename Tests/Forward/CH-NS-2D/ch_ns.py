@@ -7,7 +7,7 @@ Author: Minglang Yin
         w = \Delta\phi - f(\phi), \\
         \rho(\frac{\partial u}{\partial t} + (u \cdot \nabla) u) + \nabla p - \mu\Delta u + \lambda(\Delta\phi- f(\phi))\nabla \phi = 0,\\
         \nabla \cdot u = 0, \\
-        f(\phi) = F'(\phi) = 1/(h^2)(\phi^3- \phi) 
+        f(\phi) = F'(\phi) = 1/(h^2)(\phi^3- \phi)
 
     where
         Input: [t, x, y]
@@ -100,7 +100,7 @@ class Model(nn.Module):
 
         ## PF
         F_g = phi**3 - phi
-        res_w = w + h**2*(phi_xx + phi_yy) - F_g  
+        res_w = w + h**2*(phi_xx + phi_yy) - F_g
         # res_pf = phi_t + h**2*(u*phi_x + v*phi_y) - tau*(w_xx + w_yy)
         res_pf = phi_t + (u*phi_x + v*phi_y) - tau*(w_xx + w_yy)
 
@@ -119,7 +119,7 @@ class Model(nn.Module):
         u_l, v_l, p_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 2], y_l[:, 3]
         u_r, v_r, p_r, phi_r = y_r[:, 0], y_r[:, 1], y_r[:, 2], y_r[:, 3]
         u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
-        u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3] 
+        u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3]
 
         phi_up_y = gradients(phi_up, x_up)[0][:, 2]
         phi_dw_y = gradients(phi_dw, x_dw)[0][:, 2]
@@ -155,7 +155,7 @@ class Model(nn.Module):
         # print(f'v_loss: {((v_i_pred-v_i)**2).shape}')
         # print(f'phi_loss: {((phi_i_pred-phi_i)**2).shape}')
         # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
-        
+
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() + ((w_i_pred-w_i)**2).mean()
 
 def gradients(outputs, inputs):
@@ -178,7 +178,7 @@ def CH_2D_init(x_init):
 
     #########
     x, y = symbols('x y')
-    phi = tanh((0.2-sqrt((x-0.0)**2 + (y - 0.0)**2)) / (sqrt(2)*0.03) )
+    phi = tanh((0.2-sqrt((x-0.0)**2 + (y - 0.0)**2)) / (sqrt(2)*0.01) )
     phi_x, phi_y = phi.diff(x), phi.diff(y)
     phi_xx, phi_yy = phi_x.diff(x), phi_y.diff(y)
 
@@ -190,7 +190,7 @@ def CH_2D_init(x_init):
     w_init = -h**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) + (phi_init**3 - phi_init)
 
     return u_init, v_init, phi_init, w_init
-    
+
 
 def main():
     ## parameters
@@ -207,7 +207,7 @@ def main():
     num_t = 20
     num_b_train = 50    # boundary sampling points
     num_f_train = 60000   # inner sampling points
-    num_i_train = 5000   # initial sampling points 
+    num_i_train = 5000   # initial sampling points
     num_t_train = 10
 
     x = np.linspace(-1, 1, num=num_x)
@@ -216,7 +216,7 @@ def main():
     x_grid, y_grid = np.meshgrid(x, y)
     # x_test = np.concatenate((t_grid.flatten()[:,None], x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
     x_2d = np.concatenate((x_grid.flatten()[:,None], y_grid.flatten()[:,None]), axis=1)
-    
+
     ## initialization
     xt_init = np.concatenate((np.zeros((num_x*num_y, 1)), x_2d), axis=1)
     u_init, v_init, phi_init, w_init = CH_2D_init(xt_init)
@@ -224,7 +224,7 @@ def main():
     ## save init fig
     ### save u
     fig, ax = newfig(2.0, 1.1)
-    ax.axis('off') 
+    ax.axis('off')
     gs0 = gridspec.GridSpec(1, 2)
     gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
     h = ax.imshow(u_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
@@ -235,7 +235,7 @@ def main():
 
     ### save w
     fig, ax = newfig(2.0, 1.1)
-    ax.axis('off') 
+    ax.axis('off')
     gs0 = gridspec.GridSpec(1, 2)
     gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
     h = ax.imshow(w_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
@@ -246,7 +246,7 @@ def main():
 
     ### save phi
     fig, ax = newfig(2.0, 1.1)
-    ax.axis('off') 
+    ax.axis('off')
     gs0 = gridspec.GridSpec(1, 2)
     gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
     h = ax.imshow(phi_init.reshape(num_x, num_y), interpolation='nearest', cmap='rainbow', origin='lower', aspect='auto')
@@ -261,14 +261,14 @@ def main():
     for i in range (0, num_t):
         t_ext[i*num_x*num_y:(i+1)*num_x*num_y,:] = t[i]
     xt_2d_ext = np.concatenate((t_ext, x_2d_ext), axis=1)
-    
+
     ## sampling
     id_f = np.random.choice(num_x*num_y*num_t, num_f_train, replace=False)
     id_b = np.random.choice(num_x, num_b_train, replace=False) ## Dirichlet
     id_i = np.random.choice(num_x*num_y, num_i_train, replace=False)
     # id_t = np.random.choice(num_t, num_t_train, replace=False)
 
-    ## boundary  
+    ## boundary
     t_b = t#[id_t,:]
     t_b_ext = np.zeros((num_t_train*num_b_train, 1))
     for i in range(0, num_t_train):
@@ -339,7 +339,7 @@ def main():
 
     print('start training...', flush=True)
     tic = time.time()
-    for epoch in range(0, epochs):    
+    for epoch in range(0, epochs):
         train(epoch)
     toc = time.time()
     print(f'total training time: {(toc-tic)/60.0:.2f}', flush=True)
@@ -357,11 +357,11 @@ def main():
         u_test[i,:,:] = to_numpy(y_pred[:, 0]).reshape(num_x, num_y)
 
         fig, ax = newfig(2.0, 1.1)
-        ax.axis('off') 
+        ax.axis('off')
         gs0 = gridspec.GridSpec(1, 2)
         gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-        h = ax.imshow(u_test[i,:,:], interpolation='nearest', cmap='rainbow', 
-                # extent=[t.min(), t.max(), x.min(), x.max()], 
+        h = ax.imshow(u_test[i,:,:], interpolation='nearest', cmap='rainbow',
+                # extent=[t.min(), t.max(), x.min(), x.max()],
                     origin='lower', aspect='auto')
         fig.colorbar(h)
         ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
@@ -370,11 +370,11 @@ def main():
         plt.close()
 
         fig, ax = newfig(2.0, 1.1)
-        ax.axis('off') 
+        ax.axis('off')
         gs0 = gridspec.GridSpec(1, 2)
         gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
-        h = ax.imshow(phi_test[i,:,:], interpolation='nearest', cmap='rainbow', 
-                # extent=[t.min(), t.max(), x.min(), x.max()], 
+        h = ax.imshow(phi_test[i,:,:], interpolation='nearest', cmap='rainbow',
+                # extent=[t.min(), t.max(), x.min(), x.max()],
                     origin='lower', aspect='auto')
         fig.colorbar(h)
         ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
@@ -384,21 +384,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

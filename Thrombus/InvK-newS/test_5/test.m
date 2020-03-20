@@ -14,3 +14,4 @@ figure()
 semilogy(loss)
 
 K(find(loss == min(loss)))
+min(loss)
