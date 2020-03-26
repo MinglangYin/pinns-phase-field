@@ -86,9 +86,9 @@ test_36: (Lmd_e_10_K_001) FFT-I, lmd_e, no constraint, snapshot: 0-19, velo+phas
 test_37: (Lmd_e_10_K_001) FFT-I, lmd_e, no constraint, snapshot: 0-19, velo+phase+psi, sampling around thrombus, number of points: 30000
 
 ##########
-test_38: (Lmd_e_10) FFT-I, lmd_e, no constraint, snapshot: 0-19, phase + velocity, sampling around thrombus, number of points: 40000
+test_38: (Lmd_e_10) FFT-I, lmd_e, no constraint, snapshot: 0-19, phase + velocity, sampling around thrombus, number of points: 30000
 test_39: (Lmd_e_10) FFT-I, lmd_e, no constraint, snapshot: 0-19, phase + velocity, sampling around thrombus, number of points: 10000
-test_40: (Lmd_e_10_K_001) FFT-I, lmd_e, no constraint, snapshot: 0-19, phase + velocity, sampling around thrombus, number of points: 40000
+test_40: (Lmd_e_10_K_001) FFT-I, lmd_e, no constraint, snapshot: 0-19, phase + velocity, sampling around thrombus, number of points: 30000
 test_41: (Lmd_e_10_K_001) FFT-I, lmd_e, no constraint, snapshot: 0-19, phase + velocity, sampling around thrombus, number of points: 10000
 
 ##########
