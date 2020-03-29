@@ -1,3 +1,37 @@
 In this log file stores the tests results.
 
+Figure 1: number of points vs predictions for (Lmd_e_10) 
+############velo + phase + psi
+number of points 	Prediction
+100			0.9783
+10000			9.4829
+20000			9.4829
+30000			9.4260
+############velo + phase
+100			
+10000
+20000
+30000
+############phase
+100			4.4390 (Doesn't converge)
+10000			1.0536
+20000			1.2464
+30000			1.3618
 
+Figure 2: number of points vs predictions for (Lmd_e_10_K_001) 
+############velo + phase + psi
+number of points 	Prediction
+100			11.2741 (doesn't converge)
+10000			13.7730
+20000			12.0356
+30000			11.1850
+############velo + phase
+100			
+10000
+20000
+30000
+############phase
+100			0.2300
+10000			2.2079
+20000			1.9436
+30000			2.1127
