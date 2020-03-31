@@ -1,0 +1,14 @@
+README
+tests: model behavior with noisy measurements
+########### case 1: Lmd_e_10
+(Lmd_e_10) FFT-I, snapshot: 0-19, velo+phase+psi, number of points: 10000, 
+test_1: 0.0
+test_2: 0.05
+test_3: 0.10
+test_4: 0.15
+test_5: 0.20
+
+
+
+
+

@@ -1,0 +1,26 @@
+README
+###########
+Switch back to the channel flow with thrombus (Lmd_e_10)
+	mu = 0.1, tau = 1e-6, lmd = 0.4*0.00010607, lmd_e = 10,
+	u = sin(2*pi*t)*0.6*1.5*y*(2-y), 
+	x, y [0, 2]*[0, 6]
+
+###########
+test_1: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 48000, Prediction: 10.8885
+test_2: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 48000, Prediction: 1.5784
+test_3: (Lmd_e_10_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 48000, Prediction: 12.6921
+test_4: (Lmd_e_10_K_001) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 48000, Prediction: 2.5286
+
+
+
+
+
+
+
+
+
+
+
+
+
+
