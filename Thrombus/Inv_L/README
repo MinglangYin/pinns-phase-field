@@ -1,9 +1,17 @@
 README
 ###########
-Switch back to the channel flow with thrombus (Lmd_e_10)
+Lmd_e_10(_K_001)
 	mu = 0.1, tau = 1e-6, lmd = 0.4*0.00010607, lmd_e = 10,
 	u = sin(2*pi*t)*0.6*1.5*y*(2-y), 
-	x, y [0, 2]*[0, 6]
+	x, y [0, 2]*[0, 6] 
+
+cavity_lmd_e_01
+	lid-driven cavity
+	upper wall: u=1
+	time interval(t->t+1) = 0.03
+	mu = 0.01, tau = 1e-4, lmd = 1.0607*0.02, lmd_e = 0.1
+	x, y [0, 1]*[0, 1]
+	h = 0.02
 
 ###########
 test_1: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 48000, Prediction: 10.8885
@@ -11,6 +19,11 @@ test_2: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 48000,
 test_3: (Lmd_e_10_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 48000, Prediction: 12.6921
 test_4: (Lmd_e_10_K_001) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 48000, Prediction: 2.5286
 
+(Running)
+test_5: (Lmd_e_01_K_001) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 30000, Prediction: 
+test_6: (Lmd_e_2_K_001) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 30000, Prediction:
+test_7: (Lmd_e_15_K_001) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 30000, Prediction:
+test_8: (cavity_lmd_e_01) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 30000, Prediction:
 
 
 

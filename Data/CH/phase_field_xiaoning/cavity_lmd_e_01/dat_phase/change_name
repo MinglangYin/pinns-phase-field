@@ -1,0 +1,9 @@
+#!/bin/bash
+
+file_start=1
+file_end=33
+
+for ((i=file_start; i<=file_end; i++)); do
+    let "j=3*${i}"
+    mv ./elap${j}.dat ./halfp${i}.dat
+done
