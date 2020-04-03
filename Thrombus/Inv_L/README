@@ -29,8 +29,8 @@ cavity_lmd_e_01
 
 test_8: (cavity_lmd_e_01) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 30000, Prediction:
 
-
-
+#########
+test_9: (Lmd_e_10_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 48000, Prediction: 12.6921
 
 
 
