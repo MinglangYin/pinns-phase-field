@@ -14,9 +14,9 @@ test_3: (Lmd_e_10_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of
 test_4: (Lmd_e_10_K_001) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 48000, Prediction: 2.5286
 
 (Running)
-test_5: (Lmd_e_01_K_001) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 30000, Prediction: 
-test_6: (Lmd_e_2_K_001) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 30000, Prediction:
-test_7: (Lmd_e_15_K_001) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 30000, Prediction:
+test_5: (Lmd_e_01_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction: 
+test_6: (Lmd_e_2_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:
+test_7: (Lmd_e_15_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:
 
 ##########
 cavity_lmd_e_01
@@ -27,10 +27,11 @@ cavity_lmd_e_01
 	x, y [0, 1]*[0, 1]
 	h = 0.02
 
-test_8: (cavity_lmd_e_01) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 30000, Prediction:
+test_8: (cavity_lmd_e_01) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:
 
 #########
-test_9: (Lmd_e_10_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 48000, Prediction: 12.6921
+test_9: (Lmd_e_10_K_001) FFT-I, lmd_e,K, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction: 
+test_10: (Lmd_e_2) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:
 
 
 
