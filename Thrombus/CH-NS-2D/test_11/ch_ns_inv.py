@@ -33,7 +33,6 @@ from plotting import newfig, savefig
 import matplotlib
 matplotlib.use('Agg')
 
-
 torch.manual_seed(123456)
 np.random.seed(123456)
 
@@ -172,14 +171,13 @@ class FCLayer(nn.Module):
         self.n = 10
         self.a = torch.nn.Parameter(torch.tensor(0.1*np.ones((1, self.out_feats)), requires_grad=True, dtype=torch.double) )
 
-    def forward(self, x):
-        y = (self.linear(x))
-        print(f'y shape: {y.shape}')
-        print(f'a shape: {self.a.shape}')
-        print(f'mul shape: {torch.mul(y, self.a)}')
-
-        y = self.n*self.a*self.linear(x)
-        return self.nonlinear(y)
+    def forward(self, x):    
+        # y = self.linear(x)
+        # print(f'y shape: {y.shape}')
+        # print(f'a shape: {self.a.shape}')
+        # print(f'mul shape: {torch.mul(y, self.a).shape}')
+        y = self.nonlinear(self.n*torch.mul(self.linear(x), self.a))
+        return y
 
 def left_bound_vel(x):
     return 0.3*(2-x[:, 2])*x[:,2]
