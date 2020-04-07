@@ -1,65 +1,20 @@
-test_1: bubble, no init cond for w
-
 ######## inverse, infer K, using phi, P, u, v ########
-test_2: no psi, K = 1		
-test_3: no psi, K = 0.01
-test_4: no psi, K = 0.001
-test_5: no psi, K = 100
-
-######## inverse, infer lmd_e, using phi, P, u, v ########
-test_6: psi, K = 1, lmd_e = 0.5
-test_12: psi, K = 1, lmd_e = 0.2
+test_1: no psi, K = 1		
+test_2: no psi, K = 0.01
+test_3: no psi, K = 0.001
+test_4: no psi, K = 100
 
 ######## inverse, infer K, using phi ########
-test_7: no psi, K = 0.01
-test_8: no psi, K = 1
-test_9: no psi, K = 100
-test_10: no psi, K = 0.001
+test_5: no psi, K = 0.01
+test_6: no psi, K = 1
+test_7: no psi, K = 100
+test_8: no psi, K = 0.001
 
 ######## inverse, infer K, using phi ########
-test_11: no psi, K = 0.01, test Adaptive Activation
-
-######## inverse, infer K, lmd_e, using phi ########
-test_13: psi, K = 1, lmd_e = 0.2
-test_14: psi, K = 1, lmd_e = 0.5 || K = 0.36, lmd_e = -0.007, min_loss = 0.01
-
-######## inverse, infer K, using phi, P, u, v ########
-test_15: psi, K = 1, lmd_e = 0.5, snapshot: 10-19 || K = 122 (Failed)
-test_16: psi, K = 1, lmd_e = 0.2, snapshot: 10-19 || K = 0.0744, min_loss = 0.02
-test_17: psi, K = 1, lmd_e = 0.5, snapshot: 20-29 || K = 94.05, min_loss = 0.03
-test_18: psi, K = 1, lmd_e = 0.2, snapshot: 20-29 || K = 66.56, min_loss = 0.03
-test_19: psi, K = 1, lmd_e = 0.5, snapshot: 20-29,(use net_w to predict psi) || K = 71.21, min_loss = 0.06
-
-######## inverse, infer K, using phi, P, u, v, new arch ########
-test_20: psi, K = 1, lmd_e = 0.5, snapshot: 15-25, more points, another initial point K = 0.1 	||K = 48.40, min_loss = 0.01
-test_21: psi, K = 1, lmd_e = 0.5, snapshot: 15-25, more points, another initial point K = 0.001 ||K = 42.33, min_loss = 0.02
-test_22: psi, K = 1, lmd_e = 0.2, snapshot: 15-25, more points, another initial point K = 0.1	||K = 1.386, min_loss = 0.01
-test_23: psi, K = 1, lmd_e = 0.2, snapshot: 15-25, more points, another initial point K = 0.001 ||K = 0.9393, min_loss = 0.01
-
-######## inverse, infer K, using phi, P, u, v, new arch ########
-test_24: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, more points, K = 1  		|| K = -55, min_loss = 0.04
-test_25: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 0-30, more points, K = 1		|| K = 0.0358, min_loss = 0.03
-test_26: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 20-30, more points, (tanh(K/10)+1)	|| K = 0.036, min_loss = 0.04
-test_27: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 20-30, more points, (tanh(K/10)+1)	|| K = 0.2513, min_loss = 0.07
-
-######## inverse, infer lmd_e, using phi, P, u, v, new arch ########
-test_28: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, more points || lmd_e = -0.0119, loss = 0.07
-test_29: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 0-30, more points || lmd_e = 5.56e-04, loss = 0.0361
-test_30: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 20-30, more points, (tanh(K/10)+1) || lmd_e = 8e-06, loss = 0.0618
-test_31: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 20-30, more points, (tanh(K/10)+1) || lmd_e = 0.0012, loss = 0.0417
-
-######## inverse, infer lmd_e, using phi, P, u, v, new arch ########
-test_32: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, infer lmd_e, 3 nets
-test_33: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, infer lmd_e, 2 nets with pre-train
-
-######## inverse, infer lmd_e, using phi, new arch ########
-test_34: psi, K = 0.1, lmd_e = 0.5, sin, snapshot: 0-30, more points
-test_35: psi, K = 0.1, lmd_e = 0.5, cos, snapshot: 0-30, more points
+test_9: no psi, K = 0.01, test Adaptive Activation
 
 ######## inverse, infer two K, using phi, new arch ########
-test_36: no psi, K = 0.001, K = 1, a*tanh(b*x+c)+d, init a=1, b=1, c=1, d=1 ||
-test_37: no psi, K = 0.001, K = 1, a*tanh(b*x+c)+d, init a=0.5, b=5, c=2, d=0.5 ||
-test_38: no psi, K = 0.001, K = 1, a*tanh(b*x+c)+d, init a=0.5, b=5, c=2, d=0.5, pre-train ||
+test_10: no psi, K = 0.001, K = 1, a*tanh(b*x+c)+d, init a=0.5, b=5, c=2, d=0.5, pre-train ||
 
 
 
