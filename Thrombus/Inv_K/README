@@ -11,7 +11,7 @@ test_7: no psi, K = 100
 test_8: no psi, K = 0.001
 
 ######## inverse, infer K, using phi ########
-test_9: no psi, K = 0.01, test Adaptive Activation
+test_9: no psi, K = 0.01, test Adaptive Activation method
 
 ######## inverse, infer two K, using phi, new arch ########
 test_10: no psi, K = 0.001, K = 1, a*tanh(b*x+c)+d, init a=0.5, b=5, c=2, d=0.5, pre-train ||
