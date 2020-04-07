@@ -33,7 +33,6 @@ from plotting import newfig, savefig
 import matplotlib
 matplotlib.use('Agg')
 
-
 torch.manual_seed(123456)
 np.random.seed(123456)
 
@@ -48,20 +47,16 @@ class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         self.net_w = nn.Sequential()
-        self.net_w.add_module('net_w_linear_1', nn.Linear(3, 20))
-        self.net_w.add_module('net_w_tanh_1', nn.Tanh())
+        self.net_w.add_module('net_w_fc_1', FCLayer(3, 20))
         for num in range(2,10):
-            self.net_w.add_module('net_w_linear_%d' %(num), nn.Linear(20, 20))
-            self.net_w.add_module('net_w_tanh_%d' %(num), nn.Tanh())
-        self.net_w.add_module('net_w_linear_50', nn.Linear(20, 1))
+            self.net_w.add_module('net_w_fc_%d' %(num), FCLayer(20, 20))
+        self.net_w.add_module('net_w_fc_50', nn.Linear(20, 1))
 
         self.net_u = nn.Sequential()
-        self.net_u.add_module('net_u_linear_1', nn.Linear(3, 20))
-        self.net_u.add_module('net_u_tanh_1', nn.Tanh())
+        self.net_u.add_module('net_u_fc_1', FCLayer(3, 20))
         for num in range(2,10):
-            self.net_u.add_module('net_u_linear_%d' %(num), nn.Linear(20, 20))
-            self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
-        self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
+            self.net_u.add_module('net_u_fc_%d' %(num), FCLayer(20, 20))
+        self.net_u.add_module('net_u_fc_50', nn.Linear(20, 4))
 
         self.K = torch.nn.Parameter(torch.tensor([10], requires_grad=True, dtype=torch.double) )
 
@@ -166,6 +161,24 @@ class Model(nn.Module):
         
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() 
 
+class FCLayer(nn.Module):
+    def __init__(self, in_feats, out_feats):
+        super(FCLayer, self).__init__()
+        self.in_feats = in_feats
+        self.out_feats = out_feats
+        self.linear = nn.Linear(self.in_feats, self.out_feats)
+        self.nonlinear = nn.Tanh()
+        self.n = 10
+        self.a = torch.nn.Parameter(torch.tensor(0.1*np.ones((1, self.out_feats)), requires_grad=True, dtype=torch.double) )
+
+    def forward(self, x):    
+        # y = self.linear(x)
+        # print(f'y shape: {y.shape}')
+        # print(f'a shape: {self.a.shape}')
+        # print(f'mul shape: {torch.mul(y, self.a).shape}')
+        y = self.nonlinear(self.n*torch.mul(self.linear(x), self.a))
+        return y
+
 def left_bound_vel(x):
     return 0.3*(2-x[:, 2])*x[:,2]
 
@@ -225,8 +238,8 @@ def main():
 
     ## load data file
     for file_id in range(file_start, file_end):
-        name_u = '../../../Data/CH/phase_field_xiaoning/K_100/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../../Data/CH/phase_field_xiaoning/K_100/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/K_001/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_001/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
