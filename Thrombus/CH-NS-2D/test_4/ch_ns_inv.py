@@ -247,8 +247,8 @@ def main():
 
     ## load data file
     for file_id in range(file_start, file_end):
-        name_u = '../../../Data/CH/phase_field_xiaoning/K_0001/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../../Data/CH/phase_field_xiaoning/K_0001/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/K_100/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_100/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 

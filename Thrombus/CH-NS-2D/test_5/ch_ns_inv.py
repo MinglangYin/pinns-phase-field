@@ -42,7 +42,7 @@ lmd = 0.4*0.00010607
 tau = 1e-6
 rho = 1
 mu = 0.1
-K = 1
+K = 0.01
 
 class Model(nn.Module):
     def __init__(self):
@@ -111,17 +111,16 @@ class Model(nn.Module):
 
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean()
 
-    def loss_data(self, x_data, u_data, v_data, p_data, phi_data):
+    def loss_data(self, x_data, phi_data):
         y = self.net_u(x_data)
-        u, v, p, phi = y[:, 0], y[:, 1], y[:, 2], y[:, 3]
-        # print(f'(u - u_data)**2: {((u - u_data)**2).shape}')
+        phi = y[:, 3]
 
         # print(f'loss_data u shape: {((u - u_data)**2).shape}')
         # print(f'loss_data v shape: {((v - v_data)**2).shape}')
         # print(f'loss_data p shape: {((p - p_data)**2).shape}')
         # print(f'loss_data phi shape: {((phi - phi_data)**2).shape}')
 
-        return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((p - p_data)**2).mean() + ((phi - phi_data)**2).mean()
+        return ((phi - phi_data)**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
         ## velocity inflow
@@ -166,27 +165,6 @@ class Model(nn.Module):
         # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
         
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() 
-
-def CH_2D_init(x_init):
-    ## u, v
-    u_init = np.zeros((x_init.shape[0]))
-    u_init = (1-x_init[:,2])*x_init[:,2]
-    v_init = np.zeros((x_init.shape[0]))
-
-    #########
-    x, y = symbols('x y')
-    phi = 0.5*(tanh((x**2 + y**2-0.3**2) / (sqrt(2)*0.01) ) + tanh( (x**2 + y**2-0.7**2) / (sqrt(2)*0.01)))
-    phi_x, phi_y = phi.diff(x), phi.diff(y)
-    phi_xx, phi_yy = phi_x.diff(x), phi_y.diff(y)
-
-    f_phi = lambdify([x, y], phi, 'numpy')
-    f_phi_xx = lambdify([x, y], phi_xx, 'numpy')
-    f_phi_yy = lambdify([x, y], phi_yy, 'numpy')
-
-    phi_init = f_phi(x_init[:,1], x_init[:,2])
-    w_init = -h**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) + (phi_init**3 - phi_init)
-
-    return u_init, v_init, phi_init, w_init
 
 def left_bound_vel(x):
     return 0.3*(2-x[:, 2])*x[:,2]
@@ -247,8 +225,8 @@ def main():
 
     ## load data file
     for file_id in range(file_start, file_end):
-        name_u = '../../../Data/CH/phase_field_xiaoning/K_100/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../../Data/CH/phase_field_xiaoning/K_100/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/K_001/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_001/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
@@ -330,9 +308,6 @@ def main():
     phi_i_train = torch.tensor(phi_i_sample, dtype=torch.double).to(device)
 
     xt_f_train = torch.tensor(xt_f_sample, requires_grad=True, dtype=torch.double).to(device)
-    u_f_train = torch.tensor(u_f_sample, dtype=torch.double).to(device)
-    v_f_train = torch.tensor(v_f_sample, dtype=torch.double).to(device)
-    p_f_train = torch.tensor(p_f_sample, dtype=torch.double).to(device)
     phi_f_train = torch.tensor(phi_f_sample, dtype=torch.double).to(device)
     
     xt_l_train = torch.tensor(xt_l_sample, requires_grad=True, dtype=torch.double).to(device)
@@ -362,7 +337,7 @@ def main():
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
-            loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train)        
+            loss_data = model.loss_data(xt_f_train, phi_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train)
             loss = loss_pde + loss_bc + loss_data + 100*loss_ic

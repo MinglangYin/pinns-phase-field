@@ -5,10 +5,12 @@ clc
 K = load('K.his');
 
 figure()
-plot(K)
+semilogy(K)
 hold on
-yline(1)
+yline(0.01)
 
 loss = load('loss.his');
 figure()
 semilogy(loss)
+
+K(find(loss == min(loss)))

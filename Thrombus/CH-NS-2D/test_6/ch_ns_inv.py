@@ -33,17 +33,16 @@ from plotting import newfig, savefig
 import matplotlib
 matplotlib.use('Agg')
 
+
 torch.manual_seed(123456)
 np.random.seed(123456)
 
 h = 0.05
 lmd = 0.4*0.00010607
-# lmd_e = 0.5
 tau = 1e-6
 rho = 1
 mu = 0.1
-K = 1
-
+K = 0.01
 
 class Model(nn.Module):
     def __init__(self):
@@ -62,9 +61,9 @@ class Model(nn.Module):
         for num in range(2,10):
             self.net_u.add_module('net_u_linear_%d' %(num), nn.Linear(20, 20))
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
-        self.net_u.add_module('net_u_linear_50', nn.Linear(20, 6))
+        self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
-        self.lmd_e = torch.nn.Parameter(torch.tensor([1], requires_grad=True, dtype=torch.double) )
+        self.K = torch.nn.Parameter(torch.tensor([10], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -76,9 +75,8 @@ class Model(nn.Module):
         y = self.net_u(x)
         w = self.net_w(x)[:,0]
 
-        u, v, p, phi, psi_1, psi_2 = y[:, 0], y[:, 1], y[:, 2], y[:, 3], y[:, 4], y[:, 5]
+        u, v, p, phi = y[:, 0], y[:, 1], y[:, 2], y[:, 3]
         u_g, v_g, p_g, phi_g = gradients(u, x)[0], gradients(v, x)[0], gradients(p, x)[0], gradients(phi, x)[0]
-
         u_t, u_x, u_y = u_g[:, 0], u_g[:, 1], u_g[:, 2]
         v_t, v_x, v_y = v_g[:, 0], v_g[:, 1], v_g[:, 2]
         p_x, p_y = p_g[:, 1], p_g[:, 2]
@@ -92,74 +90,47 @@ class Model(nn.Module):
         w_x, w_y = w_g[:, 1], w_g[:, 2]
         w_xx, w_yy = gradients(w_x, x)[0][:, 1], gradients(w_y, x)[0][:, 2]
 
-        ## Left Cauchy-Green Deformation Tensor
-        psi_1_g, psi_2_g = gradients(psi_1, x)[0], gradients(psi_2, x)[0]
-        psi_1_t, psi_1_x, psi_1_y = psi_1_g[:, 0], psi_1_g[:, 1], psi_1_g[:, 2]
-        psi_2_t, psi_2_x, psi_2_y = psi_2_g[:, 0], psi_2_g[:, 1], psi_2_g[:, 2]
-
-        B_11 = (1-phi)/2*(psi_1_x**2 + psi_2_x**2)
-        B_21 = (1-phi)/2*(psi_1_x*psi_1_y + psi_2_x*psi_2_y)
-        B_22 = (1-phi)/2*(psi_1_y**2 + psi_2_y**2)
-
-        B_11_g = gradients(B_11, x)[0]
-        B_21_g = gradients(B_21, x)[0]
-        B_22_g = gradients(B_22, x)[0]
-
-        B_11_x, B_21_y, B_12_x, B_22_y = B_11_g[:, 1], B_21_g[:, 2], B_21_g[:, 1], B_22_g[:, 2]
-
         ## NS
-        ### there is another equivalent form see 5.13c
-        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + mu*(1-phi)*u/(2*K) \
-                + lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + self.lmd_e*(B_11_x + B_21_y)
-        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + mu*(1-phi)*v/(2*K) \
-                + lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + self.lmd_e*(B_12_x + B_22_y)
+        res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + \
+                lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/(2*self.K)
+        res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + \
+                lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + mu*(1-phi)*v/(2*self.K)
         res_incomp = u_x + v_y
 
         ## PF
         F_g = phi**3 - phi
-        res_w = w + h**2*(phi_xx + phi_yy) - F_g
+        res_w = w + h**2*(phi_xx + phi_yy) - F_g  
+        # res_pf = phi_t + h**2*(u*phi_x + v*phi_y) - tau*(w_xx + w_yy)
         res_pf = phi_t + (u*phi_x + v*phi_y) - tau*(w_xx + w_yy)/h**2
-        res_psi_x = psi_1_t + (u*psi_1_x + v*psi_1_y)
-        res_psi_y = psi_2_t + (u*psi_2_x + v*psi_2_y)
 
         # print(f'res_ns_x shape:{res_ns_x.shape}')
         # print(f'res_ns_y shape:{res_ns_y.shape}')
         # print(f'res_incomp shape:{res_incomp.shape}')
         # print(f'res_w shape:{res_w.shape}')
         # print(f'res_pf shape:{res_pf.shape}')
-        # print(f'res_psi_x shape:{res_psi_x.shape}')
-        # print(f'res_psi_y shape:{res_psi_y.shape}')
 
-        print(f'res_ns_x: {(res_ns_x**2).mean()},  res_ns_y: {(res_ns_y**2).mean()}, res_psi_x: {(res_psi_x**2).mean()}, res_psi_y: {(res_psi_y**2).mean()}')
+        return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean()
 
-        return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean() \
-             + (res_psi_x**2).mean() + (res_psi_y**2).mean()
-
-    def loss_data(self, x_data, u_data, v_data, p_data, phi_data, psi_1_data, psi_2_data):
+    def loss_data(self, x_data, phi_data):
         y = self.net_u(x_data)
-        u, v, p, phi, psi_1, psi_2, = y[:, 0], y[:, 1], y[:, 2], y[:, 3], y[:, 4], y[:, 5] 
-        # print(f'(u - u_data)**2: {((u - u_data)**2).shape}')
+        phi = y[:, 3]
 
         # print(f'loss_data u shape: {((u - u_data)**2).shape}')
         # print(f'loss_data v shape: {((v - v_data)**2).shape}')
         # print(f'loss_data p shape: {((p - p_data)**2).shape}')
         # print(f'loss_data phi shape: {((phi - phi_data)**2).shape}')
-        # print(f'loss_data psi_1 shape: {((psi_1 - psi_1_data)**2).shape}')
-        # print(f'loss_data psi_2 shape: {((psi_2 - psi_2_data)**2).shape}')
 
-        return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((p - p_data)**2).mean() \
-            + ((phi - phi_data)**2).mean() + ((phi - phi_data)**2).mean() + ((phi - phi_data)**2).mean() \
-            + ((psi_1 - psi_1_data)**2).mean() + ((psi_2 - psi_2_data)**2).mean()
+        return ((phi - phi_data)**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
         ## velocity inflow
         y_l, y_r, y_up, y_dw = self.net_u(x_l), self.net_u(x_r), self.net_u(x_up), self.net_u(x_dw)
         w_l, w_r, w_up, w_dw = self.net_w(x_l)[:,0], self.net_w(x_r)[:,0], self.net_w(x_up)[:,0], self.net_w(x_dw)[:,0]
         
-        u_l, v_l, phi_l, psi_1_l, psi_2_l = y_l[:, 0], y_l[:, 1], y_l[:, 3], y_l[:, 4], y_l[:, 5]
-        u_r, p_r, phi_r, psi_1_r, psi_2_r = y_r[:, 0], y_r[:, 2], y_r[:, 3], y_r[:, 4], y_r[:, 5]
-        u_up, v_up, phi_up, psi_1_up, psi_2_up = y_up[:, 0], y_up[:, 1], y_up[:, 3], y_up[:, 4], y_up[:, 5]
-        u_dw, v_dw, phi_dw, psi_1_dw, psi_2_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3], y_dw[:, 4], y_dw[:, 5]
+        u_l, v_l, phi_l = y_l[:, 0], y_l[:, 1], y_l[:, 3]
+        u_r, p_r, phi_r = y_r[:, 0], y_r[:, 2], y_r[:, 3]
+        u_up, v_up, phi_up = y_up[:, 0], y_up[:, 1], y_up[:, 3]
+        u_dw, v_dw, phi_dw = y_dw[:, 0], y_dw[:, 1], y_dw[:, 3]
 
         u_r_x = gradients(u_r, x_r)[0][:, 1]
 
@@ -173,28 +144,16 @@ class Model(nn.Module):
         w_up_y = gradients(w_up, x_up)[0][:, 2]
         w_dw_y = gradients(w_dw, x_dw)[0][:, 2]
 
-        psi_1_l_x = gradients(psi_1_l, x_l)[0][:, 1]
-        psi_2_l_x = gradients(psi_2_l, x_l)[0][:, 1]
-        psi_1_r_x = gradients(psi_1_r, x_r)[0][:, 1]
-        psi_2_r_x = gradients(psi_2_r, x_r)[0][:, 1]
-        psi_1_up_y = gradients(psi_1_up, x_up)[0][:, 2]
-        psi_2_up_y = gradients(psi_2_up, x_up)[0][:, 2]
-        psi_1_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2]
-        psi_2_dw_y = gradients(psi_2_dw, x_dw)[0][:, 2]
-
         # print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
-
 
         return ((u_l - u_l_real)**2).mean() + (u_r_x**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
                 + (v_l**2).mean() + (v_up**2).mean() + (v_dw**2).mean() + (p_r**2).mean()\
                 + (phi_l_x**2).mean() + (phi_r_x**2).mean() +  (phi_up_y**2).mean() + (phi_dw_y**2).mean() \
-                + (w_l_x**2).mean() + (w_r_x**2).mean() + (w_up_y**2).mean() + (w_dw_y**2).mean() \
-                + (psi_1_l_x**2).mean() + (psi_2_l_x**2).mean() + (psi_1_r_x**2).mean() + (psi_2_r_x**2).mean() \
-                + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()
+                + (w_l_x**2).mean() + (w_r_x**2).mean() + (w_up_y**2).mean() + (w_dw_y**2).mean()
 
-    def loss_ic(self, x, u_i, v_i, p_i, phi_i, psi_1_i, psi_2_i):
+    def loss_ic(self, x, u_i, v_i, p_i, phi_i):
         y_pred = self.net_u(x)
-        u_i_pred, v_i_pred, p_i_pred, phi_i_pred, psi_1_i_pred, psi_2_i_pred = y_pred[:, 0][:,None], y_pred[:, 1][:,None], y_pred[:, 2][:,None], y_pred[:, 3][:,None], y_pred[:, 4][:,None], y_pred[:, 5][:,None]
+        u_i_pred, v_i_pred, p_i_pred, phi_i_pred = y_pred[:, 0][:,None], y_pred[:, 1][:,None], y_pred[:, 2][:,None], y_pred[:, 3][:,None]
 
         # print(f'u_i_pred shape: {u_i_pred.shape}')
         # print(f'u_i shape: {u_i.shape}')
@@ -204,32 +163,8 @@ class Model(nn.Module):
         # print(f'loss_ic_p: {((p_i_pred-p_i)**2).shape}')
         # print(f'loss_ic_phi: {((phi_i_pred-phi_i)**2).shape}')
         # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
-        # print(f'psi_1_loss: {((psi_1_i_pred-psi_1_i)**2).shape}')
-        # print(f'psi_2_loss: {((psi_2_i_pred-psi_2_i)**2).shape}')
         
-        return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() \
-            + ((phi_i_pred-phi_i)**2).mean() + ((psi_1_i_pred-psi_1_i)**2).mean() + ((psi_2_i_pred-psi_2_i)**2).mean()
-
-def CH_2D_init(x_init):
-    ## u, v
-    u_init = np.zeros((x_init.shape[0]))
-    u_init = (1-x_init[:,2])*x_init[:,2]
-    v_init = np.zeros((x_init.shape[0]))
-
-    #########
-    x, y = symbols('x y')
-    phi = 0.5*(tanh((x**2 + y**2-0.3**2) / (sqrt(2)*0.01) ) + tanh( (x**2 + y**2-0.7**2) / (sqrt(2)*0.01)))
-    phi_x, phi_y = phi.diff(x), phi.diff(y)
-    phi_xx, phi_yy = phi_x.diff(x), phi_y.diff(y)
-
-    f_phi = lambdify([x, y], phi, 'numpy')
-    f_phi_xx = lambdify([x, y], phi_xx, 'numpy')
-    f_phi_yy = lambdify([x, y], phi_yy, 'numpy')
-
-    phi_init = f_phi(x_init[:,1], x_init[:,2])
-    w_init = -h**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) + (phi_init**3 - phi_init)
-
-    return u_init, v_init, phi_init, w_init
+        return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() 
 
 def left_bound_vel(x):
     return 0.3*(2-x[:, 2])*x[:,2]
@@ -259,7 +194,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 100000
+    epochs = 300000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
@@ -290,14 +225,14 @@ def main():
 
     ## load data file
     for file_id in range(file_start, file_end):
-        name_u = '../../../Data/CH/phase_field_xiaoning/K_1_lmd_e_05/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../../Data/CH/phase_field_xiaoning/K_1_lmd_e_05/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/K_1/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_1/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
         ## x_tmp: [t,x,y]   u_tmp:[u,v,p,phi]
         x_tmp = np.concatenate(( file_id*dt*np.ones((data_u.shape[0], 1)), data_u[:,0:2]), axis=1)
-        y_tmp = np.concatenate(( data_u[:,3:5], data_u[:,6:7], data_phi[:,3:4], data_u[:, 7:9]), axis=1)
+        y_tmp = np.concatenate(( data_u[:,3:5], data_u[:,6:7], data_phi[:,3:4]), axis=1)
 
         if file_id == file_start:
             x_data = x_tmp
@@ -309,9 +244,6 @@ def main():
             v_init = y_tmp[:, 1][:, None]
             p_init = y_tmp[:, 2][:, None]
             phi_init = y_tmp[:, 3][:, None]
-            psi_1_init = y_tmp[:, 4][:, None]
-            psi_2_init = y_tmp[:, 5][:, None]
-
         else:
             x_data = np.concatenate((x_data, x_tmp), axis=0)
             y_data = np.concatenate((y_data, y_tmp), axis=0)
@@ -325,15 +257,13 @@ def main():
     x_2d = np.concatenate((x1_grid.flatten()[:,None], x2_grid.flatten()[:,None]), axis=1)
 
     ## initial condition
-    inits = np.zeros((num_x1*num_x2, 6 ))
+    inits = np.zeros((num_x1*num_x2, 4 ))
 
     inits[:,0] = u_init[:,0]
     inits[:,1] = v_init[:,0]
     inits[:,2] = p_init[:,0]
     inits[:,3] = phi_init[:,0]
-    inits[:,4] = psi_1_init[:,0]
-    inits[:,5] = psi_2_init[:,0]
-
+    
     ## boundary condition
     x_l = np.concatenate((x1_grid[:,0][:,None],x2_grid[:,0][:,None]), axis=1)
     x_r = np.concatenate((x1_grid[:,-1][:,None], x2_grid[:,-1][:,None]), axis=1)
@@ -361,14 +291,14 @@ def main():
 
     ### initial
     xt_i_sample = xt_init[id_i, :]
-    u_i_sample, v_i_sample, p_i_sample, phi_i_sample, psi_1_i_sample, psi_2_i_sample = u_init[id_i], v_init[id_i], p_init[id_i], phi_init[id_i], psi_1_init[id_i], psi_2_init[id_i]
+    u_i_sample, v_i_sample, p_i_sample, phi_i_sample = u_init[id_i], v_init[id_i], p_init[id_i], phi_init[id_i]
     ### boundary
     u_l_sample = u_l[id_bv]
     xt_l_sample, xt_r_sample = xt_l_ext[id_bv,:], xt_r_ext[id_bv,:]
     xt_up_sample, xt_dw_sample = xt_up_ext[id_bh,:], xt_dw_ext[id_bh,:]
     ### inner points
     xt_f_sample = x_data[id_f,:]
-    u_f_sample, v_f_sample, p_f_sample, phi_f_sample, psi_1_f_sample, psi_2_f_sample = y_data[id_f,0], y_data[id_f,1], y_data[id_f,2], y_data[id_f,3], y_data[id_f,4], y_data[id_f,5]
+    u_f_sample, v_f_sample, p_f_sample, phi_f_sample = y_data[id_f,0], y_data[id_f,1], y_data[id_f,2], y_data[id_f,3]
 
     ## set data as tensor and send to device
     xt_i_train = torch.tensor(xt_i_sample, requires_grad=True, dtype=torch.double).to(device)
@@ -376,16 +306,9 @@ def main():
     v_i_train = torch.tensor(v_i_sample, dtype=torch.double).to(device)
     p_i_train = torch.tensor(p_i_sample, dtype=torch.double).to(device)
     phi_i_train = torch.tensor(phi_i_sample, dtype=torch.double).to(device)
-    psi_1_i_train = torch.tensor(psi_1_i_sample, dtype=torch.double).to(device)
-    psi_2_i_train = torch.tensor(psi_2_i_sample, dtype=torch.double).to(device)
 
     xt_f_train = torch.tensor(xt_f_sample, requires_grad=True, dtype=torch.double).to(device)
-    u_f_train = torch.tensor(u_f_sample, dtype=torch.double).to(device)
-    v_f_train = torch.tensor(v_f_sample, dtype=torch.double).to(device)
-    p_f_train = torch.tensor(p_f_sample, dtype=torch.double).to(device)
     phi_f_train = torch.tensor(phi_f_sample, dtype=torch.double).to(device)
-    psi_1_f_train = torch.tensor(psi_1_f_sample, dtype=torch.double).to(device)
-    psi_2_f_train = torch.tensor(psi_2_f_sample, dtype=torch.double).to(device)
     
     xt_l_train = torch.tensor(xt_l_sample, requires_grad=True, dtype=torch.double).to(device)
     xt_r_train = torch.tensor(xt_r_sample, requires_grad=True, dtype=torch.double).to(device)
@@ -406,17 +329,17 @@ def main():
     
     ## training
     loss_his = np.zeros((epochs,1))
-    lmd_e_his = np.zeros((epochs,1))
+    K_his = np.zeros((epochs,1))
 
     def train(epoch):
         model.train()
-        print(model.lmd_e)
+        print(model.K)
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
-            loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train, psi_1_f_train, psi_2_f_train)        
+            loss_data = model.loss_data(xt_f_train, phi_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
-            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
+            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train)
             loss = loss_pde + loss_bc + loss_data + 100*loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
@@ -424,7 +347,7 @@ def main():
         loss = optimizer.step(closure)
         loss_value = loss.item() if not isinstance(loss, float) else loss
         loss_his[epoch,0] = loss_value
-        lmd_e_his[epoch, 0] = to_numpy(model.lmd_e)
+        K_his[epoch, 0] = to_numpy(model.K)
         # print(f'epoch {epoch}: loss {loss_value:.6f}')
         
         ## checkpoint saving
@@ -467,7 +390,7 @@ def main():
             plt.close()
         
     np.savetxt('loss.his', loss_his)
-    np.savetxt('lmd_e.his', lmd_e_his)
+    np.savetxt('K.his', K_his)
 
 
 if __name__ == '__main__':
