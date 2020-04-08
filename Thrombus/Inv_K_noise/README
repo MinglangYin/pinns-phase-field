@@ -1,0 +1,9 @@
+# Inference of permeability and its dependency on the noise level of data
+
+K = 0.01, num_pts = 10000
+
+test_1: noise level 0
+test_2: noise level 0.05
+test_3: noise level 0.10
+test_4: noise level 0.15
+test_5: noise level 0.20
