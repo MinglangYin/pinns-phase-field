@@ -216,7 +216,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 400000
+    epochs = 00000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
@@ -233,7 +233,7 @@ def main():
     num_t = file_end-file_start
     num_bh_train = 50   # number of sampling points on verticle boundary over time
     num_bv_train = 50   # number of sampling points on horizontal boundary over time
-    num_f_train = 30000   # inner sampling points
+    num_f_train = 50000   # inner sampling points
     num_i_train = 5000   # initial sampling points 
 
     x_min, x_max = 0, 6
