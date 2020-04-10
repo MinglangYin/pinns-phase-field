@@ -19,6 +19,7 @@ def main():
     ax1.set_yscale('log')
     ax1.set_xlabel('epoches', fontsize=14)
     ax1.set_ylabel('loss', fontsize=14)
+    ax1.set_aspect('equal')
 
     ## subplot 2
     ax2 = fig.add_subplot(gs[1])
@@ -29,6 +30,7 @@ def main():
     ax2.set_xlabel('epoches', fontsize=14)
     ax2.set_ylabel('$\kappa$', fontsize=14)
     ax2.legend(fontsize=14)
+    ax2.set_aspect('equal')
 
     plt.savefig('fig_4.png')
     plt.close()
