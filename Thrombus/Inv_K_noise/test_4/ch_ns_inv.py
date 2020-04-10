@@ -276,6 +276,18 @@ def main():
             y_data[:, i] = y_data[:, i] + noise_inner*noise_level
             inits[:, i] = inits[:, i] + noise_init*noise_level
 
+    ## save images for initial condition
+    for j in range(0, 4):
+        fig, ax = newfig(2.0, 1.1)
+        ax.axis('off') 
+        gs0 = gridspec.GridSpec(1, 2)
+        gs0.update(top=1-0.06, bottom=1-1/3, left=0.15, right=0.85, wspace=0)
+        h = ax.imshow(inits[:, j].reshape(num_x1, num_x2), interpolation='nearest', cmap='rainbow', origin='lower', aspect=asp_ratio)
+        fig.colorbar(h)
+        ax.plot(x_2d[:,0], x_2d[:,1], 'kx', label = 'Data (%d points)' % (x_2d.shape[0]), markersize = 4, clip_on = False)
+        line = np.linspace(x_2d.min(), x_2d.max(), 2)[:,None]
+        fig.savefig(init_path+str(j+1000)+'.png')
+        plt.close()
 
     ## boundary condition
     x_l = np.concatenate((x1_grid[:,0][:,None],x2_grid[:,0][:,None]), axis=1)
