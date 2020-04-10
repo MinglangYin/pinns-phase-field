@@ -135,7 +135,7 @@ def main():
     phi_range = np.linspace(-1, 1, 3)[:,None]
     phi_error = np.linspace(0, 0.1, 3)[:,None]
 
-    fig = plt.figure(constrained_layout=False, figsize=(9, 4.5))
+    fig = plt.figure(constrained_layout=True, figsize=(9, 4.5))
     gs = fig.add_gridspec(3, 1)
 
     for i in range (0, 3):
@@ -194,7 +194,7 @@ def main():
     ## plotting velocity
     vel_range = np.linspace(0, 0.3, 3)[:,None]
     vel_error = np.linspace(0, 0.01, 3)[:,None]
-    fig = plt.figure(constrained_layout=False, figsize=(9, 4.5))
+    fig = plt.figure(constrained_layout=True, figsize=(9, 4.5))
     gs = fig.add_gridspec(3, 1)
 
     for i in range (0, 3):
