@@ -49,11 +49,12 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    model_path = '../Inv_K_noise/test_5/CheckPts/model_chkpts.pt'
+    model_path = '../Inv_K_noise/test_7/CheckPts/model_chkpts.pt'
 
     file_start = 0
     file_end = 20
     dt = 0.03
+    t_gap = 9
 
     num_x1 = 100
     num_x2 = 100
@@ -120,6 +121,118 @@ def main():
     print(l2_error)
     l2_error = get_l2_error(vel_inf, vel_ref)
     print(l2_error)
+    # l2_error = get_relative_l2_error(phi_inf, phi_ref)
+    # print(l2_error)
+    # l2_error = get_l2_error(phi_inf, phi_ref)
+    # print(l2_error)
+
+    phi_range = np.linspace(-1, 1, 3)[:,None]
+    phi_error = np.linspace(0, 0.1, 3)[:,None]
+
+    fig = plt.figure(constrained_layout=True, figsize=(9, 4.5))
+    gs = fig.add_gridspec(3, 1)
+
+    for i in range (0, 3):
+        _gs = gs[i].subgridspec(1, 3)
+
+        _ax = fig.add_subplot(_gs[0])
+        _ax.axis('off') 
+        _h = _ax.imshow(phi_ref[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        _h.set_clim(vmin=-1, vmax=1)
+        axins = inset_axes(_ax,
+                    width="100%",
+                    height="10%",
+                    loc='lower center',
+                    borderpad=-1,
+                    )
+        fig.colorbar(_h, ax=_ax, ticks=phi_range, cax = axins, orientation='horizontal')
+        # if i == 0:
+            # _ax.set_title('$\phi_{ref}$')
+
+
+        _ax = fig.add_subplot(_gs[1])
+        _ax.axis('off') 
+        _h = _ax.imshow(phi_inf[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        _h.set_clim(vmin=-1, vmax=1)
+        axins = inset_axes(_ax,
+                    width="100%",
+                    height="10%",
+                    loc='lower center',
+                    borderpad=-1,
+                    )
+        
+        fig.colorbar(_h, ax=_ax, ticks=phi_range, cax = axins, orientation='horizontal')
+        # if i == 0:
+            # _ax.set_title('$\phi_{inf}$')
+
+
+        _ax = fig.add_subplot(_gs[2])
+        _ax.axis('off') 
+        _h = _ax.imshow(np.abs(phi_ref[t_gap*i, :, :] - phi_inf[t_gap*i, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        _h.set_clim(vmin=0, vmax=0.1)
+        axins = inset_axes(_ax,
+                    width="100%",
+                    height="10%",
+                    loc='lower center',
+                    borderpad=-1,
+                    )
+        fig.colorbar(_h, ax=_ax, ticks=phi_error, cax = axins, orientation='horizontal')
+        # if i == 0:
+            # _ax.set_title('$\epsilon_{\phi}$')
+
+    # plt.gcf().text(0.05, 0.9, "(a)", fontsize=14 )
+
+    plt.savefig('fig_8_phase.png')
+    plt.close()
+
+    ## plotting velocity
+    vel_range = np.linspace(0, 0.3, 3)[:,None]
+    vel_error = np.linspace(0, 0.01, 3)[:,None]
+    fig = plt.figure(constrained_layout=True, figsize=(9, 4.5))
+    gs = fig.add_gridspec(3, 1)
+
+    for i in range (0, 3):
+        _gs = gs[i].subgridspec(1, 3)
+
+        _ax = fig.add_subplot(_gs[0])
+        _ax.axis('off') 
+        _h = _ax.imshow(vel_ref[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        _h.set_clim(vmin=0, vmax=0.3)
+        axins = inset_axes(_ax,
+                    width="100%",
+                    height="10%",
+                    loc='lower center',
+                    borderpad=-1,
+                    )
+        fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
+
+        _ax = fig.add_subplot(_gs[1])
+        _ax.axis('off') 
+        _h = _ax.imshow(vel_inf[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        _h.set_clim(vmin=0, vmax=0.3)
+        axins = inset_axes(_ax,
+                    width="100%",
+                    height="10%",
+                    loc='lower center',
+                    borderpad=-1,
+                    )
+        fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
+
+        _ax = fig.add_subplot(_gs[2])
+        _ax.axis('off') 
+        _h = _ax.imshow(np.abs(vel_ref[t_gap*i, :, :] - vel_inf[t_gap*i, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        _h.set_clim(vmin=0, vmax=0.01)
+        axins = inset_axes(_ax,
+                    width="100%",
+                    height="10%",
+                    loc='lower center',
+                    borderpad=-1,
+                    )
+        fig.colorbar(_h, ax=_ax, ticks=vel_error, cax = axins, orientation='horizontal')
+
+    plt.savefig('fig_8_velo.png')
+    plt.close()
+
 
 """
     ## figure

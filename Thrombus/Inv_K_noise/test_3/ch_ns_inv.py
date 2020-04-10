@@ -194,7 +194,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 300000
+    epochs = 400000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
@@ -203,7 +203,7 @@ def main():
     check_step = 10000
     noise_level = 0.1
 
-    file_start = 10
+    file_start = 0
     file_end = 20
     dt = 0.03
 

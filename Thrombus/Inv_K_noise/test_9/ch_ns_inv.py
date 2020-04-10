@@ -33,7 +33,6 @@ from plotting import newfig, savefig
 import matplotlib
 matplotlib.use('Agg')
 
-
 # torch.manual_seed(123456)
 # np.random.seed(123456)
 
@@ -194,16 +193,16 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 300000
+    epochs = 400000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
     model_path = 'CheckPts/model_chkpts.pt'
     restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
-    noise_level = 0.2
+    noise_level = 0.20
 
-    file_start = 10
+    file_start = 0
     file_end = 20
     dt = 0.03
 
