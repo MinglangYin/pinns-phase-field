@@ -202,7 +202,7 @@ def main():
     restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
-    file_start = 10
+    file_start = 0
     file_end = 20
     dt = 0.03
 
@@ -211,7 +211,7 @@ def main():
     num_t = file_end-file_start
     num_bh_train = 50   # number of sampling points on verticle boundary over time
     num_bv_train = 50   # number of sampling points on horizontal boundary over time
-    num_f_train = 100   # inner sampling points
+    num_f_train = 20000   # inner sampling points
     num_i_train = 5000   # initial sampling points 
 
     x_min, x_max = 0, 6
@@ -226,8 +226,8 @@ def main():
 
     ## load data file
     for file_id in range(file_start, file_end):
-        name_u = '../../../Data/CH/phase_field_xiaoning/K_100/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../../Data/CH/phase_field_xiaoning/K_100/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/K_001/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_001/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
@@ -407,21 +407,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

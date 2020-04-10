@@ -120,9 +120,9 @@ def main():
     num_data = 4
     K_inf_text = ['0.0016', '0.0060', '1.9608', '61.8760']
     K_ref_text = ['0.0010', '0.0100', '1.0000', '100.0000']
-    vel_err_text = ['0.0000', '0.0000', '0.0000', '0.0000']
-    phi_err_text = ['0.0000', '0.0000', '0.0000', '0.0000']
-    rows = [r'$K_{ref}$', r'$K_{inf}$', r'$||\epsilon_{\phi}||_{2}$', r'$||\epsilon_{v}||_{2}$']
+    vel_err_text = ['0.0052', '0.0050', '0.0009', '0.0016']
+    phi_err_text = ['0.0002', '0.0003', '0.0004', '0.0001']
+    rows = [r'$K_{ref}$', r'$K_{inf}$', r'$||\epsilon_{\phi}||_{2}^{2}$', r'$||\epsilon_{v}||_{2}^{2}$']
     cols = ['case 1', 'case 2', 'case 3', 'case 4']
 
     K_inf, K_ref, vel_err, phi_err = np.zeros((num_data)), np.zeros((num_data)), np.zeros((num_data)), np.zeros((num_data))

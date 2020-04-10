@@ -202,7 +202,7 @@ def main():
     restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
-    file_start = 10
+    file_start = 0
     file_end = 20
     dt = 0.03
 

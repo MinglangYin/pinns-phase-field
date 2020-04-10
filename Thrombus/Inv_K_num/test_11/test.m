@@ -7,7 +7,7 @@ K = load('K.his');
 figure()
 semilogy(K)
 hold on
-yline(100)
+yline(0.001)
 
 loss = load('loss.his');
 figure()
