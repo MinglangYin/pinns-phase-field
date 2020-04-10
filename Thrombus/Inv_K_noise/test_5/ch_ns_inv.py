@@ -33,9 +33,8 @@ from plotting import newfig, savefig
 import matplotlib
 matplotlib.use('Agg')
 
-
-torch.manual_seed(123456)
-np.random.seed(123456)
+# torch.manual_seed(123456)
+# np.random.seed(123456)
 
 h = 0.05
 lmd = 0.4*0.00010607
