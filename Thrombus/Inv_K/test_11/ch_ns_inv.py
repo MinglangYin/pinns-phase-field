@@ -208,7 +208,7 @@ def main():
     restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
-    file_start = 0
+    file_start = 25
     file_end = 30
     dt = 0.03
 
@@ -217,7 +217,7 @@ def main():
     num_t = file_end-file_start
     num_bh_train = 50   # number of sampling points on verticle boundary over time
     num_bv_train = 50   # number of sampling points on horizontal boundary over time
-    num_f_train = 50000   # inner sampling points
+    num_f_train = 10000   # inner sampling points
     num_i_train = 5000   # initial sampling points 
 
     x_min, x_max = 0, 6

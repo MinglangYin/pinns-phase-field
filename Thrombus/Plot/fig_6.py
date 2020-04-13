@@ -53,8 +53,8 @@ def main():
     print(device, flush=True)
     model_path = '../Inv_K/test_10/CheckPts/model_chkpts.pt'
 
-    file_start = 19
-    file_end = 20
+    file_start = 0
+    file_end = 30
     dt = 0.03
 
     num_x1 = 100
@@ -97,11 +97,7 @@ def main():
     checkpoint = torch.load(model_path)
     model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    print(f'a: {model.a}')
-    print(f'b: {model.b}')
-    print(f'c: {model.c}')
-    print(f'd: {model.d}')
-"""
+
     ## testing
     Predictions = np.zeros((5, num_t, num_x1, num_x2))
     for i in range(0, num_t):
@@ -123,34 +119,27 @@ def main():
         vel_ref[i, :, :] = np.sqrt(y_data[0, i, :, :]**2 + y_data[1, i, :, :]**2)
 
     ## figure
-    x = np.linspace(0.001, 100, 101)
-    num_data = 4
-    K_inf_text = ['0.0016', '0.0060', '1.9608', '61.8760']
-    K_ref_text = ['0.0010', '0.0100', '1.0000', '100.0000']
-    vel_err_text = ['0.0052', '0.0050', '0.0009', '0.0016']
-    phi_err_text = ['0.0002', '0.0003', '0.0004', '0.0001']
-    rows = [r'$K_{ref}$', r'$K_{inf}$', r'$||\epsilon_{\phi}||_{2}^{2}$', r'$||\epsilon_{v}||_{2}^{2}$']
-    cols = ['case 1', 'case 2', 'case 3', 'case 4']
+    a = to_numpy(model.a)
+    b = to_numpy(model.b)
+    # c = to_numpy(model.c)
+    c = 1
+    d = to_numpy(model.d)
+    x = np.linspace(-1, 1, 101)
+    K_inf = a*np.tanh(b*x + c) + d
+    K_step = np.zeros((101))
+    K_step[50:] = 1
 
-    K_inf, K_ref, vel_err, phi_err = np.zeros((num_data)), np.zeros((num_data)), np.zeros((num_data)), np.zeros((num_data))
-
-    for i in range(num_data):
-        K_inf[i] = np.array(K_inf_text[i])
-        K_ref[i] = np.array(K_ref_text[i])
-        vel_err[i] = np.array(vel_err_text[i])
-        phi_err[i] = np.array(phi_err_text[i])
-
-    table_data= [K_ref_text, K_inf_text, vel_err_text, phi_err_text]
+    loss = np.loadtxt('../Inv_K/test_10/loss.his')
 
     ## plotting
     fig = plt.figure(constrained_layout=False, figsize=(9, 6))
     gs = fig.add_gridspec(2, 1)
 
-    gs0 = gs[0].subgridspec(1, 20)
+    gs0 = gs[0].subgridspec(1, 2)
     gs1 = gs[1].subgridspec(2, 3) 
 
-    ax1 = fig.add_subplot(gs0[0, 0:6])
-    ax2 = fig.add_subplot(gs0[0, 8:20])
+    ax1 = fig.add_subplot(gs0[0, 0])
+    ax2 = fig.add_subplot(gs0[0, 1])
 
     ax3 = fig.add_subplot(gs1[0, 0])
     ax4 = fig.add_subplot(gs1[0, 1])
@@ -160,29 +149,22 @@ def main():
     ax7 = fig.add_subplot(gs1[1, 1])
     ax8 = fig.add_subplot(gs1[1, 2])
 
-    ## plot [0, 0]]
-    ax1.set_yscale('log')
-    ax1.set_xscale('log')
-    ax1.plot(x, x, linestyle="--", color="black",label='$K_{ref}$')
-    ax1.plot(K_ref, K_inf, color='blue', label='$K_{inf}$')
-    ax1.scatter(K_ref, K_inf, marker="^", color='blue', s=80)
-
-    ax1.set_xlabel('$K_{ref}$', fontsize=14)
-    ax1.set_ylabel('$K_{inf}$', fontsize=14)
-    ax1.set_xticks(K_ref)
-    ax1.set_yticks(K_ref)
-    ax1.set_title('(a)')
-    ax1.grid()
-    ax1.legend(loc="best")
-
     ## plot [0, 1]
-    table = ax2.table(cellText=table_data, loc='center', rowLabels=rows, colLabels=cols)
-    table.set_fontsize(18)
-    table.scale(1,2.5)
-    ax2.axis('off')
+    ax1.plot(loss, color="blue",label='$Loss$')
+    ax1.set_yscale('log')
+    ax1.set_title('(a)')
+
+    ## plot [0, 0]]
+    ax2.step(x, K_step, linestyle="--", color="black",label='$K_{ref}$')
+    ax2.plot(x, K_inf, linestyle="-", color="blue",label='$K_{inf}$')
+
+    ax2.set_xlabel('$\phi$', fontsize=14)
+    ax2.set_ylabel('$K$', fontsize=14)
+    # ax2.set_xticks(K_ref)
+    # ax2.set_yticks(K_ref)
     ax2.set_title('(b)')
-    plt.subplots_adjust(wspace = 0.5)
-    plt.tight_layout()
+    ax2.grid()
+    ax2.legend(loc="best")
 
     ## ax3
     v_phi = np.linspace(-1, 1, 3)[:,None]
@@ -269,9 +251,8 @@ def main():
 
     plt.gcf().text(0.05, 0.45, "(c)", fontsize=14)
 
-    fig.savefig('fig_5.png')
+    fig.savefig('fig_6.png')
     plt.close()
-"""
 
 if __name__ == '__main__':
     main()
