@@ -49,12 +49,11 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    model_path = '../Inv_K/test_5/CheckPts/model_chkpts.pt'
+    model_path = '../Inv_K_noise/test_9/CheckPts/model_chkpts.pt'
 
-    file_start = 10
+    file_start = 0
     file_end = 20
     dt = 0.03
-    t_gap = 9
 
     num_x1 = 100
     num_x2 = 100
@@ -117,239 +116,85 @@ def main():
         vel_inf[i, :, :] = np.sqrt(Predictions[0, i, :, :]**2 + Predictions[1, i, :, :]**2)
         vel_ref[i, :, :] = np.sqrt(y_data[0, i, :, :]**2 + y_data[1, i, :, :]**2)
 
-    l2_error = get_relative_l2_error(vel_inf, vel_ref)
-    print(l2_error)
-    l2_error = get_l2_error(vel_inf, vel_ref)
-    print(l2_error)
-    l2_error = get_relative_l2_error(phi_inf, phi_ref)
-    print(l2_error)
-    l2_error = get_l2_error(phi_inf, phi_ref)
-    print(l2_error)
-
-
-"""
     ## figure
-    K = np.linspace(0.001, 100, 101)
     num_x = np.linspace(100, 40000, 101)
-    num_data = 4
+    num_data = 5
     ### inferred K
-    K_ref_text = ['0.001', '0.01', '1', '100']
-    K_1_inf_text = ['0.0056', '0.0071', '33.7858', '0.4905'] # num 100
-    K_2_inf_text = ['0.0016', '0.0059', '1.4164', '53.4171'] # num 20000
-    K_3_inf_text = ['0.0016', '0.0060', '1.9603', '61.8759'] # num 30000
-    K_4_inf_text = ['0.0016', '0.0059', '0.9322', '68.5341'] # num 40000
-    
-    K_1_err_phi_text = ['0.0000', '0.0000', '0.0000', '0.0000']
-    K_2_err_phi_text = ['0.0000', '0.0000', '0.0000', '0.0000']
-    K_3_err_phi_text = ['0.0000', '0.0000', '0.0000', '0.0000']
-    K_4_err_phi_text = ['0.0000', '0.0000', '0.0000', '0.0000']
+    noise_level = np.linspace(0, 0.2, 5)
+    K_inf_text = ['0.006', '0.0049', '0.0060', '0.0054', '0.0051']
+    Loss_inf_text = ['0.0058', '0.0061', '0.0109', '0.0161', '0.0277']
+    err_phi_text = ['0.0003', '0.0009', '0.0008', '0.0007', '0.0011']
+    err_v_text = ['0.0193', '0.1825', '0.0900', '0.1509', '0.1998']
 
-    K_1_err_v_text = ['0.0000', '0.0000', '0.0000', '0.0000']
-    K_2_err_v_text = ['0.0000', '0.0000', '0.0000', '0.0000']
-    K_3_err_v_text = ['0.0000', '0.0000', '0.0000', '0.0000']
-    K_4_err_v_text = ['0.0000', '0.0000', '0.0000', '0.0000']
-
-    K_1_inf, K_2_inf, K_3_inf, K_4_inf = np.zeros((num_data)), np.zeros((num_data)), np.zeros((num_data)), np.zeros((num_data))
-    K_ref = np.zeros((num_data))
+    K_inf, Loss_inf, err_phi, err_v = np.zeros((num_data)), np.zeros((num_data)), np.zeros((num_data)), np.zeros((num_data))
 
     for i in range(num_data):
-        K_ref[i] = np.array(K_ref_text[i])
-        K_1_inf[i] = np.array(K_1_inf_text[i])
-        K_2_inf[i] = np.array(K_2_inf_text[i])
-        K_3_inf[i] = np.array(K_3_inf_text[i])
-        K_4_inf[i] = np.array(K_4_inf_text[i])
+        K_inf[i] = np.array(K_inf_text[i])
+        Loss_inf[i] = np.array(Loss_inf_text[i])
+        err_phi[i] = np.array(err_phi_text[i])
+        err_v[i] = np.array(err_v_text[i])
 
     ## plotting
-    fig = plt.figure(constrained_layout=False, figsize=(10, 7))
-    gs = fig.add_gridspec(2, 1)
-
+    fig = plt.figure(constrained_layout=False, figsize=(12,4))
+    gs = fig.add_gridspec(1, 1)
     gs0 = gs[0].subgridspec(1, 3)
-    gs1 = gs[1].subgridspec(2, 3) 
-
     ax1 = fig.add_subplot(gs0[0])
     ax2 = fig.add_subplot(gs0[1])
     ax3 = fig.add_subplot(gs0[2])
 
-    ax4 = fig.add_subplot(gs1[0, 0])
-    ax5 = fig.add_subplot(gs1[0, 1])
-    ax6 = fig.add_subplot(gs1[0, 2])
-
-    ax7 = fig.add_subplot(gs1[1, 0])
-    ax8 = fig.add_subplot(gs1[1, 1])
-    ax9 = fig.add_subplot(gs1[1, 2])
-
-    ## ax1
-    ax1.set_yscale('log')
-    ax1.set_xscale('log')
-    ax1.plot(K, K, linestyle="--", color="black",label='$K_{ref}$')
-    ### K = 0.001
-    # ax1.plot(K_ref, K_1_inf, color='blue', label='$K_{inf}$')
-    ax1.scatter(K_ref, K_1_inf, marker="*", color='blue', s=80, label='$N_{data}=100$')
-    ### K = 0.01
-    # ax1.plot(K_ref, K_2_inf, color='red', label='$K_{inf}$')
-    ax1.scatter(K_ref, K_2_inf, marker="^", color='red', s=80, label='$N_{data}=20000$')
-    ### K = 1    
-    # ax1.plot(K_ref, K_3_inf, color='cyan', label='$K_{inf}$')
-    ax1.scatter(K_ref, K_3_inf, marker=".", color='cyan', s=80, label='$N_{data}=30000$')
-    ### K = 100
-    # ax1.plot(K_ref, K_4_inf, color='purple', label='$K_{inf}$')
-    ax1.scatter(K_ref, K_4_inf, marker="o", color='purple', s=80, label='$N_{data}=40000$')
-
-    ax1.set_xlabel('$K_{ref}$', fontsize=14)
-    # ax1.set_ylabel('$K_{inf}$', fontsize=14)
-    ax1.set_xticks(K_ref)
-    ax1.set_yticks(K_ref)
+    ## ax1: K
+    ax1.axhline(y=0.01, linestyle='--', color='black',  label='$K_{ref}$')
+    ax1.plot(noise_level, K_inf, color='blue')
+    ax1.scatter(noise_level, K_inf, color='blue', label='$K_{inf}$')
+    ax1.set_xlabel('noise level', fontsize=14)
+    ax1.set_ylabel("$K$", fontsize=14, rotation='horizontal')
+    ax1.set_xticks(noise_level)
+    ax1.set_yticks(np.linspace(0, 0.02, 5))
+    ax1.set_xlim([0, 0.2])
+    ax1.set_ylim([0, 0.02])
     ax1.set_title('(a)')
-    ax1.grid()
-    ax1.legend(loc="best", fontsize=8)
-    ax1.set_aspect('equal')
-    ax1.set_ylabel("$K_{inf}$", color='black', rotation='horizontal', fontsize=14)
-    ax1.yaxis.set_label_coords(-0.1,1.02)
+    ax1.set_aspect('auto')
+    ax1.yaxis.set_label_coords(0.0,1.02)
+    ax1.legend()
 
     ## ax2
-    ax2.set_yscale('log')
-    ax2.set_xscale('log')
-    ax2.plot(K, K, linestyle="--", color="black",label='$K_{ref}$')
-    ### K = 0.001
-    # ax2.plot(K_ref, K_1_inf, color='blue', label='$K_{inf}$')
-    ax2.scatter(K_ref, K_1_inf, marker="*", color='blue', s=80)
-    ### K = 0.01
-    # ax2.plot(K_ref, K_2_inf, color='blue', label='$K_{inf}$')
-    ax2.scatter(K_ref, K_2_inf, marker="^", color='red', s=80)
-    ### K = 1    
-    # ax2.plot(K_ref, K_3_inf, color='blue', label='$K_{inf}$')
-    ax2.scatter(K_ref, K_3_inf, marker=".", color='cyan', s=80)
-    ### K = 100
-    # ax2.plot(K_ref, K_4_inf, color='blue', label='$K_{inf}$')
-    ax2.scatter(K_ref, K_4_inf, marker="o", color='purple', s=80)
-
-    ax2.set_xlabel('$K_{ref}$', fontsize=14)
-    ax2.set_ylabel('$K_{inf}$', fontsize=14)
-    ax2.set_xticks(K_ref)
-    ax2.set_yticks(K_ref)
+    ax2.plot(noise_level, Loss_inf, color="blue")
+    ax2.scatter(noise_level, Loss_inf, color="blue")
+    ax2.set_xlabel('noise level', fontsize=14)
+    ax2.set_ylabel('Loss', fontsize=14, rotation='horizontal')
+    ax2.set_xlim([0, 0.2])
+    ax2.set_ylim([0, 0.03])
+    ax2.set_xticks(noise_level)
+    ax2.set_yticks(np.linspace(0, 0.03, 7))
+    ax2.set_aspect('auto')
+    ax2.yaxis.set_label_coords(0.0,1.02)
     ax2.set_title('(b)')
-    ax2.grid()
-    ax2.legend(loc="best")
-    ax2.set_aspect('equal')
-    ax2.set_ylabel("$K_{inf}$", color='black', rotation='horizontal', fontsize=14)
-    ax2.yaxis.set_label_coords(-0.1,1.02)
 
     ## ax3
-    ax3.set_yscale('log')
-    ax3.set_xscale('log')
-    ax3.plot(K, K, linestyle="--", color="black",label='$K_{ref}$')
-    ### K = 0.001
-    ax3.plot(K_ref, K_1_inf, color='blue', label='$K_{inf}$')
-    ax3.scatter(K_ref, K_1_inf, marker="^", color='blue', s=80)
-    ### K = 0.01
-    ax3.plot(K_ref, K_2_inf, color='blue', label='$K_{inf}$')
-    ax3.scatter(K_ref, K_2_inf, marker="^", color='red', s=80)
-    ### K = 1    
-    ax3.plot(K_ref, K_3_inf, color='blue', label='$K_{inf}$')
-    ax3.scatter(K_ref, K_3_inf, marker="^", color='cyan', s=80)
-    ### K = 100
-    ax3.plot(K_ref, K_4_inf, color='blue', label='$K_{inf}$')
-    ax3.scatter(K_ref, K_4_inf, marker="^", color='purple', s=80)
-
-    ax3.set_xlabel('$K_{ref}$', fontsize=14)
-    ax3.set_ylabel('$K_{inf}$', fontsize=14)
-    ax3.set_xticks(K_ref)
-    ax3.set_yticks(K_ref)
+    h3, = ax3.plot(noise_level, err_phi, color="blue", label='$\epsilon_{\phi}$')
+    ax3.scatter(noise_level, err_phi, color="blue")
+    # ax3.plot(noise_level, err_v, color="red", label='$\epsilon_{v}$')
+    ax3.set_xlabel('noise level', fontsize=14)
+    ax3.set_ylabel('$\epsilon_{\phi}$', fontsize=14, rotation='horizontal')
     ax3.set_title('(c)')
-    ax3.grid()
-    ax3.legend(loc="best")
-    ax3.set_aspect('equal')
-    ax3.set_ylabel("$K_{inf}$", color='black', rotation='horizontal', fontsize=14)
-    ax3.yaxis.set_label_coords(0.0,1.0)
+    ax3.set_xlim([0, 0.2])
+    ax3.set_ylim([0, 0.003])
+    ax3.yaxis.set_label_coords(0.0,1.02)
+    
+    ax4 = ax3.twinx()
+    h4, = ax4.plot(noise_level, err_v, color="red", label='$\epsilon_{v}$')
+    ax4.scatter(noise_level, err_v, color="red")
+    ax4.set_ylabel('$\epsilon_{v}$',fontsize=14, rotation='horizontal')
+    # ax4.set_aspect('auto')
+    ax4.set_ylim([0, 0.25])
+    ax4.yaxis.set_label_coords(1.0,1.08)
+    ax4.legend(handles=[h3, h4],fontsize=14)
+    
 
-    ## ax4
-    v_phi = np.linspace(-1, 1, 3)[:,None]
-    v_error = np.linspace(0, 0.1, 3)[:,None]
-
-    ax4.axis('off') 
-    h = ax4.imshow(phi_ref[-1, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    h.set_clim(vmin=-1, vmax=1)
-    axins = inset_axes(ax4,
-                width="100%",  # width = 5% of parent_bbox width
-                height="10%",  # height : 50%
-                loc='lower center',
-                borderpad=-1,
-                )
-    ax4.set_title('$\phi_{ref}$')
-    fig.colorbar(h, ax=ax4, ticks=v_phi, cax = axins, orientation='horizontal')
-    # ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
-
-    ## ax5
-    ax5.axis('off') 
-    h = ax5.imshow(phi_inf[-1, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    h.set_clim(vmin=-1, vmax=1)
-    axins = inset_axes(ax5,
-                width="100%",  # width = 5% of parent_bbox width
-                height="10%",  # height : 50%
-                loc='lower center',
-                borderpad=-1,
-                )
-    ax5.set_title('$\phi_{inf}$')
-    fig.colorbar(h, ax=ax5, ticks=v_phi, cax = axins, orientation='horizontal')
-
-    ## ax6
-    ax6.axis('off') 
-    h = ax6.imshow(np.abs(phi_inf[-1, :, :] - phi_ref[-1, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    h.set_clim(vmin=0, vmax=0.1)
-    axins = inset_axes(ax6,
-                width="100%",  # width = 5% of parent_bbox width
-                height="10%",  # height : 50%
-                loc='lower center',
-                borderpad=-1,
-                )
-    ax6.set_title('$\epsilon_{\phi}$')
-    fig.colorbar(h, ax=ax6, ticks=v_error, cax = axins, orientation='horizontal')
-
-    ## ax7
-    ax7.axis('off') 
-    v_velocity = np.linspace(0, 0.5, 3)[:,None]
-    h = ax7.imshow(vel_inf[-1, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    h.set_clim(vmin=0, vmax=0.5)
-    axins = inset_axes(ax7,
-                width="100%",  # width = 5% of parent_bbox width
-                height="10%",  # height : 50%
-                loc='lower center',
-                borderpad=-1,
-                )
-    ax7.set_title('$v_{ref}$')
-    fig.colorbar(h, ax=ax7, ticks=v_velocity, cax = axins, orientation='horizontal')
-
-    ## ax8
-    ax8.axis('off') 
-    h = ax8.imshow(vel_ref[-1, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    h.set_clim(vmin=0, vmax=0.5)
-    axins = inset_axes(ax8,
-                width="100%",  # width = 5% of parent_bbox width
-                height="10%",  # height : 50%
-                loc='lower center',
-                borderpad=-1,
-                )
-    ax8.set_title('$v_{inf}$')
-    fig.colorbar(h, ax=ax8, ticks=v_velocity, cax=axins, orientation='horizontal')
-
-    ## ax9
-    ax9.axis('off') 
-    h = ax9.imshow(np.abs(vel_inf[-1, :, :]-vel_ref[-1, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    h.set_clim(vmin=0, vmax=0.1)
-    axins = inset_axes(ax9,
-                width="100%",  # width = 5% of parent_bbox width
-                height="10%",  # height : 50%
-                loc='lower center',
-                borderpad=-1,
-                )
-    ax9.set_title('$\epsilon_{v}$')
-    fig.colorbar(h, ax=ax9, ticks=v_error, cax=axins, orientation='horizontal')
-
-    plt.gcf().text(0.1, 0.45, "(d)", fontsize=14)
-
-    fig.savefig('fig_6.png')
+    plt.tight_layout()
+    fig.savefig('fig_8.png')
     plt.close()
-"""
+
 
 if __name__ == '__main__':
     main()

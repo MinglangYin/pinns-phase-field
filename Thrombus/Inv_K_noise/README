@@ -2,8 +2,13 @@
 
 K = 0.01, num_pts = 10000
 
-test_1: noise level 0
-test_2: noise level 0.05
-test_3: noise level 0.10
-test_4: noise level 0.15
-test_5: noise level 0.20
+test_1: noise level 0 		Loss: 0.0058	K: 0.0031	err_v:0.0193	err_phi:0.0003
+test_2: noise level 0.05	Loss: 0.0061 	K: 0.0049	err_v:0.1825	err_phi:0.0009
+test_3: noise level 0.10	Loss: 0.0109	K: 0.0060	err_v:0.09	err_phi:0.0008
+test_4: noise level 0.15	Loss: 0.0161	K: 0.0054	err_v:0.1509	err_phi:0.0007
+test_5: noise level 0.20	Loss: 0.0277	K: 0.0051	err_v:0.1998	err_phi:0.0011
+
+test_6: noise level 0.05	Loss: 0.0048	K: 0.0861
+test_7: noise level 0.10	Loss: 0.0137	K: 0.0058
+test_8: noise level 0.15	Loss: 0.0250	K: 0.0053
+test_9: noise level 0.20	Loss: 0.0461	K: 0.0431

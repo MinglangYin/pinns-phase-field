@@ -122,7 +122,7 @@ def main():
     a = to_numpy(model.a)
     b = to_numpy(model.b)
     # c = to_numpy(model.c)
-    c = 1
+    c = 0.7
     d = to_numpy(model.d)
     x = np.linspace(-1, 1, 101)
     K_inf = a*np.tanh(b*x + c) + d
@@ -132,7 +132,7 @@ def main():
     loss = np.loadtxt('../Inv_K/test_10/loss.his')
 
     ## plotting
-    fig = plt.figure(constrained_layout=False, figsize=(9, 6))
+    fig = plt.figure(constrained_layout=False, figsize=(9, 9))
     gs = fig.add_gridspec(2, 1)
 
     gs0 = gs[0].subgridspec(1, 2)
@@ -153,6 +153,11 @@ def main():
     ax1.plot(loss, color="blue",label='$Loss$')
     ax1.set_yscale('log')
     ax1.set_title('(a)')
+    ax1.set_xticks(np.linspace(0, 300000, 4))
+    ax1.set_xlim([0, 300000])
+    # ax1.set_aspect((300000/1000), adjustable='box')
+    ax1.set_xlabel('epoches', fontsize=14)
+    ax1.set_ylabel('Loss', fontsize=14)
 
     ## plot [0, 0]]
     ax2.step(x, K_step, linestyle="--", color="black",label='$K_{ref}$')
@@ -165,6 +170,7 @@ def main():
     ax2.set_title('(b)')
     ax2.grid()
     ax2.legend(loc="best")
+    ax2.set_aspect(2)
 
     ## ax3
     v_phi = np.linspace(-1, 1, 3)[:,None]
@@ -212,7 +218,7 @@ def main():
     ## ax6
     ax6.axis('off') 
     v_velocity = np.linspace(0, 0.5, 3)[:,None]
-    h = ax6.imshow(vel_pred[-1, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h = ax6.imshow(vel_pred[-25, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
     h.set_clim(vmin=0, vmax=0.5)
     axins = inset_axes(ax6,
                 width="100%",  # width = 5% of parent_bbox width
@@ -225,7 +231,7 @@ def main():
 
     ## ax7
     ax7.axis('off') 
-    h = ax7.imshow(vel_ref[-1, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h = ax7.imshow(vel_ref[-25, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
     h.set_clim(vmin=0, vmax=0.5)
     axins = inset_axes(ax7,
                 width="100%",  # width = 5% of parent_bbox width
@@ -238,7 +244,7 @@ def main():
 
     ## ax8
     ax8.axis('off') 
-    h = ax8.imshow(np.abs(vel_pred[-1, :, :]-vel_ref[-1, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h = ax8.imshow(np.abs(vel_pred[-25, :, :]-vel_ref[-10, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
     h.set_clim(vmin=0, vmax=0.1)
     axins = inset_axes(ax8,
                 width="100%",  # width = 5% of parent_bbox width
