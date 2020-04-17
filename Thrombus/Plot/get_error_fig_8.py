@@ -48,12 +48,12 @@ def get_relative_l2_error(data_inf, data_ref):
     ## data_inf and data_ref have the same size (num_t, num_x, num_y)
     [num_t, num_x, num_y] = data_inf.shape
     error = np.zeros(num_t)
+    var = data_ref.var()
     for t in range(0, num_t):
-        var = data_ref[t].var()
         err = ((data_inf[t] - data_ref[t])**2).mean()
         error[t] = err/var
-    
     return error
+
 
 ## get_relative_l2_error
 def get_l2_error(data_inf, data_ref):
@@ -78,7 +78,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    model_path = '../Inv_K/test_2/CheckPts/model_chkpts.pt'
+    model_path = '../Inv_K_noise/test_5/CheckPts/model_chkpts.pt'
 
     file_start = 0
     file_end = 20
@@ -148,15 +148,15 @@ def main():
     l2_error = get_relative_l2_error(vel_inf, vel_ref)
     # print(f'relative l2 error (vel): {l2_error}')
     print(f'mean relative l2 error (vel): {l2_error.mean()}')
-    l2_error = get_l2_error(vel_inf, vel_ref)
+    # l2_error = get_l2_error(vel_inf, vel_ref)
     # print(f'relative l2 error (vel): {l2_error}')
-    print(f'mean l2 error (vel): {l2_error.mean()}')
+    # print(f'mean l2 error (vel): {l2_error.mean()}')
     l2_error = get_relative_l2_error(phi_inf, phi_ref)
     # print(f'relative l2 error (phi): {l2_error}')
     print(f'mean relative l2 error (phi): {l2_error.mean()}')
-    l2_error = get_l2_error(phi_inf, phi_ref)
+    # l2_error = get_l2_error(phi_inf, phi_ref)
     # print(f'relative l2 error (phi): {l2_error}')
-    print(f'mean l2 error (phi): {l2_error.mean()}')
+    # print(f'mean l2 error (phi): {l2_error.mean()}')
 
 if __name__ == '__main__':
     main()

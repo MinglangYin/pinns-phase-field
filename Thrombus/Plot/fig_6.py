@@ -119,11 +119,16 @@ def main():
         vel_ref[i, :, :] = np.sqrt(y_data[0, i, :, :]**2 + y_data[1, i, :, :]**2)
 
     ## figure
-    a = to_numpy(model.a)
-    b = to_numpy(model.b)
+    # a = to_numpy(model.a)
+    # b = to_numpy(model.b)
     # c = to_numpy(model.c)
-    c = 0.7
-    d = to_numpy(model.d)
+    # d = to_numpy(model.d)
+
+    a = 0.4931
+    b = 4.3415
+    c = 0.5448
+    d = 0.4941
+
     x = np.linspace(-1, 1, 101)
     K_inf = a*np.tanh(b*x + c) + d
     K_step = np.zeros((101))
@@ -132,7 +137,7 @@ def main():
     loss = np.loadtxt('../Inv_K/test_10/loss.his')
 
     ## plotting
-    fig = plt.figure(constrained_layout=False, figsize=(9, 9))
+    fig = plt.figure(constrained_layout=False, figsize=(9, 8))
     gs = fig.add_gridspec(2, 1)
 
     gs0 = gs[0].subgridspec(1, 2)
@@ -156,17 +161,19 @@ def main():
     ax1.set_xticks(np.linspace(0, 300000, 4))
     ax1.set_xlim([0, 300000])
     # ax1.set_aspect((300000/1000), adjustable='box')
-    ax1.set_xlabel('epoches', fontsize=14)
-    ax1.set_ylabel('Loss', fontsize=14)
+    ax1.set_xlabel('epoches', fontsize=18)
+    ax1.set_ylabel('Loss', fontsize=18, rotation="horizontal")
+    ax1.yaxis.set_label_coords(0.0,1.02)
 
     ## plot [0, 0]]
     ax2.step(x, K_step, linestyle="--", color="black",label='$K_{ref}$')
     ax2.plot(x, K_inf, linestyle="-", color="blue",label='$K_{inf}$')
 
-    ax2.set_xlabel('$\phi$', fontsize=14)
-    ax2.set_ylabel('$K$', fontsize=14)
+    ax2.set_xlabel('$\phi$', fontsize=18)
+    ax2.set_ylabel('$K$', fontsize=18, rotation="horizontal")
     # ax2.set_xticks(K_ref)
     # ax2.set_yticks(K_ref)
+    ax2.yaxis.set_label_coords(0.0,1.02)
     ax2.set_title('(b)')
     ax2.grid()
     ax2.legend(loc="best")
@@ -185,7 +192,7 @@ def main():
                 loc='lower center',
                 borderpad=-1,
                 )
-    ax3.set_title('$\phi_{ref}$')
+    ax3.set_title('$\phi_{ref}$', fontsize=18)
     fig.colorbar(h, ax=ax3, ticks=v_phi, cax = axins, orientation='horizontal')
     # ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
 
@@ -199,7 +206,7 @@ def main():
                 loc='lower center',
                 borderpad=-1,
                 )
-    ax4.set_title('$\phi_{inf}$')
+    ax4.set_title('$\phi_{pred}$', fontsize=18)
     fig.colorbar(h, ax=ax4, ticks=v_phi, cax = axins, orientation='horizontal')
 
     ## ax5
@@ -212,7 +219,7 @@ def main():
                 loc='lower center',
                 borderpad=-1,
                 )
-    ax5.set_title('$\epsilon_{\phi}$')
+    ax5.set_title('$\epsilon_{\phi}$', fontsize=18)
     fig.colorbar(h, ax=ax5, ticks=v_error, cax = axins, orientation='horizontal')
 
     ## ax6
@@ -226,7 +233,7 @@ def main():
                 loc='lower center',
                 borderpad=-1,
                 )
-    ax6.set_title('$v_{ref}$')
+    ax6.set_title('$v_{ref}$', fontsize=18)
     fig.colorbar(h, ax=ax6, ticks=v_velocity, cax = axins, orientation='horizontal')
 
     ## ax7
@@ -239,7 +246,7 @@ def main():
                 loc='lower center',
                 borderpad=-1,
                 )
-    ax7.set_title('$v_{inf}$')
+    ax7.set_title('$v_{pred}$', fontsize=18)
     fig.colorbar(h, ax=ax7, ticks=v_velocity, cax=axins, orientation='horizontal')
 
     ## ax8
@@ -252,7 +259,7 @@ def main():
                 loc='lower center',
                 borderpad=-1,
                 )
-    ax8.set_title('$\epsilon_{v}$')
+    ax8.set_title('$\epsilon_{v}$', fontsize=18)
     fig.colorbar(h, ax=ax8, ticks=v_error, cax=axins, orientation='horizontal')
 
     plt.gcf().text(0.05, 0.45, "(c)", fontsize=14)

@@ -1,32 +1,38 @@
 # Inference of permeability and its dependency on the number of data
 
 ## K = 0.001			
-test_1: num_pts: 100		loss:		K:
-test_2: num_pts: 2500		loss:		K: 
-test_3: num_pts: 5000		loss:		K:
-test_4: num_pts: 10000		loss:		K:
-test_5: num_pts: 20000		loss:		K:
-test_6: num_pts: 30000		loss:		K:
-test_7: num_pts: 40000		loss:		K:
+test_1: num_pts: 100		loss:8.3247e-04		K:0.0056
+test_2: num_pts: 2500		loss:0.0051		K:0.0016 
+test_3: num_pts: 5000		loss:0.0040		K:0.0018
+test_4: num_pts: 10000		loss:0.0030		K:0.0015
+test_5: num_pts: 20000		loss:0.0031		K:0.0016
+test_6: num_pts: 30000		loss:0.0032		K:0.0016
+test_7: num_pts: 40000		loss:0.0031		K:0.0016
 
 ## K = 0.01
-test_11: num_pts: 100		loss: 		K: 
-test_12: num_pts: 2500		loss:		K: 
-test_13: num_pts: 5000		loss:		K: 
-test_14: num_pts: 10000		loss:		K:
-test_15: num_pts: 20000		loss:		K:
+test_11: num_pts: 100		loss:6.2952e-04 	K:0.0071 
+test_12: num_pts: 2500		loss:0.0017		K:0.0061 
+test_13: num_pts: 5000		loss:0.0013		K:0.0057 
+test_14: num_pts: 10000		loss:0.0013		K:0.0060
+test_15: num_pts: 20000		loss:0.0015		K:0.0059
+test_16: num_pts: 30000		loss:0.0017		K:0.0060
+test_17: num_pts: 40000		loss:0.0017		K:0.0059
 
 ## K = 1
-test_21: num_pts: 100		loss:4.4442e-04		K:0.0898 
-test_22: num_pts: 2500		loss:0.0038 		K:0.1503 
-test_23: num_pts: 5000		loss:0.0010 		K:0.1392 
-test_24: num_pts: 10000		loss:0.0011 		K:0.1334 
-test_25: num_pts: 20000		loss:0.0010		K:0.1131
+test_21: num_pts: 100		loss:2.4440e-04		K:33.7858
+test_22: num_pts: 2500		loss:0.0011		K:2.4510
+test_23: num_pts: 5000		loss:3.6277e-04 	K:0.8944
+test_24: num_pts: 10000		loss:4.7060e-04 	K:0.6366
+test_25: num_pts: 20000		loss:5.0855e-04		K:1.4161
+test_26: num_pts: 30000		loss:0.0013		K:1.1031
+test_27: num_pts: 40000		loss:8.0593e-04		K:0.9322
 
 ## K = 100
-test_31: num_pts: 100		loss:2.4756e-04		K:0.0906 
-test_32: num_pts: 2500		loss:0.0022 		K:0.2041 
-test_33: num_pts: 5000		loss:0.0011  		K:0.1843
-test_34: num_pts: 10000		loss:0.0012 		K:0.1234 
-test_35: num_pts: 20000		loss:0.0010		K:0.1832
+test_31: num_pts: 100		loss:2.7451e-04		K:0.4905 
+test_32: num_pts: 2500		loss:5.1456e-04 	K:57.3998 
+test_33: num_pts: 5000		loss:3.4138e-04  	K:64.2583
+test_34: num_pts: 10000		loss:3.5294e-04 	K:43.8522 
+test_35: num_pts: 20000		loss:6.6656e-04		K:53.4171
+test_36: num_pts: 30000		loss:3.4875e-04		K:61.8759
+test_37: num_pts: 40000		loss:3.8416e-04		K:68.5341
 

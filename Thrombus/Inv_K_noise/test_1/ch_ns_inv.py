@@ -34,15 +34,15 @@ import matplotlib
 matplotlib.use('Agg')
 
 
-# torch.manual_seed(123456)
-# np.random.seed(123456)
+torch.manual_seed(123456)
+np.random.seed(123456)
 
 h = 0.05
 lmd = 0.4*0.00010607
 tau = 1e-6
 rho = 1
 mu = 0.1
-# K = 0.01
+K = 1
 
 class Model(nn.Module):
     def __init__(self):
@@ -111,16 +111,17 @@ class Model(nn.Module):
 
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean()
 
-    def loss_data(self, x_data, phi_data):
+    def loss_data(self, x_data, u_data, v_data, p_data, phi_data):
         y = self.net_u(x_data)
-        phi = y[:, 3]
+        u, v, p, phi = y[:, 0], y[:, 1], y[:, 2], y[:, 3]
+        # print(f'(u - u_data)**2: {((u - u_data)**2).shape}')
 
         # print(f'loss_data u shape: {((u - u_data)**2).shape}')
         # print(f'loss_data v shape: {((v - v_data)**2).shape}')
         # print(f'loss_data p shape: {((p - p_data)**2).shape}')
         # print(f'loss_data phi shape: {((phi - phi_data)**2).shape}')
 
-        return ((phi - phi_data)**2).mean()
+        return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((p - p_data)**2).mean() + ((phi - phi_data)**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
         ## velocity inflow
@@ -166,6 +167,27 @@ class Model(nn.Module):
         
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() 
 
+def CH_2D_init(x_init):
+    ## u, v
+    u_init = np.zeros((x_init.shape[0]))
+    u_init = (1-x_init[:,2])*x_init[:,2]
+    v_init = np.zeros((x_init.shape[0]))
+
+    #########
+    x, y = symbols('x y')
+    phi = 0.5*(tanh((x**2 + y**2-0.3**2) / (sqrt(2)*0.01) ) + tanh( (x**2 + y**2-0.7**2) / (sqrt(2)*0.01)))
+    phi_x, phi_y = phi.diff(x), phi.diff(y)
+    phi_xx, phi_yy = phi_x.diff(x), phi_y.diff(y)
+
+    f_phi = lambdify([x, y], phi, 'numpy')
+    f_phi_xx = lambdify([x, y], phi_xx, 'numpy')
+    f_phi_yy = lambdify([x, y], phi_yy, 'numpy')
+
+    phi_init = f_phi(x_init[:,1], x_init[:,2])
+    w_init = -h**2*(f_phi_xx(x_init[:,1], x_init[:,2]) + f_phi_yy(x_init[:,1],x_init[:,2])) + (phi_init**3 - phi_init)
+
+    return u_init, v_init, phi_init, w_init
+
 def left_bound_vel(x):
     return 0.3*(2-x[:, 2])*x[:,2]
 
@@ -194,16 +216,15 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 300000
+    epochs = 400000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
     model_path = 'CheckPts/model_chkpts.pt'
     restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
-    noise_level = 0.0
 
-    file_start = 10
+    file_start = 0
     file_end = 20
     dt = 0.03
 
@@ -212,7 +233,7 @@ def main():
     num_t = file_end-file_start
     num_bh_train = 50   # number of sampling points on verticle boundary over time
     num_bv_train = 50   # number of sampling points on horizontal boundary over time
-    num_f_train = 10000   # inner sampling points
+    num_f_train = 30000   # inner sampling points
     num_i_train = 5000   # initial sampling points 
 
     x_min, x_max = 0, 6
@@ -223,7 +244,6 @@ def main():
     os.makedirs('InitConds', exist_ok=True)
     os.makedirs('Predictions', exist_ok=True)
     os.makedirs('CheckPts', exist_ok=True)
-    os.makedirs('Omega', exist_ok=True)
 
     ## load data file
     for file_id in range(file_start, file_end):
@@ -260,16 +280,12 @@ def main():
 
     ## initial condition
     inits = np.zeros((num_x1*num_x2, 4 ))
+
     inits[:,0] = u_init[:,0]
     inits[:,1] = v_init[:,0]
     inits[:,2] = p_init[:,0]
     inits[:,3] = phi_init[:,0]
     
-    ## Add noise
-    noise = np.random.normal(0, 1, size=y_data.shape[0])
-    y_data[:, 3] = np.clip(y_data[:, 3] + noise*noise_level, -1, 1)
-
-
     ## boundary condition
     x_l = np.concatenate((x1_grid[:,0][:,None],x2_grid[:,0][:,None]), axis=1)
     x_r = np.concatenate((x1_grid[:,-1][:,None], x2_grid[:,-1][:,None]), axis=1)
@@ -314,6 +330,9 @@ def main():
     phi_i_train = torch.tensor(phi_i_sample, dtype=torch.double).to(device)
 
     xt_f_train = torch.tensor(xt_f_sample, requires_grad=True, dtype=torch.double).to(device)
+    u_f_train = torch.tensor(u_f_sample, dtype=torch.double).to(device)
+    v_f_train = torch.tensor(v_f_sample, dtype=torch.double).to(device)
+    p_f_train = torch.tensor(p_f_sample, dtype=torch.double).to(device)
     phi_f_train = torch.tensor(phi_f_sample, dtype=torch.double).to(device)
     
     xt_l_train = torch.tensor(xt_l_sample, requires_grad=True, dtype=torch.double).to(device)
@@ -343,7 +362,7 @@ def main():
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
-            loss_data = model.loss_data(xt_f_train, phi_f_train)        
+            loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train)
             loss = loss_pde + loss_bc + loss_data + 100*loss_ic
@@ -374,20 +393,10 @@ def main():
 
     ## testing
     Predictions = np.zeros((5, num_t, num_x1, num_x2))
-    Omega_pred = np.zeros((num_t, num_x1*num_x2, 8))
-    
     for i in range(0, num_t):
         xt = np.concatenate((t[i]*np.ones((num_x1*num_x2, 1)), x_2d), axis=1)
         xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.double).to(device)
         y_pred = model(xt_tensor)
-
-        ## save data points
-        print(f'Saving omega step: {i}')
-        Omega_pred[i,:,0:3] = to_numpy(xt_tensor)
-        Omega_pred[i,:,3:] = to_numpy(y_pred)
-        tmp_name = './Omega/Omega_' + str(i) + '.dat'
-        np.savetxt(tmp_name, Omega_pred[i])
-
         for j in range(0, 5):
             Predictions[j, i, :, :] = to_numpy(y_pred[:, j]).reshape(num_x1, num_x2)
 
@@ -404,7 +413,7 @@ def main():
             line = np.linspace(xt.min(), xt.max(), 2)[:,None]
             fig.savefig(path_list[j]+str(i+1000)+'.png')
             plt.close()
-
+        
     np.savetxt('loss.his', loss_his)
     np.savetxt('K.his', K_his)
 

@@ -247,15 +247,15 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 300000
+    epochs = 800000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/', './Predictions/psi_1/', './Predictions/psi_2/']
     model_path = 'CheckPts/model_chkpts.pt'
-    restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
+    restart = 1 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
-    file_start = 0
+    file_start = 10
     file_end = 20
     dt = 0.06
 
@@ -264,8 +264,8 @@ def main():
     num_t = file_end-file_start
     num_bh_train = 800   # number of sampling points on verticle boundary over time
     num_bv_train = 800   # number of sampling points on horizontal boundary over time
-    num_f_train = 5000   # inner sampling points
-    num_ft_train = 5000 # sampling point around thrombus
+    num_f_train = 20000   # inner sampling points
+    num_ft_train = 10000 # sampling point around thrombus
     num_i_train = 5000   # initial sampling points 
 
     x_min, x_max = 0, 6

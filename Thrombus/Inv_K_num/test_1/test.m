@@ -13,5 +13,7 @@ loss = load('loss.his');
 figure()
 semilogy(loss)
 
+disp('K')
 K(find(loss == min(loss)))
+disp('loss')
 min(loss)

@@ -123,9 +123,8 @@ def main():
     noise_level = np.linspace(0, 0.2, 5)
     K_inf_text = ['0.006', '0.0049', '0.0060', '0.0054', '0.0051']
     Loss_inf_text = ['0.0058', '0.0061', '0.0109', '0.0161', '0.0277']
-    err_phi_text = ['0.0003', '0.0009', '0.0008', '0.0007', '0.0011']
-    err_v_text = ['0.0193', '0.1825', '0.0900', '0.1509', '0.1998']
-
+    err_phi_text = ['0.00027062720957780217', '0.0009604927461011088', '0.0008397013020615627', '0.0006931294143933145', '0.00112296667331825']
+    err_v_text = ['0.009788837434999784', '0.22144974885670984', '0.10303000123009362', '0.18072682246765978', '0.24376745571554478']
     K_inf, Loss_inf, err_phi, err_v = np.zeros((num_data)), np.zeros((num_data)), np.zeros((num_data)), np.zeros((num_data))
 
     for i in range(num_data):
@@ -146,8 +145,8 @@ def main():
     ax1.axhline(y=0.01, linestyle='--', color='black',  label='$K_{ref}$')
     ax1.plot(noise_level, K_inf, color='blue')
     ax1.scatter(noise_level, K_inf, color='blue', label='$K_{inf}$')
-    ax1.set_xlabel('noise level', fontsize=14)
-    ax1.set_ylabel("$K$", fontsize=14, rotation='horizontal')
+    ax1.set_xlabel('noise level', fontsize=18)
+    ax1.set_ylabel("$K$", fontsize=18, rotation='horizontal')
     ax1.set_xticks(noise_level)
     ax1.set_yticks(np.linspace(0, 0.02, 5))
     ax1.set_xlim([0, 0.2])
@@ -155,13 +154,13 @@ def main():
     ax1.set_title('(a)')
     ax1.set_aspect('auto')
     ax1.yaxis.set_label_coords(0.0,1.02)
-    ax1.legend()
+    ax1.legend(fontsize=14)
 
     ## ax2
     ax2.plot(noise_level, Loss_inf, color="blue")
     ax2.scatter(noise_level, Loss_inf, color="blue")
-    ax2.set_xlabel('noise level', fontsize=14)
-    ax2.set_ylabel('Loss', fontsize=14, rotation='horizontal')
+    ax2.set_xlabel('noise level', fontsize=18)
+    ax2.set_ylabel('Loss', fontsize=18, rotation='horizontal')
     ax2.set_xlim([0, 0.2])
     ax2.set_ylim([0, 0.03])
     ax2.set_xticks(noise_level)
@@ -174,8 +173,8 @@ def main():
     h3, = ax3.plot(noise_level, err_phi, color="blue", label='$\epsilon_{\phi}$')
     ax3.scatter(noise_level, err_phi, color="blue")
     # ax3.plot(noise_level, err_v, color="red", label='$\epsilon_{v}$')
-    ax3.set_xlabel('noise level', fontsize=14)
-    ax3.set_ylabel('$\epsilon_{\phi}$', fontsize=14, rotation='horizontal')
+    ax3.set_xlabel('noise level', fontsize=18)
+    ax3.set_ylabel('$\epsilon_{\phi}$', fontsize=18, rotation='horizontal')
     ax3.set_title('(c)')
     ax3.set_xlim([0, 0.2])
     ax3.set_ylim([0, 0.003])
@@ -184,11 +183,11 @@ def main():
     ax4 = ax3.twinx()
     h4, = ax4.plot(noise_level, err_v, color="red", label='$\epsilon_{v}$')
     ax4.scatter(noise_level, err_v, color="red")
-    ax4.set_ylabel('$\epsilon_{v}$',fontsize=14, rotation='horizontal')
+    ax4.set_ylabel('$\epsilon_{v}$',fontsize=18, rotation='horizontal')
     # ax4.set_aspect('auto')
     ax4.set_ylim([0, 0.25])
     ax4.yaxis.set_label_coords(1.0,1.08)
-    ax4.legend(handles=[h3, h4],fontsize=14)
+    ax4.legend(handles=[h3, h4],fontsize=14, loc='upper left')
     
 
     plt.tight_layout()

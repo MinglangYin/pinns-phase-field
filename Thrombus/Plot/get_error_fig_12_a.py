@@ -50,11 +50,10 @@ def get_relative_l2_error(data_inf, data_ref):
     ## data_inf and data_ref have the same size (num_t, num_x, num_y)
     [num_t, num_x, num_y] = data_inf.shape
     error = np.zeros(num_t)
+    var = data_ref.var()
     for t in range(0, num_t):
-        var = data_ref[t].var()
         err = ((data_inf[t] - data_ref[t])**2).mean()
         error[t] = err/var
-    
     return error
 
 ## get_relative_l2_error
@@ -122,42 +121,53 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
 
     ## loading model/optimizer state
-    checkpoint = torch.load(model_path)
-    model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    model_path = ['../Inv_L_1_num/test_5/CheckPts/model_chkpts.pt', 
+    '../Inv_L_1_num/test_6/CheckPts/model_chkpts.pt',
+    '../Inv_L_1_num/test_7/CheckPts/model_chkpts.pt', 
+    '../Inv_L_1_num/test_8/CheckPts/model_chkpts.pt']
 
-    ## testing
-    Predictions = np.zeros((7, num_t, num_x1, num_x2))
-    for i in range(0, num_t):
-        xt = np.concatenate((t[i]*np.ones((num_x1*num_x2, 1)), x_2d), axis=1)
-        xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.double).to(device)
-        y_pred = model(xt_tensor)
-        for j in range(0, 7):
-            Predictions[j, i, :, :] = to_numpy(y_pred[:, j]).reshape(num_x1, num_x2)
+    Predictions = np.zeros((4, 5, num_t, num_x1, num_x2))
+    for k in range (0, 4):
+        checkpoint = torch.load(model_path[k])
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+
+        ## testing
+        for i in range(0, num_t):
+            xt = np.concatenate((t[i]*np.ones((num_x1*num_x2, 1)), x_2d), axis=1)
+            xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.double).to(device)
+            y_pred = model(xt_tensor)
+            for j in range(0, 5):
+                Predictions[k, j, i, :, :] = to_numpy(y_pred[:, j]).reshape(num_x1, num_x2)
     
     ## v and phi
     phi_inf = np.zeros((num_t, num_x1, num_x2))
     phi_ref = np.zeros((num_t, num_x1, num_x2))
     vel_inf = np.zeros((num_t, num_x1, num_x2))
     vel_ref = np.zeros((num_t, num_x1, num_x2))
-    for i in range(0, num_t):
-        phi_inf[i, :, :] = Predictions[3, i, :, :]
-        phi_ref[i, :, :] = y_data[3, i, :, :]
-        vel_inf[i, :, :] = np.sqrt(Predictions[0, i, :, :]**2 + Predictions[1, i, :, :]**2)
-        vel_ref[i, :, :] = np.sqrt(y_data[0, i, :, :]**2 + y_data[1, i, :, :]**2)
+    for k in range(0, 4):
+        for i in range(0, num_t):
+            phi_inf[i, :, :] = Predictions[k, 3, i, :, :]
+            phi_ref[i, :, :] = y_data[3, i, :, :]
+            vel_inf[i, :, :] = np.sqrt(Predictions[k, 0, i, :, :]**2 + Predictions[k, 1, i, :, :]**2)
+            vel_ref[i, :, :] = np.sqrt(y_data[0, i, :, :]**2 + y_data[1, i, :, :]**2)
 
-    l2_error = get_relative_l2_error(vel_inf, vel_ref)
-    # print(f'relative l2 error (vel): {l2_error}')
-    print(f'mean relative l2 error (vel): {l2_error.mean()}')
-    l2_error = get_l2_error(vel_inf, vel_ref)
-    # print(f'relative l2 error (vel): {l2_error}')
-    print(f'mean l2 error (vel): {l2_error.mean()}')
-    l2_error = get_relative_l2_error(phi_inf, phi_ref)
-    # print(f'relative l2 error (phi): {l2_error}')
-    print(f'mean relative l2 error (phi): {l2_error.mean()}')
-    l2_error = get_l2_error(phi_inf, phi_ref)
-    # print(f'relative l2 error (phi): {l2_error}')
-    print(f'mean l2 error (phi): {l2_error.mean()}')
+        # l2_error = get_relative_l2_error(vel_inf, vel_ref)
+        # print(f'mean relative l2 error (vel): {l2_error}')
+        print(f'{k}')
+        l2_error = get_relative_l2_error(vel_inf, vel_ref)
+        print(f'mean relative l2 error (vel): {l2_error}')
+        l2_error = get_relative_l2_error(vel_inf, vel_ref)
+        print(f'mean relative l2 error (vel) full time: {l2_error.mean()}')
+        l2_error = get_relative_l2_error(vel_inf, vel_ref)
+        print(f'mean relative l2 error (vel) partial time: {l2_error[:10].mean()}')
+
+        l2_error = get_relative_l2_error(phi_inf, phi_ref)
+        print(f'mean relative l2 error (phi): {l2_error}')
+        l2_error = get_relative_l2_error(phi_inf, phi_ref)
+        print(f'mean relative l2 error (phi) full time: {l2_error.mean()}')
+        l2_error = get_relative_l2_error(phi_inf, phi_ref)
+        print(f'mean relative l2 error (phi) partial time: {l2_error[:10].mean()}')
 
 if __name__ == '__main__':
     main()
