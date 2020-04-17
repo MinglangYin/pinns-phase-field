@@ -51,7 +51,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    model_path = '../Inv_K/test_10/CheckPts/model_chkpts.pt'
+    model_path = '../../Inv_K/test_10/CheckPts/model_chkpts.pt'
 
     file_start = 0
     file_end = 30
@@ -69,8 +69,8 @@ def main():
     y_data = np.zeros((4, file_end-file_start, num_x1, num_x2))
     t_step = 0
     for file_id in range(file_start, file_end):
-        name_u = '../../Data/CH/phase_field_xiaoning/K_1_0001/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../Data/CH/phase_field_xiaoning/K_1_0001/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/K_1_0001/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_1_0001/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
@@ -134,25 +134,14 @@ def main():
     K_step = np.zeros((101))
     K_step[50:] = 1
 
-    loss = np.loadtxt('../Inv_K/test_10/loss.his')
+    loss = np.loadtxt('../../Inv_K/test_10/loss.his')
 
     ## plotting
-    fig = plt.figure(constrained_layout=False, figsize=(9, 8))
-    gs = fig.add_gridspec(2, 1)
-
+    fig = plt.figure(constrained_layout=True, figsize=(6, 3))
+    gs = fig.add_gridspec(1, 1)
     gs0 = gs[0].subgridspec(1, 2)
-    gs1 = gs[1].subgridspec(2, 3) 
-
     ax1 = fig.add_subplot(gs0[0, 0])
     ax2 = fig.add_subplot(gs0[0, 1])
-
-    ax3 = fig.add_subplot(gs1[0, 0])
-    ax4 = fig.add_subplot(gs1[0, 1])
-    ax5 = fig.add_subplot(gs1[0, 2])
-
-    ax6 = fig.add_subplot(gs1[1, 0])
-    ax7 = fig.add_subplot(gs1[1, 1])
-    ax8 = fig.add_subplot(gs1[1, 2])
 
     ## plot [0, 1]
     ax1.plot(loss, color="blue",label='$Loss$')
@@ -164,6 +153,7 @@ def main():
     ax1.set_xlabel('epoches', fontsize=18)
     ax1.set_ylabel('Loss', fontsize=18, rotation="horizontal")
     ax1.yaxis.set_label_coords(0.0,1.02)
+    ax1.set_aspect('auto')
 
     ## plot [0, 0]]
     ax2.step(x, K_step, linestyle="--", color="black",label='$K_{ref}$')
@@ -178,6 +168,19 @@ def main():
     ax2.grid()
     ax2.legend(loc="best")
     ax2.set_aspect(2)
+
+    fig.savefig('fig_K_phi.png')
+    plt.close()
+
+    ## fig 2
+    fig = plt.figure(constrained_layout=False, figsize=(12, 4))
+    gs1 = gs[0].subgridspec(2, 3) 
+    ax3 = fig.add_subplot(gs1[0, 0])
+    ax4 = fig.add_subplot(gs1[0, 1])
+    ax5 = fig.add_subplot(gs1[0, 2])
+    ax6 = fig.add_subplot(gs1[1, 0])
+    ax7 = fig.add_subplot(gs1[1, 1])
+    ax8 = fig.add_subplot(gs1[1, 2])
 
     ## ax3
     v_phi = np.linspace(-1, 1, 3)[:,None]
@@ -219,7 +222,7 @@ def main():
                 loc='lower center',
                 borderpad=-1,
                 )
-    ax5.set_title('$\epsilon_{\phi}$', fontsize=18)
+    ax5.set_title('$|\phi_{ref}-\phi_{pred}|$', fontsize=18)
     fig.colorbar(h, ax=ax5, ticks=v_error, cax = axins, orientation='horizontal')
 
     ## ax6
@@ -259,12 +262,13 @@ def main():
                 loc='lower center',
                 borderpad=-1,
                 )
-    ax8.set_title('$\epsilon_{v}$', fontsize=18)
+    ax8.set_title('$|v_{ref}-v_{pred}|$', fontsize=18)
     fig.colorbar(h, ax=ax8, ticks=v_error, cax=axins, orientation='horizontal')
 
-    plt.gcf().text(0.05, 0.45, "(c)", fontsize=14)
+    # plt.gcf().text(0.05, 0.45, "(c)", fontsize=18)
 
-    fig.savefig('fig_7.png')
+    # plt.tight_layout()
+    fig.savefig('fig_loss_K_phi.png')
     plt.close()
 
 if __name__ == '__main__':

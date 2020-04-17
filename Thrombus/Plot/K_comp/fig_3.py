@@ -1,18 +1,11 @@
 """
 Author: Minglang Yin
 """
-
-import sys
-import os
-sys.path.insert(0,'../../Utils')
-
 import torch
 import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-
-from plotting import newfig, savefig
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 import matplotlib
@@ -60,7 +53,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    model_path = '../Inv_K/test_5/CheckPts/model_chkpts.pt'
+    model_path = '../../Inv_K/test_8/CheckPts/model_chkpts.pt'
 
     file_start = 0
     file_end = 20
@@ -80,8 +73,8 @@ def main():
     y_data = np.zeros((4, file_end-file_start, num_x1, num_x2))
     t_step = 0
     for file_id in range(file_start, file_end):
-        name_u = '../../Data/CH/phase_field_xiaoning/K_001/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../Data/CH/phase_field_xiaoning/K_001/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/K_0001/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_0001/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
@@ -180,7 +173,7 @@ def main():
                 borderpad=-1,
                 )
     fig.colorbar(_h, ax=_ax, ticks=phi_error, cax = axins, orientation='horizontal')
-    _ax.set_title('$\epsilon_{\phi}$', fontsize=18)
+    _ax.set_title('$|\phi_{ref}-\phi_{pred}|$', fontsize=18)
 
     
     ## plotting velocity
@@ -229,7 +222,7 @@ def main():
                 borderpad=-1,
                 )
     fig.colorbar(_h, ax=_ax, ticks=vel_error, cax = axins, orientation='horizontal')
-    _ax.set_title('$\epsilon_{v}$', fontsize=18)
+    _ax.set_title('$|v_{ref}-v_{pred}|$', fontsize=18)
 
     plt.savefig('fig_3.png')
     plt.close()
