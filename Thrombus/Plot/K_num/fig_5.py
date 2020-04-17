@@ -10,7 +10,7 @@ def main():
     x = [1, 2, 3, 4, 5, 6, 7]
     num_data = 4
     ### inferred K
-    num_pt = ['100', '2500', '5000', '10000', '20000', '30000', '40000']
+    num_pt = ['5%', '7.5%', '10%', '15%', '25%', '35%', '45%']
 
     ## K = 0.001
     K0001_inf = [0.0056, 0.0016, 0.0018, 0.0015, 0.0016, 0.0016, 0.0016] 
@@ -59,7 +59,7 @@ def main():
     ax1.axhline(y=0.001, linestyle='--', color='black',  label='real $\kappa$')
     ax1.plot(x, K0001_inf, color='blue')
     ax1.scatter(x, K0001_inf, color='blue', label='$\kappa_{inf}$')
-    ax1.set_xlabel('number of training points', fontsize=18)
+    ax1.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
     ax1.set_ylabel("$\kappa$", fontsize=18, rotation='horizontal')
     ax1.set_xticks(np.arange(1, 8))
     ax1.set_xticklabels(num_pt)
@@ -75,7 +75,7 @@ def main():
     # ## ax2
     ax2.plot(x, K0001_err_v, color='blue')
     ax2.scatter(x, K0001_err_v, color='blue')
-    ax2.set_xlabel('number of training points', fontsize=18)
+    ax2.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
     ax2.set_ylabel("$\epsilon_{v}$", fontsize=18, rotation='horizontal')
     ax2.set_xticks(np.arange(1, 8))
     ax2.set_xticklabels(num_pt)
@@ -90,7 +90,7 @@ def main():
     # ## ax3
     ax3.plot(x, K0001_err_phi, color='blue')
     ax3.scatter(x, K0001_err_phi, color='blue')
-    ax3.set_xlabel('number of training points', fontsize=18)
+    ax3.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
     ax3.set_ylabel("$\epsilon_{\phi}$", fontsize=18, rotation='horizontal')
     ax3.set_xticks(np.arange(1, 8))
     ax3.set_xticklabels(num_pt)
@@ -106,7 +106,7 @@ def main():
     ax4.axhline(y=0.01, linestyle='--', color='black',  label='real $\kappa$')
     ax4.plot(x, K001_inf, color='blue')
     ax4.scatter(x, K001_inf, color='blue', label='$\kappa_{inf}$')
-    ax4.set_xlabel('number of training points', fontsize=18)
+    ax4.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
     ax4.set_ylabel("$\kappa$", fontsize=18, rotation='horizontal')
     ax4.set_xticks(np.arange(1, 8))
     ax4.set_xticklabels(num_pt)
@@ -122,7 +122,7 @@ def main():
     # ## ax5
     ax5.plot(x, K001_err_v, color='blue')
     ax5.scatter(x, K001_err_v, color='blue')
-    ax5.set_xlabel('number of training points', fontsize=18)
+    ax5.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
     ax5.set_ylabel("$\epsilon_{v}$", fontsize=18, rotation='horizontal')
     ax5.set_xticks(np.arange(1, 8))
     ax5.set_xticklabels(num_pt)
@@ -137,7 +137,7 @@ def main():
     # ## ax3
     ax6.plot(x, K001_err_phi, color='blue')
     ax6.scatter(x, K001_err_phi, color='blue')
-    ax6.set_xlabel('number of training points', fontsize=18)
+    ax6.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
     ax6.set_ylabel("$\epsilon_{\phi}$", fontsize=18, rotation='horizontal')
     ax6.set_xticks(np.arange(1, 8))
     ax6.set_xticklabels(num_pt)
@@ -154,7 +154,7 @@ def main():
     ax7.axhline(y=1, linestyle='--', color='black',  label='real $\kappa$')
     ax7.plot(x, K1_inf, color='blue')
     ax7.scatter(x, K1_inf, color='blue', label='$\kappa_{inf}$')
-    ax7.set_xlabel('number of training points', fontsize=18)
+    ax7.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
     ax7.set_ylabel("$\kappa$", fontsize=18, rotation='horizontal')
     ax7.set_xticks(np.arange(1, 8))
     ax7.set_xticklabels(num_pt)
@@ -170,7 +170,7 @@ def main():
     # ## ax8
     ax8.plot(x, K1_err_v, color='blue')
     ax8.scatter(x, K1_err_v, color='blue')
-    ax8.set_xlabel('number of training points', fontsize=18)
+    ax8.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
     ax8.set_ylabel("$\epsilon_{v}$", fontsize=18, rotation='horizontal')
     ax8.set_xticks(np.arange(1, 8))
     ax8.set_xticklabels(num_pt)
@@ -185,7 +185,7 @@ def main():
     # ## ax9
     ax9.plot(x, K1_err_phi, color='blue')
     ax9.scatter(x, K1_err_phi, color='blue')
-    ax9.set_xlabel('number of training points', fontsize=18)
+    ax9.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
     ax9.set_ylabel("$\epsilon_{\phi}$", fontsize=18, rotation='horizontal')
     ax9.set_xticks(np.arange(1, 8))
     ax9.set_xticklabels(num_pt)
@@ -202,7 +202,7 @@ def main():
     ax10.axhline(y=100, linestyle='--', color='black',  label='real $\kappa$')
     ax10.plot(x, K100_inf, color='blue')
     ax10.scatter(x, K100_inf, color='blue', label='$\kappa_{inf}$')
-    ax10.set_xlabel('number of training points', fontsize=18)
+    ax10.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
     ax10.set_ylabel("$\kappa$", fontsize=18, rotation='horizontal')
     ax10.set_xticks(np.arange(1, 8))
     ax10.set_xticklabels(num_pt)
@@ -218,7 +218,7 @@ def main():
     # ## ax8
     ax11.plot(x, K100_err_v, color='blue')
     ax11.scatter(x, K100_err_v, color='blue')
-    ax11.set_xlabel('number of training points', fontsize=18)
+    ax11.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
     ax11.set_ylabel("$\epsilon_{v}$", fontsize=18, rotation='horizontal')
     ax11.set_xticks(np.arange(1, 8))
     ax11.set_xticklabels(num_pt)
@@ -233,7 +233,7 @@ def main():
     # ## ax9
     ax12.plot(x, K100_err_phi, color='blue')
     ax12.scatter(x, K100_err_phi, color='blue')
-    ax12.set_xlabel('number of training points', fontsize=18)
+    ax12.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
     ax12.set_ylabel("$\epsilon_{\phi}$", fontsize=18, rotation='horizontal')
     ax12.set_xticks(np.arange(1, 8))
     ax12.set_xticklabels(num_pt)
@@ -246,10 +246,8 @@ def main():
     # ax3.legend()
 
     plt.tight_layout()
-    fig.savefig('fig_7.png')
+    fig.savefig('fig_5.png')
     plt.close()
-
-    
 
 
 if __name__ == '__main__':

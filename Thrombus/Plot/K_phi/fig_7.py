@@ -264,7 +264,7 @@ def main():
 
     plt.gcf().text(0.05, 0.45, "(c)", fontsize=14)
 
-    fig.savefig('fig_6.png')
+    fig.savefig('fig_7.png')
     plt.close()
 
 if __name__ == '__main__':
