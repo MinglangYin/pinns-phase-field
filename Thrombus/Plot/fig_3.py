@@ -60,12 +60,13 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    model_path = '../Inv_K/test_3/CheckPts/model_chkpts.pt'
+    model_path = '../Inv_K/test_5/CheckPts/model_chkpts.pt'
 
     file_start = 0
     file_end = 20
     dt = 0.03
     t_gap = 9
+    t_snap = 10
 
     num_x1 = 100
     num_x2 = 100
@@ -79,8 +80,8 @@ def main():
     y_data = np.zeros((4, file_end-file_start, num_x1, num_x2))
     t_step = 0
     for file_id in range(file_start, file_end):
-        name_u = '../../Data/CH/phase_field_xiaoning/K_0001/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../Data/CH/phase_field_xiaoning/K_0001/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../Data/CH/phase_field_xiaoning/K_001/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../Data/CH/phase_field_xiaoning/K_001/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
@@ -142,7 +143,7 @@ def main():
     ##ax1
     _ax = fig.add_subplot(_gs[0])
     _ax.axis('off') 
-    _h = _ax.imshow(phi_ref[-1, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    _h = _ax.imshow(phi_ref[t_snap, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
     _h.set_clim(vmin=-1, vmax=1)
     axins = inset_axes(_ax,
                 width="100%",
@@ -156,7 +157,7 @@ def main():
     ##ax2
     _ax = fig.add_subplot(_gs[1])
     _ax.axis('off') 
-    _h = _ax.imshow(phi_inf[-1, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    _h = _ax.imshow(phi_inf[t_snap, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
     _h.set_clim(vmin=-1, vmax=1)
     axins = inset_axes(_ax,
                 width="100%",
@@ -170,7 +171,7 @@ def main():
     ##ax3
     _ax = fig.add_subplot(_gs[2])
     _ax.axis('off') 
-    _h = _ax.imshow(np.abs(phi_ref[-1, :, :] - phi_inf[-1, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    _h = _ax.imshow(np.abs(phi_ref[t_snap, :, :] - phi_inf[t_snap, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
     _h.set_clim(vmin=0, vmax=0.1)
     axins = inset_axes(_ax,
                 width="100%",
@@ -183,16 +184,16 @@ def main():
 
     
     ## plotting velocity
-    vel_range = np.linspace(0, 0.3, 3)[:,None]
-    vel_error = np.linspace(0, 0.03, 3)[:,None]
+    vel_range = np.linspace(0, 0.4, 3)[:,None]
+    vel_error = np.linspace(0, 0.04, 3)[:,None]
 
     _gs = gs[1].subgridspec(1, 3)
 
     ##ax4
     _ax = fig.add_subplot(_gs[0])
     _ax.axis('off') 
-    _h = _ax.imshow(vel_ref[-1, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    _h.set_clim(vmin=0, vmax=0.3)
+    _h = _ax.imshow(vel_ref[t_snap, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    _h.set_clim(vmin=0, vmax=0.4)
     axins = inset_axes(_ax,
                 width="100%",
                 height="10%",
@@ -205,8 +206,8 @@ def main():
     ##ax5
     _ax = fig.add_subplot(_gs[1])
     _ax.axis('off') 
-    _h = _ax.imshow(vel_inf[-1, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    _h.set_clim(vmin=0, vmax=0.3)
+    _h = _ax.imshow(vel_inf[t_snap, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    _h.set_clim(vmin=0, vmax=0.4)
     axins = inset_axes(_ax,
                 width="100%",
                 height="10%",
@@ -219,8 +220,8 @@ def main():
     ##ax6
     _ax = fig.add_subplot(_gs[2])
     _ax.axis('off') 
-    _h = _ax.imshow(np.abs(vel_ref[-1, :, :] - vel_inf[-1, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    _h.set_clim(vmin=0, vmax=0.03)
+    _h = _ax.imshow(np.abs(vel_ref[t_snap, :, :] - vel_inf[t_snap, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    _h.set_clim(vmin=0, vmax=0.04)
     axins = inset_axes(_ax,
                 width="100%",
                 height="10%",
