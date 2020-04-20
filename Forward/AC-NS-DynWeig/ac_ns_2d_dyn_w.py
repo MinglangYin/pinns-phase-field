@@ -134,7 +134,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 30000
+    epochs = 20000
     lr = 0.001
 
     num_x = 100
