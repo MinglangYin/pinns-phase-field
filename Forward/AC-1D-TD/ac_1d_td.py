@@ -127,6 +127,7 @@ def main():
             loss = loss_pde + loss_bc + loss_ic
             print(f'epoch {epoch}: loss {loss:.6f} loss_pde {loss_pde:.6f}, loss_bc {loss_bc:.6f}, loss_ic {loss_ic:.6f}')
             loss.backward()
+            print(torch.cuda.memory_allocated())
             return loss
         loss = optimizer.step(closure)
         loss_value = loss.item() if not isinstance(loss, float) else loss
