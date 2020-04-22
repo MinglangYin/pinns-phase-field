@@ -434,10 +434,13 @@ def main():
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     
     ## training
-    loss_his = np.zeros((epochs,1))
+    loss_his = np.zeros((epochs,4))
     lmd_e_his = np.zeros((epochs,1))
 
-    def train(epoch):
+    print('start training...', flush=True)
+    tic = time.time()
+
+    for epoch in range(0, epochs):      
         model.train()
         print(model.lmd_e)
         def closure():
@@ -447,12 +450,17 @@ def main():
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_l_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
             loss = loss_pde + loss_bc + 5*loss_data + 5*loss_ic
+
+            loss_his[epoch,0] = to_numpy(loss_pde)
+            loss_his[epoch,1] = to_numpy(loss_bc)
+            loss_his[epoch,2] = to_numpy(loss_ic)
+            loss_his[epoch,3] = to_numpy(loss_data)
+
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
             return loss
         loss = optimizer.step(closure)
-        loss_value = loss.item() if not isinstance(loss, float) else loss
-        loss_his[epoch,0] = loss_value
+        # loss_value = loss.item() if not isinstance(loss, float) else loss
         lmd_e_his[epoch, 0] = to_numpy(model.lmd_e)
         # print(f'epoch {epoch}: loss {loss_value:.6f}')
         
@@ -465,10 +473,6 @@ def main():
                 'loss': loss
             }, model_path)
 
-    print('start training...', flush=True)
-    tic = time.time()
-    for epoch in range(0, epochs):    
-        train(epoch)
     toc = time.time()
     print(f'total training time: {int((toc-tic)/60)} min', flush=True)
 
