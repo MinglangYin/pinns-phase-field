@@ -16,9 +16,6 @@ test_10: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, phase, sampling around thrombu
 test_11: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, phase, sampling around thrombus, number of points: 20000, Prediction: 1.2464 new: 1.5486
 test_12: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, phase, sampling around thrombus, number of points: 30000, Prediction: 1.3618 new: 1.4635
 
-test_13: (Lmd_e_10) FFT-I, lmd_e, snapshot: 10-19, phase + velocity, sampling around thrombus, number of points: 10000, Prediction: 2.6319(lmd e sort of converged)
-
-
 
 
 
