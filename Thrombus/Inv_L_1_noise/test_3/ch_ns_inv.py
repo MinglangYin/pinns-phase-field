@@ -125,37 +125,12 @@ class Model(nn.Module):
         res_psi_x = psi_1_t + (u*psi_1_x + v*psi_1_y)
         res_psi_y = psi_2_t + (u*psi_2_x + v*psi_2_y)
 
-        # print(f'res_ns_x shape:{res_ns_x.shape}')
-        # print(f'res_ns_y shape:{res_ns_y.shape}')
-        # print(f'res_incomp shape:{res_incomp.shape}')
-        # print(f'res_w shape:{res_w.shape}')
-        # print(f'res_pf shape:{res_pf.shape}')
-        # print(f'res_psi_x shape:{res_psi_x.shape}')
-        # print(f'res_psi_y shape:{res_psi_y.shape}')
-
-        # print(f'res_ns_x: {(res_ns_x**2).mean()}')
-        # print(f'res_ns_y: {(res_ns_y**2).mean()}')
-        # print(f'res_psi_x: {(res_psi_x**2).mean()}')
-        # print(f'res_psi_y: {(res_psi_y**2).mean()}')
-        # print(f'res_pf: {(res_pf**2).mean()}')
-        # print(f'coh term: {((lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y))**2).mean()}')
-        # print(f'vis-elas term: {((self.lmd_e*(B_12_x + B_22_y))**2).mean()}')
-        # print(f'FSI term: {(mu*(1-phi)*u/(2*K)).mean()}')
-
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean() \
              + (res_psi_x**2).mean() + (res_psi_y**2).mean()
 
     def loss_data(self, x_data, u_data, v_data, phi_data):
         y_u = self.net_u(x_data)
         u, v, phi = y_u[:, 0], y_u[:, 1], y_u[:, 3]
-
-        # print(f'(u - u_data)**2: {((u - u_data)**2).shape}')
-        # print(f'loss_data u shape: {((u - u_data)**2).shape}')
-        # print(f'loss_data v shape: {((v - v_data)**2).shape}')
-        # print(f'loss_data p shape: {((p - p_data)**2).shape}')
-        # print(f'loss_data phi shape: {((phi - phi_data)**2).shape}')
-        # print(f'loss_data psi_1 shape: {((psi_1 - psi_1_data)**2).shape}')
-        # print(f'loss_data psi_2 shape: {((psi_2 - psi_2_data)**2).shape}')
 
         return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((phi - phi_data)**2).mean()
 
@@ -207,17 +182,6 @@ class Model(nn.Module):
         y_w_pred = self.net_w(x)
         u_i_pred, v_i_pred, p_i_pred, phi_i_pred = y_u_pred[:, 0][:,None], y_u_pred[:, 1][:,None], y_u_pred[:, 2][:,None], y_u_pred[:, 3][:,None]
         psi_1_i_pred, psi_2_i_pred = y_w_pred[:, 1][:,None], y_w_pred[:, 2][:,None]
-
-        # print(f'u_i_pred shape: {u_i_pred.shape}')
-        # print(f'u_i shape: {u_i.shape}')
-
-        # print(f'loss_ic_u: {((u_i_pred-u_i)**2).mean()}')
-        # print(f'loss_ic_v: {((v_i_pred-v_i)**2).mean()}')
-        # print(f'loss_ic_p: {((p_i_pred-p_i)**2).mean()}')
-        # print(f'loss_ic_phi: {((phi_i_pred-phi_i)**2).mean()}')
-        # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
-        # print(f'psi_1_loss: {((psi_1_i_pred-psi_1_i)**2).mean()}')
-        # print(f'psi_2_loss: {((psi_2_i_pred-psi_2_i)**2).mean()}')
         
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() \
             + ((phi_i_pred-phi_i)**2).mean() + ((psi_1_i_pred-psi_1_i)**2).mean() + ((psi_2_i_pred-psi_2_i)**2).mean()
@@ -309,7 +273,7 @@ def main():
     ## geometry
     x1 = np.linspace(x_min, x_max, num=num_x1)
     x2 = np.linspace(y_min, y_max, num=num_x2)
-    t = np.linspace(0.02+dt*file_start, 0.02+dt*(file_end-1), num=num_t+1)
+    t = np.linspace(0.02+dt*file_start, 0.02+dt*(file_end-1), num=num_t)
 
     x1_grid, x2_grid = np.meshgrid(x1, x2)
     x_2d = np.concatenate((x1_grid.flatten()[:,None], x2_grid.flatten()[:,None]), axis=1)
@@ -447,10 +411,13 @@ def main():
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     
     ## training
-    loss_his = np.zeros((epochs,1))
+    loss_his = np.zeros((epochs,4))
     lmd_e_his = np.zeros((epochs,1))
 
-    def train(epoch):
+    print('start training...', flush=True)
+    tic = time.time()
+
+    for epoch in range(0, epochs):      
         model.train()
         print(model.lmd_e)
         def closure():
@@ -460,12 +427,17 @@ def main():
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_l_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
             loss = loss_pde + loss_bc + 5*loss_data + 5*loss_ic
+
+            loss_his[epoch,0] = to_numpy(loss_pde)
+            loss_his[epoch,1] = to_numpy(loss_bc)
+            loss_his[epoch,2] = to_numpy(loss_ic)
+            loss_his[epoch,3] = to_numpy(loss_data)
+
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
             loss.backward()
             return loss
         loss = optimizer.step(closure)
-        loss_value = loss.item() if not isinstance(loss, float) else loss
-        loss_his[epoch,0] = loss_value
+        # loss_value = loss.item() if not isinstance(loss, float) else loss
         lmd_e_his[epoch, 0] = to_numpy(model.lmd_e)
         # print(f'epoch {epoch}: loss {loss_value:.6f}')
         
@@ -478,10 +450,6 @@ def main():
                 'loss': loss
             }, model_path)
 
-    print('start training...', flush=True)
-    tic = time.time()
-    for epoch in range(0, epochs):    
-        train(epoch)
     toc = time.time()
     print(f'total training time: {int((toc-tic)/60)} min', flush=True)
 
