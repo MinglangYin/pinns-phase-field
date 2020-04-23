@@ -25,6 +25,9 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import scipy.io
 
+import matplotlib
+matplotlib.use('Agg')
+
 from plotting import newfig, savefig
 
 torch.manual_seed(123456)
@@ -145,6 +148,11 @@ def main():
     num_i_train = 5000   # initial sampling points 
     num_t_train = 25
 
+    model_path = 'CheckPts/model_chkpts.pt'
+    os.makedirs('CheckPts', exist_ok=True)
+    restart = 1 # restart = 0: start from beginning, restart = 1: resuming training
+    check_step = 10000
+
     x = np.linspace(-1, 1, num=num_x)
     y = np.linspace(-1, 1, num=num_y)
     t = np.linspace(0, 5, num=num_t)[:, None]
@@ -244,12 +252,7 @@ def main():
     loss_his = np.zeros((epochs,1))
     a_old = 1
     b_old = 100
-    # def train(epoch):
-        
-    #     loss = optimizer.step(closure)
-    #     loss_value = loss.item() if not isinstance(loss, float) else loss
-    #     loss_his[epoch,0] = loss_value
-        # print(f'epoch {epoch}: loss {loss_value:.6f}')
+    
 
     print('start training...', flush=True)
     tic = time.time()
@@ -269,13 +272,13 @@ def main():
 
             loss_bc.backward(retain_graph=True)
             w_bc_grad = [weight_list[i].grad for i in range(len(weight_list))]
-            w_bc_grad_norm = np.mean([abs(to_numpy(w_pde_grad[i].detach()).flatten()).mean() for i in range(len(w_pde_grad))])
+            w_bc_grad_norm = np.mean([abs(to_numpy(w_bc_grad[i].detach()).flatten()).mean() for i in range(len(w_bc_grad))])
             print(w_bc_grad_norm)         
             optimizer.zero_grad()
             
             loss_ic.backward(retain_graph=True)
             w_ic_grad = [weight_list[i].grad for i in range(len(weight_list))]
-            w_ic_grad_norm = np.mean([abs(to_numpy(w_pde_grad[i].detach()).flatten()).mean() for i in range(len(w_pde_grad))])
+            w_ic_grad_norm = np.mean([abs(to_numpy(w_ic_grad[i].detach()).flatten()).mean() for i in range(len(w_ic_grad))])
             print(w_ic_grad_norm)         
             optimizer.zero_grad()
 
@@ -290,6 +293,17 @@ def main():
             return loss
         loss = optimizer.step(closure)
         loss_value = loss.item() if not isinstance(loss, float) else loss 
+
+        ## checkpoint saving
+        if (epoch+1)%check_step == 0:
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': loss
+            }, model_path)
+
+
     toc = time.time()
     print(f'total training time: {(toc-tic)/60.0:.2f}', flush=True)
 

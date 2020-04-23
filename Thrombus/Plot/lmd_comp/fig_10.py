@@ -58,12 +58,12 @@ def main():
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
     lr = 0.001
-    model_path = '../Inv_L/test_1/CheckPts/model_chkpts.pt'
+    model_path = '../../Inv_L/test_17/CheckPts/model_chkpts.pt'
 
     file_start = 0
-    file_end = 20
+    file_end = 10
     dt = 0.06
-    t_gap = 6
+    t_gap = 4
 
     num_x1 = 100
     num_x2 = 100
@@ -76,7 +76,7 @@ def main():
     ## geometry
     x1 = np.linspace(x_min, x_max, num=num_x1)
     x2 = np.linspace(y_min, y_max, num=num_x2)
-    t = np.linspace(0.02+dt*file_start, 0.02+dt*(file_end-1), num=num_t+1)
+    t = np.linspace(0.02+dt*file_start, 0.02+dt*(file_end-1), num=num_t)
 
     x1_grid, x2_grid = np.meshgrid(x1, x2)
     x_2d = np.concatenate((x1_grid.flatten()[:,None], x2_grid.flatten()[:,None]), axis=1)
@@ -85,8 +85,8 @@ def main():
     y_data = np.zeros((6, file_end-file_start, num_x1, num_x2))
     t_step = 0
     for file_id in range(file_start, file_end):
-        name_u = '../../Data/CH/phase_field_xiaoning/Lmd_e_10/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../Data/CH/phase_field_xiaoning/Lmd_e_10/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/Lmd_e_10_K_001/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/Lmd_e_10_K_001/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 

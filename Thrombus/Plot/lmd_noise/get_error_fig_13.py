@@ -80,7 +80,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    model_path = '../Inv_L_1_noise/test_5/CheckPts/model_chkpts.pt'
+    model_path = '../../Inv_L_1_noise/test_1/CheckPts/model_chkpts.pt'
 
     file_start = 0
     file_end = 20
@@ -98,8 +98,8 @@ def main():
     y_data = np.zeros((4, file_end-file_start, num_x1, num_x2))
     t_step = 0
     for file_id in range(file_start, file_end):
-        name_u = '../../Data/CH/phase_field_xiaoning/Lmd_e_10/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../Data/CH/phase_field_xiaoning/Lmd_e_10/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/Lmd_e_10/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/Lmd_e_10/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
@@ -148,17 +148,12 @@ def main():
         vel_ref[i, :, :] = np.sqrt(y_data[0, i, :, :]**2 + y_data[1, i, :, :]**2)
 
     l2_error = get_relative_l2_error(vel_inf, vel_ref)
-    # print(f'relative l2 error (vel): {l2_error}')
     print(f'mean relative l2 error (vel): {l2_error.mean()}')
-    l2_error = get_l2_error(vel_inf, vel_ref)
-    # print(f'relative l2 error (vel): {l2_error}')
-    print(f'mean l2 error (vel): {l2_error.mean()}')
+    print(f'mean relative l2 error (half vel): {l2_error[:10].mean()}')
+
     l2_error = get_relative_l2_error(phi_inf, phi_ref)
-    # print(f'relative l2 error (phi): {l2_error}')
     print(f'mean relative l2 error (phi): {l2_error.mean()}')
-    l2_error = get_l2_error(phi_inf, phi_ref)
-    # print(f'relative l2 error (phi): {l2_error}')
-    print(f'mean l2 error (phi): {l2_error.mean()}')
+    print(f'mean relative l2 error (half phi): {l2_error[:10].mean()}')
 
 if __name__ == '__main__':
     main()

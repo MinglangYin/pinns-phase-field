@@ -446,7 +446,6 @@ def main():
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     
-    
     ## training
     loss_his = np.zeros((epochs,4))
     lmd_e_his = np.zeros((epochs,1))
