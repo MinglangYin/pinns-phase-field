@@ -7,14 +7,14 @@ test_3: (Lmd_e_10_K_001), snapshot: 0-19, velo+phase+psi, number of points: 2000
 test_4: (Lmd_e_10_K_001), snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction: 11.1850 new: 10.2298
 
 test_5: (Lmd_e_10_K_001), snapshot: 0-19, phase + velocity, number of points: 100, Prediction: 7.9832 new: 5.4885
-test_6: (Lmd_e_10_K_001), snapshot: 0-19, phase + velocity, number of points: 10000, Prediction: 5.4431
-test_7: (Lmd_e_10_K_001), snapshot: 0-19, phase + velocity, number of points: 20000, Prediction: 4.8335
-test_8: (Lmd_e_10_K_001), snapshot: 0-19, phase + velocity, number of points: 30000. Prediction: 5.1053
+test_6: (Lmd_e_10_K_001), snapshot: 0-19, phase + velocity, number of points: 10000, Prediction: 6.6298
+test_7: (Lmd_e_10_K_001), snapshot: 0-19, phase + velocity, number of points: 20000, Prediction: 5.8524
+test_8: (Lmd_e_10_K_001), snapshot: 0-19, phase + velocity, number of points: 30000. Prediction: 5.6419
 
-test_9: (Lmd_e_10_K_001), snapshot: 0-19, phase, sampling around thrombus, number of points: 100, Prediction: 0.2300
-test_10: (Lmd_e_10_K_001), snapshot: 0-19, phase, sampling around thrombus, number of points: 10000, Prediction: 2.2079
-test_11: (Lmd_e_10_K_001), snapshot: 0-19, phase, sampling around thrombus, number of points: 20000, Prediction: 1.9436
-test_12: (Lmd_e_10_K_001), snapshot: 0-19, phase, sampling around thrombus, number of points: 30000, Prediction: 2.1127
+test_9: (Lmd_e_10_K_001), snapshot: 0-19, phase, sampling around thrombus, number of points: 100, Prediction: 0.2012
+test_10: (Lmd_e_10_K_001), snapshot: 0-19, phase, sampling around thrombus, number of points: 10000, Prediction: 2.5183
+test_11: (Lmd_e_10_K_001), snapshot: 0-19, phase, sampling around thrombus, number of points: 20000, Prediction: 2.2492
+test_12: (Lmd_e_10_K_001), snapshot: 0-19, phase, sampling around thrombus, number of points: 30000, Prediction: 2.1237
 
 test_13: (Lmd_e_10_K_001), snapshot: 0-19, phase + velocity, sampling around thrombus, number of points: 10000, Prediction: 4.5916(lmd e sort of converged)
 test_14: (Lmd_e_10_K_001), snapshot: 0-19, phase + velocity, sampling around thrombus, number of points: 30000, Prediction: 3.5791(lmd e sort of converged)
