@@ -14,6 +14,7 @@ Author: Minglang Yin
 """
 
 import sys
+import os
 sys.path.insert(0,'../../Utils')
 
 import torch
@@ -119,6 +120,14 @@ def to_numpy(input):
         raise TypeError('Unknown type of input, expected torch.Tensor or '\
             'np.ndarray, but got {}'.format(type(input)))
 
+def get_average(input):
+    for i in range(len(input)):
+        if i == 0:
+            w_arr = input[i]
+        else:
+            w_arr = np.concatenate((w_arr, input[i]))
+    return abs(w_arr.mean())
+
 def AC_2D_init(x):
     ## bubble
     u_init = np.zeros((x.shape[0]))
@@ -137,7 +146,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 20000
+    epochs = 1
     lr = 0.001
 
     num_x = 100
@@ -250,9 +259,8 @@ def main():
 
     # training
     loss_his = np.zeros((epochs,1))
-    a_old = 1
-    b_old = 100
-    
+    w_bc = 1
+    w_ic = 100
 
     print('start training...', flush=True)
     tic = time.time()
@@ -266,26 +274,26 @@ def main():
 
             loss_pde.backward(retain_graph=True)
             w_pde_grad = [weight_list[i].grad for i in range(len(weight_list))]
-            w_pde_grad_norm = np.mean([abs(to_numpy(w_pde_grad[i].detach()).flatten()).mean() for i in range(len(w_pde_grad))])
+            w_pde_grad_norm = get_average([to_numpy(w_pde_grad[i].detach()).flatten() for i in range(len(w_pde_grad))])
             print(w_pde_grad_norm)
             optimizer.zero_grad()
 
             loss_bc.backward(retain_graph=True)
             w_bc_grad = [weight_list[i].grad for i in range(len(weight_list))]
-            w_bc_grad_norm = np.mean([abs(to_numpy(w_bc_grad[i].detach()).flatten()).mean() for i in range(len(w_bc_grad))])
+            w_bc_grad_norm = get_average([to_numpy(w_bc_grad[i].detach()).flatten() for i in range(len(w_bc_grad))])
             print(w_bc_grad_norm)         
             optimizer.zero_grad()
             
             loss_ic.backward(retain_graph=True)
             w_ic_grad = [weight_list[i].grad for i in range(len(weight_list))]
-            w_ic_grad_norm = np.mean([abs(to_numpy(w_ic_grad[i].detach()).flatten()).mean() for i in range(len(w_ic_grad))])
+            w_ic_grad_norm = get_average([to_numpy(w_ic_grad[i].detach()).flatten() for i in range(len(w_ic_grad))])
             print(w_ic_grad_norm)         
             optimizer.zero_grad()
 
-            a = 0.9*a_old + 0.1*w_pde_grad_norm/(w_ic_grad_norm + epsilon)
-            b = 0.9*b_old + 0.1*w_pde_grad_norm/(w_bc_grad_norm + epsilon)
+            w_bc = 0.9*w_bc + 0.1*w_pde_grad_norm/(w_bc_grad_norm + epsilon)
+            w_ic = 0.9*w_ic + 0.1*w_pde_grad_norm/(w_ic_grad_norm + epsilon)
 
-            loss = loss_pde + a*loss_bc + b*loss_ic
+            loss = loss_pde + w_bc*loss_bc + w_ic*loss_ic
 
             # loss = loss_pde + loss_bc + loss_ic
             print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
