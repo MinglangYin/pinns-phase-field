@@ -8,9 +8,9 @@ Lmd_e_10(_K_001)
 
 
 ###########
-_test_1: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 48000, Prediction: 10.8885
+test_1: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 48000, Prediction: 10.8885
 test_2: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 48000, Prediction: 1.5784
-_test_3: (Lmd_e_10_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 48000, Prediction: 12.6921
+test_3: (Lmd_e_10_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 48000, Prediction: 12.6921
 test_4: (Lmd_e_10_K_001) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 48000, Prediction: 2.5286
 
 (Running)
@@ -33,19 +33,19 @@ test_9: (Lmd_e_10_K_001) FFT-I, lmd_e,K, snapshot: 0-19, velo+phase+psi, number 
 test_10: (Lmd_e_2) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:
 
 ########## important runs
-_test_11: (Lmd_e_10) w_data:50, lmd_e, snapshot: 0-19, velo+phase+psi, points: 30000, Prediction: 
+test_11: (Lmd_e_10) w_data:50, lmd_e, snapshot: 0-19, velo+phase+psi, points: 30000, Prediction: 
 test_12: (Lmd_e_10) dyn_w, lmd_e, snapshot: 0-19, velo+phase+psi, points: 30000, Prediction: 
-_test_13: (Lmd_e_10) w_data:50, lmd_e, snapshot: 0-19, velo+phase, points: 30000, Prediction: 
+test_13: (Lmd_e_10) w_data:50, lmd_e, snapshot: 0-19, velo+phase, points: 30000, Prediction: 
 test_14: (Lmd_e_10) dyn_w, lmd_e, snapshot: 0-19, velo+phase, points: 30000, Prediction: 
 
-_test_15: (Lmd_e_10_K_001) w_data:50, FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, points: 30000, Prediction:
+test_15: (Lmd_e_10_K_001) w_data:50, FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, points: 30000, Prediction:
 test_16: (Lmd_e_10_K_001) dyn_w, FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction: 
-_test_17: (Lmd_e_10_K_001) w_data:50, FFT-I, lmd_e, snapshot: 0-19, velo+phase, number of points: 30000, Prediction: 
+test_17: (Lmd_e_10_K_001) w_data:50, FFT-I, lmd_e, snapshot: 0-19, velo+phase, number of points: 30000, Prediction: 
 test_18: (Lmd_e_10_K_001) dyn_w,FFT-I, lmd_e, snapshot: 0-19, velo+phase, number of points: 30000, Prediction:
 
-_test_19: (Lmd_e_15_K_001), w_data:50, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:
+test_19: (Lmd_e_15_K_001), w_data:50, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:
 test_20: (Lmd_e_15_K_001), dyn_w, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:
-_test_21: (Lmd_e_15_K_001), w_data:50, lmd_e, snapshot: 0-19, velo+phase, number of points: 30000, Prediction:
+test_21: (Lmd_e_15_K_001), w_data:50, lmd_e, snapshot: 0-19, velo+phase, number of points: 30000, Prediction:
 test_22: (Lmd_e_15_K_001), dyn_w, lmd_e, snapshot: 0-19, velo+phase, number of points: 30000, Prediction:
 
 ########## visco-elastic membrane 
