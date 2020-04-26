@@ -13,5 +13,6 @@ loss = load('loss.his');
 figure()
 semilogy(loss)
 
-min(loss)
-lmd(find(loss == min(loss)))
+loss_all = sum(loss, 2);
+min(loss_all)
+lmd(find(loss_all == min(loss_all)))

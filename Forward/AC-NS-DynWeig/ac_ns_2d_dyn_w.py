@@ -28,7 +28,7 @@ import scipy.io
 
 import matplotlib
 matplotlib.use('Agg')
-
+from others import *
 from plotting import newfig, savefig
 
 torch.manual_seed(123456)
@@ -55,7 +55,7 @@ class Model(nn.Module):
         for num in range(2,10):
             self.net.add_module('linear_layer_%d' %(num), nn.Linear(20, 20))
             self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
-        self.net.add_module('linear_layer_50', nn.Linear(20, 4, bias=False))
+        self.net.add_module('linear_layer_50', nn.Linear(20, 4))
 
     def forward(self, x):
         return self.net(x)
@@ -123,10 +123,14 @@ def to_numpy(input):
 def get_average(input):
     for i in range(len(input)):
         if i == 0:
-            w_arr = input[i]
+            w_arr = abs(input[i])
         else:
-            w_arr = np.concatenate((w_arr, input[i]))
-    return abs(w_arr.mean())
+            w_arr = np.concatenate((w_arr, abs(input[i]) ))
+    return w_arr.mean()
+
+def get_max(input):
+    max_arr = [abs(input[i]).max() for i in range(len(input))]
+    return max(max_arr)
 
 def AC_2D_init(x):
     ## bubble
@@ -146,7 +150,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 1
+    epochs = 20000
     lr = 0.001
 
     num_x = 100
@@ -256,7 +260,6 @@ def main():
             if 'bias' in name:
                 bias_list.append(param)
 
-
     # training
     loss_his = np.zeros((epochs,1))
     w_bc = 1
@@ -266,41 +269,41 @@ def main():
     tic = time.time()
     for epoch in range(0, epochs):    
         model.train()
-        def closure():
-            optimizer.zero_grad()
-            loss_pde = model.loss_pde(xt_f_train)
-            loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train)
-            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train)
+        optimizer.zero_grad()
+        loss_pde = model.loss_pde(xt_f_train)
+        loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train)
+        loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, phi_i_train)
 
-            loss_pde.backward(retain_graph=True)
-            w_pde_grad = [weight_list[i].grad for i in range(len(weight_list))]
-            w_pde_grad_norm = get_average([to_numpy(w_pde_grad[i].detach()).flatten() for i in range(len(w_pde_grad))])
-            print(w_pde_grad_norm)
-            optimizer.zero_grad()
+        loss_pde.backward(retain_graph=True)
+        w_pde_grad = [weight_list[i].grad for i in range(len(weight_list))]
+        w_pde_grad_norm = get_max([to_numpy(w_pde_grad[i].detach()).flatten() for i in range(len(w_pde_grad))])
+        print(w_pde_grad_norm)
+        optimizer.zero_grad()
 
-            loss_bc.backward(retain_graph=True)
-            w_bc_grad = [weight_list[i].grad for i in range(len(weight_list))]
-            w_bc_grad_norm = get_average([to_numpy(w_bc_grad[i].detach()).flatten() for i in range(len(w_bc_grad))])
-            print(w_bc_grad_norm)         
-            optimizer.zero_grad()
-            
-            loss_ic.backward(retain_graph=True)
-            w_ic_grad = [weight_list[i].grad for i in range(len(weight_list))]
-            w_ic_grad_norm = get_average([to_numpy(w_ic_grad[i].detach()).flatten() for i in range(len(w_ic_grad))])
-            print(w_ic_grad_norm)         
-            optimizer.zero_grad()
+        loss_bc.backward(retain_graph=True)
+        w_bc_grad = [weight_list[i].grad for i in range(len(weight_list))]
+        w_bc_grad_norm = get_average([to_numpy(w_bc_grad[i].detach()).flatten() for i in range(len(w_bc_grad))])
+        print(w_bc_grad_norm)       
+        optimizer.zero_grad()
+        
+        loss_ic.backward(retain_graph=True)
+        w_ic_grad = [weight_list[i].grad for i in range(len(weight_list))]
+        w_ic_grad_norm = get_average([to_numpy(w_ic_grad[i].detach()).flatten() for i in range(len(w_ic_grad))])
+        print(w_ic_grad_norm)       
+        optimizer.zero_grad()
 
-            w_bc = 0.9*w_bc + 0.1*w_pde_grad_norm/(w_bc_grad_norm + epsilon)
-            w_ic = 0.9*w_ic + 0.1*w_pde_grad_norm/(w_ic_grad_norm + epsilon)
+        w_bc = 0.9*w_bc + 0.1*w_pde_grad_norm/(w_bc*w_bc_grad_norm + epsilon)
+        w_ic = 0.9*w_ic + 0.1*w_pde_grad_norm/(w_ic*w_ic_grad_norm + epsilon)
 
-            loss = loss_pde + w_bc*loss_bc + w_ic*loss_ic
+        print(f'w_bc: {w_bc}')
+        print(f'w_ic: {w_ic}')
 
-            # loss = loss_pde + loss_bc + loss_ic
-            print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
-            loss.backward()
-            return loss
-        loss = optimizer.step(closure)
-        loss_value = loss.item() if not isinstance(loss, float) else loss 
+        loss = loss_pde + w_bc*loss_bc + w_ic*loss_ic
+
+        # loss = loss_pde + loss_bc + loss_ic
+        print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}', flush=True)
+        loss.backward()
+        loss = optimizer.step()
 
         ## checkpoint saving
         if (epoch+1)%check_step == 0:

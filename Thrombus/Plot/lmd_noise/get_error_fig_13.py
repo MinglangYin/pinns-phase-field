@@ -80,7 +80,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    model_path = '../../Inv_L_1_noise/test_1/CheckPts/model_chkpts.pt'
+    model_path = '../../Inv_L_1_noise/test_5/CheckPts/model_chkpts.pt'
 
     file_start = 0
     file_end = 20
