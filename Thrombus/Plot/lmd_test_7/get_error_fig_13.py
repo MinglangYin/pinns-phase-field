@@ -114,7 +114,7 @@ def main():
     ## geometry
     x1 = np.linspace(x_min, x_max, num=num_x1)
     x2 = np.linspace(y_min, y_max, num=num_x2)
-    t = np.linspace(0.02+dt*file_start, 0.02+dt*(file_end-1), num=num_t+1)
+    t = np.linspace(0.02+dt*file_start, 0.02+dt*(file_end-1), num=num_t)
 
     x1_grid, x2_grid = np.meshgrid(x1, x2)
     x_2d = np.concatenate((x1_grid.flatten()[:,None], x2_grid.flatten()[:,None]), axis=1)

@@ -80,19 +80,18 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    model_path = '../Inv_L_1_num/test_12/CheckPts/model_chkpts.pt'
+    model_path = '../Inv_L_1_num/test_8/CheckPts/model_chkpts.pt'
 
     file_start = 0
     file_end = 20
     dt = 0.06
-    t_gap = 6
+    t_gap = 7
 
     num_x1 = 100
     num_x2 = 100
     num_t = file_end-file_start
 
     t = np.linspace(0.02+dt*file_start, 0.02+dt*(file_end-1), num=num_t)
-    print(t)
 
     x_min, x_max = 0, 6
     y_min, y_max = 0, 2
@@ -115,7 +114,7 @@ def main():
     ## geometry
     x1 = np.linspace(x_min, x_max, num=num_x1)
     x2 = np.linspace(y_min, y_max, num=num_x2)
-    t = np.linspace(0.02+dt*file_start, 0.02+dt*(file_end-1), num=num_t+1)
+    t = np.linspace(0.02+dt*file_start, 0.02+dt*(file_end-1), num=num_t)
 
     x1_grid, x2_grid = np.meshgrid(x1, x2)
     x_2d = np.concatenate((x1_grid.flatten()[:,None], x2_grid.flatten()[:,None]), axis=1)
@@ -126,10 +125,10 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
 
     ## loading model/optimizer state
-    model_path = ['../../Inv_L_1_num/test_1/CheckPts/model_chkpts.pt', 
-    '../../Inv_L_1_num/test_2/CheckPts/model_chkpts.pt',
-    '../../Inv_L_1_num/test_3/CheckPts/model_chkpts.pt', 
-    '../../Inv_L_1_num/test_4/CheckPts/model_chkpts.pt']
+    model_path = ['../../Inv_L_1_num/test_9/CheckPts/model_chkpts.pt', 
+    '../../Inv_L_1_num/test_10/CheckPts/model_chkpts.pt',
+    '../../Inv_L_1_num/test_11/CheckPts/model_chkpts.pt', 
+    '../../Inv_L_1_num/test_12/CheckPts/model_chkpts.pt']
 
     Predictions = np.zeros((4, 5, num_t, num_x1, num_x2))
     for k in range (0, 4):
@@ -150,7 +149,7 @@ def main():
     phi_ref = np.zeros((num_t, num_x1, num_x2))
     vel_inf = np.zeros((num_t, num_x1, num_x2))
     vel_ref = np.zeros((num_t, num_x1, num_x2))
-    for k in range(3, 4):
+    for k in range(0, 4):
         for i in range(0, num_t):
             phi_inf[i, :, :] = Predictions[k, 3, i, :, :]
             phi_ref[i, :, :] = y_data[3, i, :, :]
@@ -160,67 +159,67 @@ def main():
         # l2_error = get_relative_l2_error(vel_inf, vel_ref)
         # print(f'mean relative l2 error (vel): {l2_error}')
         print(f'{k}')
-        l2_error = get_relative_l2_error(vel_inf, vel_ref)
-        print(f'mean relative l2 error (vel): {l2_error}')
+        # l2_error = get_relative_l2_error(vel_inf, vel_ref)
+        # print(f'mean relative l2 error (vel): {l2_error}')
         l2_error = get_relative_l2_error(vel_inf, vel_ref)
         print(f'mean relative l2 error (vel) full time: {l2_error.mean()}')
         l2_error = get_relative_l2_error(vel_inf, vel_ref)
         print(f'mean relative l2 error (vel) partial time: {l2_error[:10].mean()}')
 
-        l2_error = get_relative_l2_error(phi_inf, phi_ref)
-        print(f'mean relative l2 error (phi): {l2_error}')
+        # l2_error = get_relative_l2_error(phi_inf, phi_ref)
+        # print(f'mean relative l2 error (phi): {l2_error}')
         l2_error = get_relative_l2_error(phi_inf, phi_ref)
         print(f'mean relative l2 error (phi) full time: {l2_error.mean()}')
         l2_error = get_relative_l2_error(phi_inf, phi_ref)
         print(f'mean relative l2 error (phi) partial time: {l2_error[:10].mean()}')
 
         ## plotting velocity
-        vel_range = np.linspace(0, 1.0, 3)[:,None]
-        vel_error = np.linspace(0, 0.1, 3)[:,None]
-        fig = plt.figure(constrained_layout=False, figsize=(9, 4.5))
-        gs = fig.add_gridspec(3, 1)
+        # vel_range = np.linspace(0, 1.0, 3)[:,None]
+        # vel_error = np.linspace(0, 0.1, 3)[:,None]
+        # fig = plt.figure(constrained_layout=False, figsize=(9, 4.5))
+        # gs = fig.add_gridspec(3, 1)
 
-        for i in range (0, 3):
-            _gs = gs[i].subgridspec(1, 3)
+        # for i in range (0, 3):
+        #     _gs = gs[i].subgridspec(1, 3)
 
-            _ax = fig.add_subplot(_gs[0])
-            _ax.axis('off') 
-            _h = _ax.imshow(vel_ref[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-            _h.set_clim(vmin=0, vmax=1.0)
-            axins = inset_axes(_ax,
-                        width="100%",
-                        height="10%",
-                        loc='lower center',
-                        borderpad=-1,
-                        )
-            fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
+        #     _ax = fig.add_subplot(_gs[0])
+        #     _ax.axis('off') 
+        #     _h = _ax.imshow(vel_ref[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        #     _h.set_clim(vmin=0, vmax=1.0)
+        #     axins = inset_axes(_ax,
+        #                 width="100%",
+        #                 height="10%",
+        #                 loc='lower center',
+        #                 borderpad=-1,
+        #                 )
+        #     fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
 
-            _ax = fig.add_subplot(_gs[1])
-            _ax.axis('off') 
-            _h = _ax.imshow(vel_inf[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-            _h.set_clim(vmin=0, vmax=1.0)
-            axins = inset_axes(_ax,
-                        width="100%",
-                        height="10%",
-                        loc='lower center',
-                        borderpad=-1,
-                        )
-            fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
+        #     _ax = fig.add_subplot(_gs[1])
+        #     _ax.axis('off') 
+        #     _h = _ax.imshow(vel_inf[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        #     _h.set_clim(vmin=0, vmax=1.0)
+        #     axins = inset_axes(_ax,
+        #                 width="100%",
+        #                 height="10%",
+        #                 loc='lower center',
+        #                 borderpad=-1,
+        #                 )
+        #     fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
 
-            _ax = fig.add_subplot(_gs[2])
-            _ax.axis('off') 
-            _h = _ax.imshow(np.abs(vel_ref[t_gap*i, :, :] - vel_inf[t_gap*i, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-            _h.set_clim(vmin=0, vmax=0.1)
-            axins = inset_axes(_ax,
-                        width="100%",
-                        height="10%",
-                        loc='lower center',
-                        borderpad=-1,
-                        )
-            fig.colorbar(_h, ax=_ax, ticks=vel_error, cax = axins, orientation='horizontal')
+        #     _ax = fig.add_subplot(_gs[2])
+        #     _ax.axis('off') 
+        #     _h = _ax.imshow(np.abs(vel_ref[t_gap*i, :, :] - vel_inf[t_gap*i, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        #     _h.set_clim(vmin=0, vmax=0.1)
+        #     axins = inset_axes(_ax,
+        #                 width="100%",
+        #                 height="10%",
+        #                 loc='lower center',
+        #                 borderpad=-1,
+        #                 )
+        #     fig.colorbar(_h, ax=_ax, ticks=vel_error, cax = axins, orientation='horizontal')
 
-        plt.savefig('fig_10_velo.png')
-        plt.close()
+        # plt.savefig('fig_10_velo.png')
+        # plt.close()
 
 if __name__ == '__main__':
     main()

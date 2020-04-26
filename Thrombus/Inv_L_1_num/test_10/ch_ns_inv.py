@@ -252,7 +252,7 @@ def main():
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/', './Predictions/psi_1/', './Predictions/psi_2/']
     model_path = 'CheckPts/model_chkpts.pt'
-    restart = 1 # restart = 0: start from beginning, restart = 1: resuming training
+    restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
     file_start = 0
@@ -307,7 +307,7 @@ def main():
     ## geometry
     x1 = np.linspace(x_min, x_max, num=num_x1)
     x2 = np.linspace(y_min, y_max, num=num_x2)
-    t = np.linspace(0.02+dt*file_start, 0.02+dt*(file_end-1), num=num_t+1)
+    t = np.linspace(0.02+dt*file_start, 0.02+dt*(file_end-1), num=num_t)
 
     x1_grid, x2_grid = np.meshgrid(x1, x2)
     x_2d = np.concatenate((x1_grid.flatten()[:,None], x2_grid.flatten()[:,None]), axis=1)
