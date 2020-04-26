@@ -18,14 +18,6 @@ rho = 1
 mu = 0.1
 K = 0.01
 
-h = 0.04
-lmd = 0.4*0.00010607
-#lmd_e = 0.5
-tau = 1e-6
-rho = 1
-mu = 0.1
-K = 0.01
-
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
@@ -83,9 +75,6 @@ def to_numpy(input):
         raise TypeError('Unknown type of input, expected torch.Tensor or '\
             'np.ndarray, but got {}'.format(type(input)))
 
-    case_2_err_v_1_text = ['2.8188', '0.6804', '0.6344', '0.6076']
-    case_2_err_phi_1_text = ['0.2493', '0.0231', '0.0208', '0.0172']
-
 def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
@@ -106,8 +95,8 @@ def main():
     y_data = np.zeros((4, file_end-file_start, num_x1, num_x2))
     t_step = 0
     for file_id in range(file_start, file_end):
-        name_u = '../../Data/CH/phase_field_xiaoning/Lmd_e_10_K_001/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../Data/CH/phase_field_xiaoning/Lmd_e_10_K_001/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/Lmd_e_10_K_001/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/Lmd_e_10_K_001/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
@@ -131,10 +120,10 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
 
     ## loading model/optimizer state
-    model_path = ['../Inv_L_2_num/test_1/CheckPts/model_chkpts.pt', 
-    '../Inv_L_2_num/test_2/CheckPts/model_chkpts.pt',
-    '../Inv_L_2_num/test_3/CheckPts/model_chkpts.pt', 
-    '../Inv_L_2_num/test_4/CheckPts/model_chkpts.pt']
+    model_path = ['../../Inv_L_2_num/test_9/CheckPts/model_chkpts.pt', 
+    '../../Inv_L_2_num/test_10/CheckPts/model_chkpts.pt',
+    '../../Inv_L_2_num/test_11/CheckPts/model_chkpts.pt', 
+    '../../Inv_L_2_num/test_12/CheckPts/model_chkpts.pt']
 
     Predictions = np.zeros((4, 5, num_t, num_x1, num_x2))
     for k in range (0, 4):

@@ -14,4 +14,4 @@ figure()
 semilogy(loss)
 
 min(loss)
-lmd(find(loss == min(loss)))
+lmd(end)
