@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import scipy.io
 
+from others import *
 from plotting import newfig, savefig
 
 import matplotlib
@@ -124,23 +125,6 @@ class Model(nn.Module):
         res_psi_x = psi_1_t + (u*psi_1_x + v*psi_1_y)
         res_psi_y = psi_2_t + (u*psi_2_x + v*psi_2_y)
 
-        # print(f'res_ns_x shape:{res_ns_x.shape}')
-        # print(f'res_ns_y shape:{res_ns_y.shape}')
-        # print(f'res_incomp shape:{res_incomp.shape}')
-        # print(f'res_w shape:{res_w.shape}')
-        # print(f'res_pf shape:{res_pf.shape}')
-        # print(f'res_psi_x shape:{res_psi_x.shape}')
-        # print(f'res_psi_y shape:{res_psi_y.shape}')
-
-        # print(f'res_ns_x: {(res_ns_x**2).mean()}')
-        # print(f'res_ns_y: {(res_ns_y**2).mean()}')
-        # print(f'res_psi_x: {(res_psi_x**2).mean()}')
-        # print(f'res_psi_y: {(res_psi_y**2).mean()}')
-        # print(f'res_pf: {(res_pf**2).mean()}')
-        # print(f'coh term: {((lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y))**2).mean()}')
-        # print(f'vis-elas term: {((self.lmd_e*(B_12_x + B_22_y))**2).mean()}')
-        # print(f'FSI term: {(mu*(1-phi)*u/(2*K)).mean()}')
-
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean() \
              + (res_psi_x**2).mean() + (res_psi_y**2).mean()
 
@@ -149,14 +133,6 @@ class Model(nn.Module):
         w_u = self.net_w(x_data)
         u, v, p, phi = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3]
         psi_1, psi_2 = w_u[:, 1], w_u[:, 2]
-
-        # print(f'(u - u_data)**2: {((u - u_data)**2).shape}')
-        # print(f'loss_data u shape: {((u - u_data)**2).shape}')
-        # print(f'loss_data v shape: {((v - v_data)**2).shape}')
-        # print(f'loss_data p shape: {((p - p_data)**2).shape}')
-        # print(f'loss_data phi shape: {((phi - phi_data)**2).shape}')
-        # print(f'loss_data psi_1 shape: {((psi_1 - psi_1_data)**2).shape}')
-        # print(f'loss_data psi_2 shape: {((psi_2 - psi_2_data)**2).shape}')
 
         return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((p - p_data)**2).mean() + \
             ((phi - phi_data)**2).mean() + ((psi_1 - psi_1_data)**2).mean() + ((psi_2 - psi_2_data)**2).mean()
@@ -209,17 +185,6 @@ class Model(nn.Module):
         y_w_pred = self.net_w(x)
         u_i_pred, v_i_pred, p_i_pred, phi_i_pred = y_u_pred[:, 0][:,None], y_u_pred[:, 1][:,None], y_u_pred[:, 2][:,None], y_u_pred[:, 3][:,None]
         psi_1_i_pred, psi_2_i_pred = y_w_pred[:, 1][:,None], y_w_pred[:, 2][:,None]
-
-        # print(f'u_i_pred shape: {u_i_pred.shape}')
-        # print(f'u_i shape: {u_i.shape}')
-
-        # print(f'loss_ic_u: {((u_i_pred-u_i)**2).mean()}')
-        # print(f'loss_ic_v: {((v_i_pred-v_i)**2).mean()}')
-        # print(f'loss_ic_p: {((p_i_pred-p_i)**2).mean()}')
-        # print(f'loss_ic_phi: {((phi_i_pred-phi_i)**2).mean()}')
-        # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
-        # print(f'psi_1_loss: {((psi_1_i_pred-psi_1_i)**2).mean()}')
-        # print(f'psi_2_loss: {((psi_2_i_pred-psi_2_i)**2).mean()}')
         
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() \
             + ((phi_i_pred-phi_i)**2).mean() + ((psi_1_i_pred-psi_1_i)**2).mean() + ((psi_2_i_pred-psi_2_i)**2).mean()
@@ -442,9 +407,9 @@ def main():
     lmd_e_his = np.zeros((epochs,1))
     weig_param = np.zeros((epochs,3))
 
-    a = 1
-    b = 1
-    c = 1
+    w_bc = 1
+    w_ic = 1
+    w_data = 50
     
     weight_list = []
     bias_list = []
@@ -469,52 +434,49 @@ def main():
         
         loss_pde.backward(retain_graph=True)
         w_pde_grad = [weight_list[i].grad for i in range(len(weight_list))]
-        w_pde_grad_norm = np.mean([abs(to_numpy(w_pde_grad[i].detach()).flatten()).mean() for i in range(len(w_pde_grad))])
-        print(w_pde_grad_norm)
+        w_pde_grad_norm = get_max([to_numpy(w_pde_grad[i].detach()).flatten() for i in range(len(w_pde_grad))])
+        # print(w_pde_grad_norm)
         optimizer.zero_grad()
 
         loss_bc.backward(retain_graph=True)
         w_bc_grad = [weight_list[i].grad for i in range(len(weight_list))]
-        w_bc_grad_norm = np.mean([abs(to_numpy(w_bc_grad[i].detach()).flatten()).mean() for i in range(len(w_bc_grad))])
-        print(w_bc_grad_norm)         
+        w_bc_grad_norm = get_average([to_numpy(w_bc_grad[i].detach()).flatten() for i in range(len(w_bc_grad))])
+        # print(w_bc_grad_norm)       
         optimizer.zero_grad()
         
         loss_ic.backward(retain_graph=True)
         w_ic_grad = [weight_list[i].grad for i in range(len(weight_list))]
-        w_ic_grad_norm = np.mean([abs(to_numpy(w_ic_grad[i].detach()).flatten()).mean() for i in range(len(w_ic_grad))])
-        print(w_ic_grad_norm)         
+        w_ic_grad_norm = get_average([to_numpy(w_ic_grad[i].detach()).flatten() for i in range(len(w_ic_grad))])
+        # print(w_ic_grad_norm)       
         optimizer.zero_grad()
 
         loss_data.backward(retain_graph=True)
         w_data_grad = [weight_list[i].grad for i in range(len(weight_list))]
-        w_data_grad_norm = np.mean([abs(to_numpy(w_data_grad[i].detach()).flatten()).mean() for i in range(len(w_data_grad))])
-        print(w_data_grad_norm)         
+        w_data_grad_norm = get_average([to_numpy(w_data_grad[i].detach()).flatten() for i in range(len(w_data_grad))])
+        # print(w_data_grad_norm)       
         optimizer.zero_grad()
 
-        print(a, b, c)
-        a = 0.9*a + 0.1*w_pde_grad_norm/(w_ic_grad_norm + epsilon)
-        b = 0.9*b + 0.1*w_pde_grad_norm/(w_bc_grad_norm + epsilon)
-        c = 0.9*c + 0.1*w_pde_grad_norm/(w_data_grad_norm + epsilon)
-        print(a, b, c)
+        w_bc = 0.9*w_bc + 0.1*w_pde_grad_norm/(w_bc*w_bc_grad_norm + epsilon)
+        w_ic = 0.9*w_ic + 0.1*w_pde_grad_norm/(w_ic*w_ic_grad_norm + epsilon)
+        w_data = 0.9*w_data + 0.1*w_pde_grad_norm/(w_data*w_data_grad_norm + epsilon)
+        print(w_bc, w_ic, w_data)
 
-        loss = loss_pde + a*loss_bc + b*loss_ic + c*loss_data
+        loss = loss_pde + w_bc*loss_bc + w_ic*loss_ic + w_data*loss_data
 
         loss_his[epoch,0] = to_numpy(loss_pde)
         loss_his[epoch,1] = to_numpy(loss_bc)
         loss_his[epoch,2] = to_numpy(loss_ic)
         loss_his[epoch,3] = to_numpy(loss_data)
 
-        weig_param[epoch, 0] = a
-        weig_param[epoch, 1] = b
-        weig_param[epoch, 2] = c
+        weig_param[epoch, 0] = w_bc
+        weig_param[epoch, 1] = w_ic
+        weig_param[epoch, 2] = w_data
 
         print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
         loss.backward()
 
         loss = optimizer.step()
-        # loss_value = loss.item() if not isinstance(loss, float) else loss
         lmd_e_his[epoch, 0] = to_numpy(model.lmd_e)
-        # print(f'epoch {epoch}: loss {loss_value:.6f}')
         
         ## checkpoint saving
         if (epoch+1)%check_step == 0:
@@ -553,6 +515,7 @@ def main():
         
     np.savetxt('loss.his', loss_his)
     np.savetxt('lmd_e.his', lmd_e_his)
+    np.savetxt('weig_param.his', weig_param)
 
 if __name__ == '__main__':
     main()

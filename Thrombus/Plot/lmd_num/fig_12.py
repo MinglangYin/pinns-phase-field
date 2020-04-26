@@ -246,7 +246,7 @@ def main():
     # ax6.legend()
  
     plt.tight_layout()
-    fig.savefig('fig_12.png')
+    fig.savefig('fig_lmd_num.png')
     plt.close()
 
 

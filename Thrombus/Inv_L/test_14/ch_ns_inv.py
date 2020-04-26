@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import scipy.io
 
+from others import *
 from plotting import newfig, savefig
 
 import matplotlib
@@ -430,9 +431,9 @@ def main():
     lmd_e_his = np.zeros((epochs,1))
     weig_param = np.zeros((epochs,3))
 
-    a = 1
-    b = 1
-    c = 1
+    w_bc = 1
+    w_ic = 1
+    w_data = 50
     
     weight_list = []
     bias_list = []
@@ -457,44 +458,43 @@ def main():
         
         loss_pde.backward(retain_graph=True)
         w_pde_grad = [weight_list[i].grad for i in range(len(weight_list))]
-        w_pde_grad_norm = np.mean([abs(to_numpy(w_pde_grad[i].detach()).flatten()).mean() for i in range(len(w_pde_grad))])
-        print(w_pde_grad_norm)
+        w_pde_grad_norm = get_max([to_numpy(w_pde_grad[i].detach()).flatten() for i in range(len(w_pde_grad))])
+        # print(w_pde_grad_norm)
         optimizer.zero_grad()
 
         loss_bc.backward(retain_graph=True)
         w_bc_grad = [weight_list[i].grad for i in range(len(weight_list))]
-        w_bc_grad_norm = np.mean([abs(to_numpy(w_bc_grad[i].detach()).flatten()).mean() for i in range(len(w_bc_grad))])
-        print(w_bc_grad_norm)         
+        w_bc_grad_norm = get_average([to_numpy(w_bc_grad[i].detach()).flatten() for i in range(len(w_bc_grad))])
+        # print(w_bc_grad_norm)       
         optimizer.zero_grad()
         
         loss_ic.backward(retain_graph=True)
         w_ic_grad = [weight_list[i].grad for i in range(len(weight_list))]
-        w_ic_grad_norm = np.mean([abs(to_numpy(w_ic_grad[i].detach()).flatten()).mean() for i in range(len(w_ic_grad))])
-        print(w_ic_grad_norm)         
+        w_ic_grad_norm = get_average([to_numpy(w_ic_grad[i].detach()).flatten() for i in range(len(w_ic_grad))])
+        # print(w_ic_grad_norm)       
         optimizer.zero_grad()
 
         loss_data.backward(retain_graph=True)
         w_data_grad = [weight_list[i].grad for i in range(len(weight_list))]
-        w_data_grad_norm = np.mean([abs(to_numpy(w_data_grad[i].detach()).flatten()).mean() for i in range(len(w_data_grad))])
-        print(w_data_grad_norm)         
+        w_data_grad_norm = get_average([to_numpy(w_data_grad[i].detach()).flatten() for i in range(len(w_data_grad))])
+        # print(w_data_grad_norm)       
         optimizer.zero_grad()
 
-        print(a, b, c)
-        a = 0.9*a + 0.1*w_pde_grad_norm/(w_ic_grad_norm + epsilon)
-        b = 0.9*b + 0.1*w_pde_grad_norm/(w_bc_grad_norm + epsilon)
-        c = 0.9*c + 0.1*w_pde_grad_norm/(w_data_grad_norm + epsilon)
-        print(a, b, c)
+        w_bc = 0.9*w_bc + 0.1*w_pde_grad_norm/(w_bc*w_bc_grad_norm + epsilon)
+        w_ic = 0.9*w_ic + 0.1*w_pde_grad_norm/(w_ic*w_ic_grad_norm + epsilon)
+        w_data = 0.9*w_data + 0.1*w_pde_grad_norm/(w_data*w_data_grad_norm + epsilon)
+        print(w_bc, w_ic, w_data)
 
-        loss = loss_pde + a*loss_bc + b*loss_ic + c*loss_data
+        loss = loss_pde + w_bc*loss_bc + w_ic*loss_ic + w_data*loss_data
 
         loss_his[epoch,0] = to_numpy(loss_pde)
         loss_his[epoch,1] = to_numpy(loss_bc)
         loss_his[epoch,2] = to_numpy(loss_ic)
         loss_his[epoch,3] = to_numpy(loss_data)
 
-        weig_param[epoch, 0] = a
-        weig_param[epoch, 1] = b
-        weig_param[epoch, 2] = c
+        weig_param[epoch, 0] = w_bc
+        weig_param[epoch, 1] = w_ic
+        weig_param[epoch, 2] = w_data
 
         print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
         loss.backward()
@@ -542,6 +542,7 @@ def main():
         
     np.savetxt('loss.his', loss_his)
     np.savetxt('lmd_e.his', lmd_e_his)
+    np.savetxt('weig_param.his', weig_param)
 
 if __name__ == '__main__':
     main()
