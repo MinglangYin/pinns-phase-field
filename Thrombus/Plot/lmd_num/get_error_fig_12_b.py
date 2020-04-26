@@ -120,7 +120,7 @@ def main():
     ## geometry
     x1 = np.linspace(x_min, x_max, num=num_x1)
     x2 = np.linspace(y_min, y_max, num=num_x2)
-    t = np.linspace(0.02+dt*file_start, 0.02+dt*(file_end-1), num=num_t+1)
+    t = np.linspace(0.02+dt*file_start, 0.02+dt*(file_end-1), num=num_t)
 
     x1_grid, x2_grid = np.meshgrid(x1, x2)
     x_2d = np.concatenate((x1_grid.flatten()[:,None], x2_grid.flatten()[:,None]), axis=1)
@@ -131,10 +131,10 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
 
     ## loading model/optimizer state
-    model_path = ['../Inv_L_2_num/test_9/CheckPts/model_chkpts.pt', 
-    '../Inv_L_2_num/test_10/CheckPts/model_chkpts.pt',
-    '../Inv_L_2_num/test_11/CheckPts/model_chkpts.pt', 
-    '../Inv_L_2_num/test_12/CheckPts/model_chkpts.pt']
+    model_path = ['../Inv_L_2_num/test_1/CheckPts/model_chkpts.pt', 
+    '../Inv_L_2_num/test_2/CheckPts/model_chkpts.pt',
+    '../Inv_L_2_num/test_3/CheckPts/model_chkpts.pt', 
+    '../Inv_L_2_num/test_4/CheckPts/model_chkpts.pt']
 
     Predictions = np.zeros((4, 5, num_t, num_x1, num_x2))
     for k in range (0, 4):
