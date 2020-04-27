@@ -449,7 +449,7 @@ def main():
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
-            loss_data = model.loss_data(xt_f_train, phi_f_train)        
+            loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train, psi_1_f_train, psi_2_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_l_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
             loss = loss_pde + loss_bc + 5*loss_data + 5*loss_ic
