@@ -67,7 +67,6 @@ def main():
 
     ## load data file
     y_data = np.zeros((4, file_end-file_start, num_x1, num_x2))
-    t_step = 0
     for file_id in range(file_start, file_end):
         name_u = '../../../Data/CH/phase_field_xiaoning/K_1_0001/dat/half' + str(file_id) + '.dat'
         name_phi = '../../../Data/CH/phase_field_xiaoning/K_1_0001/dat_phase/halfp' + str(file_id) + '.dat'
@@ -77,13 +76,13 @@ def main():
         ## x_tmp: [t,x,y]   u_tmp:[u,v,p,phi]
         y_tmp = np.concatenate((data_u[:,3:5], data_u[:,6:7], data_phi[:,3:4]), axis=1)
         for j in range (0, 4):
-            y_data[j, t_step, :, :] = y_tmp[:,j].reshape(100, 100)
-        t_step = t_step + 1
+            y_data[j, file_id, :, :] = y_tmp[:,j].reshape(100, 100)
 
     ## geometry
     x1 = np.linspace(x_min, x_max, num=num_x1)
     x2 = np.linspace(y_min, y_max, num=num_x2)
-    t = np.linspace(dt*(file_start+1), dt*(file_end+1), num=num_t)
+    t = np.linspace(dt*(file_start+1), dt*(file_end+1), num=num_t+1)
+    # print(t)
 
     x1_grid, x2_grid = np.meshgrid(x1, x2)
     x_2d = np.concatenate((x1_grid.flatten()[:,None], x2_grid.flatten()[:,None]), axis=1)
@@ -156,11 +155,11 @@ def main():
     ax1.set_aspect('auto')
 
     ## plot [0, 0]]
-    ax2.step(x, K_step, linestyle="--", color="black",label='$K_{ref}$')
-    ax2.plot(x, K_inf, linestyle="-", color="blue",label='$K_{inf}$')
+    ax2.step(x, K_step, linestyle="--", color="black",label='$\kappa_{true}$')
+    ax2.plot(x, K_inf, linestyle="-", color="blue",label='$\kappa_{inf}$')
 
     ax2.set_xlabel('$\phi$', fontsize=18)
-    ax2.set_ylabel('$K$', fontsize=18, rotation="horizontal")
+    ax2.set_ylabel('$\kappa$', fontsize=18, rotation="horizontal")
     # ax2.set_xticks(K_ref)
     # ax2.set_yticks(K_ref)
     ax2.yaxis.set_label_coords(0.0,1.02)
@@ -183,11 +182,12 @@ def main():
     ax8 = fig.add_subplot(gs1[1, 2])
 
     ## ax3
+    step = 25
     v_phi = np.linspace(-1, 1, 3)[:,None]
     v_error = np.linspace(0, 0.1, 3)[:,None]
 
     ax3.axis('off') 
-    h = ax3.imshow(phi_ref[-1, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h = ax3.imshow(phi_ref[step, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
     h.set_clim(vmin=-1, vmax=1)
     axins = inset_axes(ax3,
                 width="100%",  # width = 5% of parent_bbox width
@@ -201,7 +201,7 @@ def main():
 
     ## ax4
     ax4.axis('off') 
-    h = ax4.imshow(phi_pred[-1, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h = ax4.imshow(phi_pred[step, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
     h.set_clim(vmin=-1, vmax=1)
     axins = inset_axes(ax4,
                 width="100%",  # width = 5% of parent_bbox width
@@ -214,7 +214,7 @@ def main():
 
     ## ax5
     ax5.axis('off') 
-    h = ax5.imshow(np.abs(phi_pred[-1, :, :] - phi_ref[-1, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h = ax5.imshow(np.abs(phi_pred[step, :, :] - phi_ref[step, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
     h.set_clim(vmin=0, vmax=0.1)
     axins = inset_axes(ax5,
                 width="100%",  # width = 5% of parent_bbox width
@@ -228,7 +228,7 @@ def main():
     ## ax6
     ax6.axis('off') 
     v_velocity = np.linspace(0, 0.5, 3)[:,None]
-    h = ax6.imshow(vel_pred[-25, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h = ax6.imshow(vel_ref[step-15, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
     h.set_clim(vmin=0, vmax=0.5)
     axins = inset_axes(ax6,
                 width="100%",  # width = 5% of parent_bbox width
@@ -241,7 +241,7 @@ def main():
 
     ## ax7
     ax7.axis('off') 
-    h = ax7.imshow(vel_ref[-25, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h = ax7.imshow(vel_pred[step-15, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
     h.set_clim(vmin=0, vmax=0.5)
     axins = inset_axes(ax7,
                 width="100%",  # width = 5% of parent_bbox width
@@ -254,7 +254,7 @@ def main():
 
     ## ax8
     ax8.axis('off') 
-    h = ax8.imshow(np.abs(vel_pred[-25, :, :]-vel_ref[-10, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h = ax8.imshow(np.abs(vel_pred[step-15, :, :]-vel_ref[step-15, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
     h.set_clim(vmin=0, vmax=0.1)
     axins = inset_axes(ax8,
                 width="100%",  # width = 5% of parent_bbox width
