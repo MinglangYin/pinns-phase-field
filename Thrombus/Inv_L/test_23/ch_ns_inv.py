@@ -1,17 +1,6 @@
 """
 Author: Minglang Yin
     PINNs_no_psi (physical-informed neural network) for solving time-dependent Cahn-Hilliard Navier-Stokes equation (2D).
-
-    Governing equtions (Latex):
-        \frac{\partial\phi}{dt} + u\cdot(\nabla\phi) + \tau\Delta w = 0, \\
-        w = \Delta\phi - f(\phi), \\
-        \rho(\frac{\partial u}{\partial t} + (u \cdot \nabla) u) + \nabla p - \mu\Delta u + \lambda(\Delta\phi- f(\phi))\nabla \phi = 0,\\
-        \nabla \cdot u = 0, \\
-        f(\phi) = F'(\phi) = 1/(h^2)(\phi^3- \phi) 
-
-    where
-        Input: [t, x, y]
-        Output: [u, v, p, phi], [w, psi_1, psi_2]
 """
 
 import sys
@@ -62,7 +51,7 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
-        self.lmd_e = torch.nn.Parameter(torch.tensor([15], requires_grad=True, dtype=torch.float32) )
+        self.lmd_e = torch.nn.Parameter(torch.tensor([5], requires_grad=True, dtype=torch.float32) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -129,7 +118,6 @@ class Model(nn.Module):
     def loss_data(self, x_data, u_data, v_data, phi_data):
         y_u = self.net_u(x_data)
         u, v, phi = y_u[:, 0], y_u[:, 1], y_u[:, 3]
-
         return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((phi - phi_data)**2).mean() 
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, v_up_real, phi_real):
@@ -158,7 +146,7 @@ class Model(nn.Module):
         psi_1_l_x, psi_2_l_x = gradients(psi_1_l, x_l)[0][:, 1], gradients(psi_2_l, x_l)[0][:, 1]
         psi_1_r_x, psi_2_r_x = gradients(psi_1_r, x_r)[0][:, 1], gradients(psi_2_r, x_r)[0][:, 1]
         psi_1_up_y, psi_2_up_y = gradients(psi_1_up, x_up)[0][:, 2], gradients(psi_2_up, x_up)[0][:, 2]
-        psi_1_dw_y, psi_2_dw_y = gradients(psi_1_dw, x_dw)[0][:, 1], gradients(psi_2_dw, x_dw)[0][:, 2]
+        psi_1_dw_y, psi_2_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2], gradients(psi_2_dw, x_dw)[0][:, 2]
 
         return ((u_l-u_r)**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
                 + ((v_l-v_r)**2).mean() + ((v_up-v_up_real)**2).mean() + (v_dw**2).mean()\
@@ -167,13 +155,12 @@ class Model(nn.Module):
                 + (psi_1_l_x**2).mean() + (psi_2_l_x**2).mean() + (psi_1_r_x**2).mean() + (psi_2_r_x**2).mean()\
                 + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()
                  
-                 
     def loss_ic(self, x, u_i, v_i, p_i, phi_i, psi_1_i, psi_2_i):
         y_u_pred = self.net_u(x)
         y_w_pred = self.net_w(x)
         u_i_pred, v_i_pred, p_i_pred, phi_i_pred = y_u_pred[:, 0][:,None], y_u_pred[:, 1][:,None], y_u_pred[:, 2][:,None], y_u_pred[:, 3][:,None]
         psi_1_i_pred, psi_2_i_pred = y_w_pred[:, 1][:,None], y_w_pred[:, 2][:,None]
-        
+
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() \
             + ((phi_i_pred-phi_i)**2).mean() + ((psi_1_i_pred-psi_1_i)**2).mean() + ((psi_2_i_pred-psi_2_i)**2).mean()
 
@@ -207,12 +194,12 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 100000
+    epochs = 300000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/', './Predictions/psi_1/', './Predictions/psi_2/']
     model_path = 'CheckPts/model_chkpts.pt'
-    restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
+    restart = 1 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
     file_start = 0
@@ -317,9 +304,9 @@ def main():
     psi_2_i_sample = psi_2_init[id_i]
     ### boundary
     xt_l_sample, xt_r_sample = xt_l_ext[id_bv,:], xt_r_ext[id_bv,:]
+    phi_l_sample = phi_l[id_bv]
     xt_up_sample, xt_dw_sample = xt_up_ext[id_bh,:], xt_dw_ext[id_bh,:]
     v_up_sample = v_up[id_bh]
-    phi_l_sample = phi_l[id_bv]
 
     ### inner points
     xt_f_sample = x_data[id_f,:]
@@ -380,7 +367,7 @@ def main():
             loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, phi_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, v_up_train, phi_l_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + 50*loss_data + 5*loss_ic
+            loss = loss_pde + loss_bc + 5*loss_data + 5*loss_ic
 
             loss_his[epoch,0] = to_numpy(loss_pde)
             loss_his[epoch,1] = to_numpy(loss_bc)
