@@ -180,7 +180,7 @@ class Model(nn.Module):
         psi_1_l_x, psi_2_l_x = gradients(psi_1_l, x_l)[0][:, 1], gradients(psi_2_l, x_l)[0][:, 1]
         psi_1_r_x, psi_2_r_x = gradients(psi_1_r, x_r)[0][:, 1], gradients(psi_2_r, x_r)[0][:, 1]
         psi_1_up_y, psi_2_up_y = gradients(psi_1_up, x_up)[0][:, 2], gradients(psi_2_up, x_up)[0][:, 2]
-        psi_1_dw_y, psi_2_dw_y = gradients(psi_1_dw, x_dw)[0][:, 1], gradients(psi_2_dw, x_dw)[0][:, 2]
+        psi_1_dw_y, psi_2_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2], gradients(psi_2_dw, x_dw)[0][:, 2]
 
         # print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
 
@@ -440,7 +440,7 @@ def main():
             loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, phi_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_l_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + 50*loss_data + 5*loss_ic
+            loss = loss_pde + loss_bc + 5*loss_data + 5*loss_ic
 
             loss_his[epoch,0] = to_numpy(loss_pde)
             loss_his[epoch,1] = to_numpy(loss_bc)
