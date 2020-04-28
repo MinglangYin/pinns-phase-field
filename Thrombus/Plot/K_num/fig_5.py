@@ -56,7 +56,7 @@ def main():
     ax12 = fig.add_subplot(gs3[2])
 
     ## ax1: K
-    ax1.axhline(y=0.001, linestyle='--', color='black',  label='real $\kappa$')
+    ax1.axhline(y=0.001, linestyle='--', color='black',  label='$\kappa_{true}$')
     ax1.plot(x, K0001_inf, color='blue')
     ax1.scatter(x, K0001_inf, color='blue', label='$\kappa_{inf}$')
     ax1.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
@@ -103,7 +103,7 @@ def main():
     # ax3.legend()
     
     ## K = 0.01
-    ax4.axhline(y=0.01, linestyle='--', color='black',  label='real $\kappa$')
+    ax4.axhline(y=0.01, linestyle='--', color='black',  label='$\kappa_{true}$')
     ax4.plot(x, K001_inf, color='blue')
     ax4.scatter(x, K001_inf, color='blue', label='$\kappa_{inf}$')
     ax4.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
@@ -151,7 +151,7 @@ def main():
 
     ## K = 1
     ##ax7
-    ax7.axhline(y=1, linestyle='--', color='black',  label='real $\kappa$')
+    ax7.axhline(y=1, linestyle='--', color='black',  label='$\kappa_{true}$')
     ax7.plot(x, K1_inf, color='blue')
     ax7.scatter(x, K1_inf, color='blue', label='$\kappa_{inf}$')
     ax7.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
@@ -199,7 +199,7 @@ def main():
 
     ## K = 100
     ##ax7
-    ax10.axhline(y=100, linestyle='--', color='black',  label='real $\kappa$')
+    ax10.axhline(y=100, linestyle='--', color='black',  label='$\kappa_{true}$')
     ax10.plot(x, K100_inf, color='blue')
     ax10.scatter(x, K100_inf, color='blue', label='$\kappa_{inf}$')
     ax10.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
@@ -246,7 +246,7 @@ def main():
     # ax3.legend()
 
     plt.tight_layout()
-    fig.savefig('fig_5.png')
+    fig.savefig('fig_K_num.png')
     plt.close()
 
 

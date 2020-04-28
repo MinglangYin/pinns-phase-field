@@ -46,11 +46,11 @@ def main():
     ax3 = fig.add_subplot(gs0[2])
 
     ## ax1: K
-    ax1.axhline(y=0.01, linestyle='--', color='black',  label='$K_{ref}$')
+    ax1.axhline(y=0.01, linestyle='--', color='black',  label='$\kappa_{true}$')
     ax1.plot(noise_level, K_inf, color='blue')
-    ax1.scatter(noise_level, K_inf, color='blue', label='$K_{inf}$')
+    ax1.scatter(noise_level, K_inf, color='blue', label='$\kappa_{inf}$')
     ax1.set_xlabel('noise level', fontsize=18)
-    ax1.set_ylabel("$K$", fontsize=18, rotation='horizontal')
+    ax1.set_ylabel("$\kappa$", fontsize=18, rotation='horizontal')
     ax1.set_xticks(noise_level)
     ax1.set_yticks(np.linspace(0, 0.02, 5))
     ax1.set_xlim([0, 0.2])

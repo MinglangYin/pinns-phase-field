@@ -12,8 +12,8 @@ def main():
     ### inferred K
     num_pt = ['3%', '8%', '13%', '18%']
     case_1_lmd_1_text = ['1.42', '9.3280', '8.6424', '9.0431'] # phi + v + psi
-    case_1_lmd_2_text = ['4.3467', '3.6599', '3.9970', '3.7015'] # phi + v
-    case_1_lmd_3_text = ['4.0384', '0', '1.2215', '1.8188'] # phi
+    case_1_lmd_2_text = ['4.3467', '4.41247', '4.4087', '4.2447'] # phi + v
+    case_1_lmd_3_text = ['4.0384', '1.1751', '1.2215', '1.8188'] # phi
 
     case_1_err_v_1_text = ['0.5684918864962359', '0.014145652170003797', '0.01572135854802598', '0.02621160684646784']
     case_1_err_v_1_part = [0.30614362118031696, 0.010994302218191759, 0.009654136954058293, 0.01848076806494805]
@@ -21,17 +21,17 @@ def main():
     case_1_err_phi_1_text = ['0.2885261673175247', '0.01686707358268274', '0.012817297699005697', '0.013595372302310876']
     case_1_err_phi_1_part = [0.31349110259859453, 0.015427493993153107, 0.011441383915495722, 0.0105558451210516]
 
-    case_1_err_v_2_text = ['0.9714725228978958', '0.0305997201060751', '0.024908364899946515', '0.029988923336109547']
-    case_1_err_v_2_part = [0.6222528242620611, 0.01894733766036736, 0.018016970006621523, 0.01777284366931691]
+    case_1_err_v_2_text = ['1.5801427980152334', '0.0236740700590421', '0.022105400710721958', '0.025176377316032457']
+    case_1_err_v_2_part = [1.6391978848895838, 0.015121860286034202, 0.01699249424593125, 0.016195786359962584]
 
-    case_1_err_phi_2_text = ['0.1851720216766271', '0.005997608008436245', '0.006356640511934336', '0.0076306061898456885']
-    case_1_err_phi_2_part = [0.2207886175015743, 0.005416262470375613, 0.00673990203067343, 0.007403038346134134 ]
+    case_1_err_phi_2_text = ['0.34587901315213554', '0.004554589624034001', '0.005477051268135714', '0.006203971294017096']
+    case_1_err_phi_2_part = [0.38481951157122923, 0.0044718196502726215, 0.005825352315394891, 0.006434430504338907 ]
 
-    case_1_err_v_3_text = ['1.9229535589375566', '0', '1.0949689814406454', '1.244295351713217']
-    case_1_err_v_3_part = [2.1557071982258154, 0, 0.9278781033312177, 0.8407055053883177]
+    case_1_err_v_3_text = ['1.9229535589375566', '0.9780336619134221', '1.0949689814406454', '1.244295351713217']
+    case_1_err_v_3_part = [2.1557071982258154, 0.9469254361122875, 0.9278781033312177, 0.8407055053883177]
 
-    case_1_err_phi_3_text = ['1.0730786094451834', '0', '0.0031001224300374257', '0.00347579358907108']
-    case_1_err_phi_3_part = [1.1313760191274074, 0 , 0.003043233641175828, 0.002931128713575367]
+    case_1_err_phi_3_text = ['1.0730786094451834', '0.006573887686652532', '0.0031001224300374257', '0.00347579358907108']
+    case_1_err_phi_3_part = [1.1313760191274074, 0.006049386489456815 , 0.003043233641175828, 0.002931128713575367]
 
     case_2_lmd_1_text = ['1.5202', '11.2697', '11.2875', '10.2344'] # phi + v + psi
     case_2_lmd_2_text = ['5.1133', '5.6738', '5.5645', '5.0464'] # phi + v
@@ -99,7 +99,7 @@ def main():
     ax6 = fig.add_subplot(gs1[2])
 
     ## ax1: lmd
-    ax1.axhline(y=10, linestyle='--', color='black',  label='real $\lambda_{e}$')
+    ax1.axhline(y=10, linestyle='--', color='black',  label='true $\lambda_{e}$')
     ax1.plot(x, case_1_lmd_1, color='blue')
     ax1.scatter(x, case_1_lmd_1, color='blue', label='$\phi$+u+p+$\psi$')
     ax1.plot(x, case_1_lmd_2, color='red')
@@ -110,9 +110,9 @@ def main():
     ax1.set_ylabel("$\lambda_{e}$", fontsize=18, rotation='horizontal')
     ax1.set_xticks(np.arange(1, 5))
     ax1.set_xticklabels(num_pt)
-    ax1.set_yticks(np.linspace(0, 15, 6))
+    ax1.set_yticks(np.linspace(0, 20, 6))
     # ax1.set_xlim([1,4])
-    ax1.set_ylim([0, 15])
+    ax1.set_ylim([0, 20])
     ax1.set_title('(a)')
     # ax1.set_aspect('auto')
     ax1.yaxis.set_label_coords(0.0,1.02)
@@ -139,7 +139,7 @@ def main():
     ax2.set_xticks(np.arange(1, 5))
     ax2.set_xticklabels(num_pt)
     # ax2.set_yticks(np.linspace(0, 12, 6))
-    ax2.set_ylim([1e-2, 1e2])
+    ax2.set_ylim([1e-3, 1e1])
     ax2.set_yscale('log')
     ax2.set_title('(b)')
     ax2.yaxis.set_label_coords(0.0,1.02)
@@ -174,7 +174,7 @@ def main():
     # ax3.legend()
     
     ## ax4: lmd
-    ax4.axhline(y=10, linestyle='--', color='black',  label='real $\lambda_{e}$')
+    ax4.axhline(y=10, linestyle='--', color='black',  label='true $\lambda_{e}$')
     ax4.plot(x, case_2_lmd_1, color='blue')
     ax4.scatter(x, case_2_lmd_1, color='blue', label='$\phi$+u+p+$\psi$')
     ax4.plot(x, case_2_lmd_2, color='red')
@@ -212,7 +212,7 @@ def main():
     ax5.set_ylabel("$\epsilon_{v}$", fontsize=18, rotation='horizontal')
     ax5.set_xticks(np.arange(1, 5))
     ax5.set_xticklabels(num_pt)
-    ax5.set_ylim([1e-2, 1e1])
+    ax5.set_ylim([1e-3, 1e1])
     ax5.set_yscale('log')
     ax5.set_title('(e)')
     ax5.yaxis.set_label_coords(0.0,1.02)
@@ -238,7 +238,7 @@ def main():
     ax6.set_ylabel("$\epsilon_{\phi}$", fontsize=18, rotation='horizontal')
     ax6.set_xticks(np.arange(1, 5))
     ax6.set_xticklabels(num_pt)
-    ax6.set_ylim([1e-3, 1e0])
+    ax6.set_ylim([1e-3, 1e1])
     ax6.set_yscale('log')
     ax6.set_title('(f)')
     ax6.yaxis.set_label_coords(0.0,1.02)

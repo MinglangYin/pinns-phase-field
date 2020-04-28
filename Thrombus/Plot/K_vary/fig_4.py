@@ -37,25 +37,36 @@ def main():
         phi_err[i] = np.array(phi_err_text[i])
 
     K=['0.001', '0.01', '1', '100']
+
+    ## load data
+    # loss_k100 = np.loadtxt('../Inv_K/test_7/loss.his')
+    K100 = np.loadtxt('../../Inv_K/test_7/K_new.his')
+
+    # loss_k1 = np.loadtxt('../Inv_K/test_6/loss.his')
+    K1 = np.loadtxt('../../Inv_K/test_6/K_new.his')
+
+    # loss_k001 = np.loadtxt('../Inv_K/test_5/loss.his')
+    K001 = np.loadtxt('../../Inv_K/test_5/K_new.his')
+
+    # loss_k0001 = np.loadtxt('../Inv_K/test_8/loss.his')
+    K0001 = np.loadtxt('../../Inv_K/test_8/K_new.his')
     
     ## plotting
-    fig = plt.figure(constrained_layout=True, figsize=(9, 4.5))
-    gs = fig.add_gridspec(1, 1)
+    fig = plt.figure(constrained_layout=True, figsize=(12, 6))
+    gs = fig.add_gridspec(2, 4)
 
-    gs0 = gs[0].subgridspec(1, 2)
-
-    ax1 = fig.add_subplot(gs0[0, 0])
-    ax2 = fig.add_subplot(gs0[0, 1])
+    ax1 = fig.add_subplot(gs[0, 1])
+    ax2 = fig.add_subplot(gs[0, 2])
 
     ## plot [0, 0]]
     ax1.set_yscale('log')
     ax1.set_xscale('log')
-    ax1.plot(x, x, linestyle="--", color="black",label='$K_{ref}$')
+    ax1.plot(x, x, linestyle="--", color="black")
     ax1.plot(K_ref, K_inf, color='blue')
-    ax1.scatter(K_ref, K_inf, marker="^", color='blue', s=80, label='$K_{inf}$')
+    ax1.scatter(K_ref, K_inf, marker="^", color='blue', s=80, label='$\kappa_{inf}$')
 
-    ax1.set_xlabel('$K_{ref}$', fontsize=18)
-    ax1.set_ylabel('$K_{inf}$', fontsize=18, rotation="horizontal")
+    ax1.set_xlabel('$\kappa_{true}$', fontsize=18)
+    ax1.set_ylabel('$\kappa_{inf}$', fontsize=18, rotation="horizontal")
     ax1.set_xticks(K_ref)
     ax1.set_yticks(K_ref)
     ax1.set_title('(a)')
@@ -63,7 +74,7 @@ def main():
     ax1.grid()
     ax1.set_aspect('equal')
     ax1.yaxis.set_label_coords(0.0,1.02)
-    ax1.legend(loc="best")
+    ax1.legend(loc="best",fontsize=14)
 
     ## ax2
     x = [1, 2, 3, 4]
@@ -76,7 +87,7 @@ def main():
     # ax2.set_xlim([1, 4])
     ax2.set_xticks(np.arange(1, 5))
     ax2.set_xticklabels(K)
-    ax2.set_ylim([0, 0.0015])
+    ax2.set_ylim([0, 0.0010])
     ax2.yaxis.set_label_coords(0.0,1.02)
     
     ax3 = ax2.twinx()
@@ -85,12 +96,71 @@ def main():
     ax3.set_ylabel('$\epsilon_{v}$',fontsize=18, rotation='horizontal')
     ax3.set_aspect('auto')
     ax3.set_ylim([0, 0.01])
-    ax3.yaxis.set_label_coords(1.0,1.08)
-    ax3.legend(handles=[h2, h3],fontsize=18)
+    ax3.yaxis.set_label_coords(1.0,1.15)
+    ax3.legend(handles=[h2, h3],fontsize=14)
 
-    fig.savefig('fig_4.png')
+    ## subplot [1, 0]
+    ax2 = fig.add_subplot(gs[1, 0])
+    ax2.plot(K100, label='$\kappa_{inf}$', color='blue')
+    ax2.set_yscale('log')
+    ax2.axhline(y=100, linestyle="--", color="black", label='$\kappa_{true}$')
+    ax2.set_ylim((1e-2,1e3))
+    ax2.set_xlabel('epoches', fontsize=18)
+    ax2.set_ylabel('$\kappa$', fontsize=18, rotation="horizontal")
+    ax2.legend(fontsize=14, loc='lower right')
+    ax2.set_aspect('equal')
+    ax2.set_xticks(np.linspace(0, 600000, 3))
+    ax2.set_xlim([0, 600000])
+    ax2.yaxis.set_label_coords(0.0,1.02)
+    ax2.set_title('(c)')
+
+    ## subplot [1, 0]
+    ax2 = fig.add_subplot(gs[1,1])
+    ax2.plot(K1, label='$\kappa_{inf}$', color='blue')
+    ax2.set_yscale('log')
+    ax2.axhline(y=1, linestyle="--", color="black", label='$\kappa_{true}$')
+    ax2.set_ylim((1e-4,1e2))
+    ax2.set_xlabel('epoches', fontsize=18)
+    ax2.set_ylabel('$\kappa$', fontsize=18, rotation="horizontal")
+    ax2.legend(fontsize=14, loc='lower right')
+    ax2.set_aspect('equal')
+    ax2.set_xticks(np.linspace(0, 600000, 3))
+    ax2.set_xlim([0, 600000])
+    ax2.yaxis.set_label_coords(0.0,1.02)
+    ax2.set_title('(d)')
+
+    ## subplot [1, 0]
+    ax2 = fig.add_subplot(gs[1,2])
+    ax2.plot(K001, label='$\kappa_{inf}$', color='blue')
+    ax2.set_yscale('log')
+    ax2.axhline(y=0.01, linestyle="--", color="black", label='$\kappa_{true}$')
+    ax2.set_ylim((1e-4,1e2))
+    ax2.set_xlabel('epoches', fontsize=18)
+    ax2.set_ylabel('$\kappa$', fontsize=18, rotation="horizontal")
+    ax2.legend(fontsize=14, loc='best')
+    ax2.set_aspect('equal')
+    ax2.set_xticks(np.linspace(0, 600000, 3))
+    ax2.set_xlim([0, 600000])
+    ax2.yaxis.set_label_coords(0.0,1.02)
+    ax2.set_title('(e)')
+
+    ## subplot [1, 0]
+    ax2 = fig.add_subplot(gs[1,3])
+    ax2.plot(K0001, label='$\kappa_{inf}$', color='blue')
+    ax2.set_yscale('log')
+    ax2.axhline(y=0.001, linestyle="--", color="black", label='$\kappa_{true}$')
+    ax2.set_ylim((1e-4,1e2))
+    ax2.set_xlabel('epoches', fontsize=18)
+    ax2.set_ylabel('$\kappa$', fontsize=18, rotation="horizontal")
+    ax2.legend(fontsize=14, loc='best')
+    ax2.set_aspect('equal')
+    ax2.set_xticks(np.linspace(0, 600000, 3))
+    ax2.set_xlim([0, 600000])
+    ax2.yaxis.set_label_coords(0.0,1.02)
+    ax2.set_title('(f)')
+
+    plt.savefig('fig_K_vary.png')
     plt.close()
-
 
 if __name__ == '__main__':
     main()

@@ -76,7 +76,7 @@ def main():
     ax3.plot(noise_level, err_v, color="red", label='$\epsilon_{v}$')
     ax3.scatter(noise_level, err_v, color="red")
     ax3.set_xlabel('noise level', fontsize=18)
-    ax3.set_ylabel('$\epsilon_{\phi}$', fontsize=18, rotation='horizontal')
+    ax3.set_ylabel('$\epsilon$', fontsize=18, rotation='horizontal')
     ax3.set_title('(c)')
     ax3.set_xlim([0, 0.2])
     ax3.set_ylim([0, 0.05])
