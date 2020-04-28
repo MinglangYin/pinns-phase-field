@@ -247,7 +247,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 200000
+    epochs = 300000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/', './Predictions/psi_1/', './Predictions/psi_2/']
@@ -449,7 +449,7 @@ def main():
             loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, phi_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, u_l_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + 5*loss_data + 5*loss_ic
+            loss = 100*loss_pde + loss_bc + loss_data + loss_ic
 
             loss_his[epoch,0] = to_numpy(loss_pde)
             loss_his[epoch,1] = to_numpy(loss_bc)
