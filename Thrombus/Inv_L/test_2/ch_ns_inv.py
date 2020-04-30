@@ -188,7 +188,7 @@ class Model(nn.Module):
         psi_1_l_x, psi_2_l_x = gradients(psi_1_l, x_l)[0][:, 1], gradients(psi_2_l, x_l)[0][:, 1]
         psi_1_r_x, psi_2_r_x = gradients(psi_1_r, x_r)[0][:, 1], gradients(psi_2_r, x_r)[0][:, 1]
         psi_1_up_y, psi_2_up_y = gradients(psi_1_up, x_up)[0][:, 2], gradients(psi_2_up, x_up)[0][:, 2]
-        psi_1_dw_y, psi_2_dw_y = gradients(psi_1_dw, x_dw)[0][:, 1], gradients(psi_2_dw, x_dw)[0][:, 2]
+        psi_1_dw_y, psi_2_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2], gradients(psi_2_dw, x_dw)[0][:, 2]
 
         print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
 

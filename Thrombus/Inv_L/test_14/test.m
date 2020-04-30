@@ -13,5 +13,12 @@ loss = load('loss.his');
 figure()
 semilogy(loss)
 
-min(loss)
-lmd(find(loss == min(loss)))
+legend('pde','bc', 'ic', 'data')
+
+weight = load('weig_param.his');
+figure()
+plot(weight)
+
+
+% min(loss)
+% lmd(find(loss == min(loss)))

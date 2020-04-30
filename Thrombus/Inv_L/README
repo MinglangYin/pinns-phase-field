@@ -5,15 +5,12 @@ Lmd_e_10(_K_001)
 	u = sin(2*pi*t)*0.6*1.5*y*(2-y), 
 	x, y [0, 2]*[0, 6] 
 
-
-
 ###########
 test_1: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 48000, Prediction: 10.8885
 test_2: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 48000, Prediction: 1.5784
 test_3: (Lmd_e_10_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 48000, Prediction: 12.6921
 test_4: (Lmd_e_10_K_001) FFT-I, lmd_e, snapshot: 0-19, phase, number of points: 48000, Prediction: 2.5286
 
-(Running)
 test_5: (Lmd_e_01_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:8.2057
 test_6: (Lmd_e_2_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction: 8.0591
 test_7: (Lmd_e_15_K_001) FFT-I, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:15.3834
@@ -55,7 +52,9 @@ test_24: dyn w, w_data:50, lmd_e, snapshot: 0-19, velo+phase, number of points: 
 test_25: fix w, w_data:50, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:
 test_26: dyn w, w_data:50, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:
 
-
+############ new pressure boundary condition
+test_27: similar test_13 
+test_28: similar test_2
 
 
 

@@ -440,6 +440,7 @@ def main():
     ## training
     loss_his = np.zeros((epochs,4))
     lmd_e_his = np.zeros((epochs,1))
+    K_his = np.zoeros((epochs,1))
 
     print('start training...', flush=True)
     tic = time.time()
@@ -447,6 +448,7 @@ def main():
     for epoch in range(0, epochs):      
         model.train()
         print(model.lmd_e)
+        print(model.K)
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
@@ -466,6 +468,7 @@ def main():
         loss = optimizer.step(closure)
         # loss_value = loss.item() if not isinstance(loss, float) else loss
         lmd_e_his[epoch, 0] = to_numpy(model.lmd_e)
+        K_his[epoch, 0] = to_numpy(model.K)
         # print(f'epoch {epoch}: loss {loss_value:.6f}')
         
         ## checkpoint saving

@@ -11,7 +11,7 @@ yline(15)
 
 loss = load('loss.his');
 figure()
-semilogy(loss)
+semilogy(loss(:,1))
 
 min(loss)
 lmd(end)

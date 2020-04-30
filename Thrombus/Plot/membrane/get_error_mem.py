@@ -174,25 +174,25 @@ def main():
         # print(f'mean relative l2 error (vel): {l2_error}')
         l2_error = get_relative_l2_error(vel_inf, vel_ref)
         print(f'mean relative l2 error (vel) full time: {l2_error.mean()}')
-        print(f'mean relative l2 error (vel) partial time: {l2_error[:10].mean()}')
+        # print(f'mean relative l2 error (vel) partial time: {l2_error[:10].mean()}')
 
         # l2_error = get_relative_l2_error(phi_inf, phi_ref)
         # print(f'mean relative l2 error (phi): {l2_error}')
         l2_error = get_relative_l2_error(phi_inf, phi_ref)
         print(f'mean relative l2 error (phi) full time: {l2_error.mean()}')
-        print(f'mean relative l2 error (phi) partial time: {l2_error[:10].mean()}')
+        # print(f'mean relative l2 error (phi) partial time: {l2_error[:10].mean()}')
 
         l2_error = get_relative_l2_error(p_inf, p_ref)
         print(f'mean relative l2 error (p) full time: {l2_error.mean()}')
-        print(f'mean relative l2 error (p) partial time: {l2_error[:10].mean()}')
+        # print(f'mean relative l2 error (p) partial time: {l2_error[:10].mean()}')
 
         l2_error = get_relative_l2_error(psi1_inf, psi1_ref)
         print(f'mean relative l2 error (psi1) full time: {l2_error.mean()}')
-        print(f'mean relative l2 error (psi1) partial time: {l2_error[:10].mean()}')
+        # print(f'mean relative l2 error (psi1) partial time: {l2_error[:10].mean()}')
 
         l2_error = get_relative_l2_error(psi2_inf, psi2_ref)
         print(f'mean relative l2 error (psi2) full time: {l2_error.mean()}')
-        print(f'mean relative l2 error (psi2) partial time: {l2_error[:10].mean()}')
+        # print(f'mean relative l2 error (psi2) partial time: {l2_error[:10].mean()}')
 
 if __name__ == '__main__':
     main()

@@ -1,17 +1,6 @@
 """
 Author: Minglang Yin
     PINNs_no_psi (physical-informed neural network) for solving time-dependent Cahn-Hilliard Navier-Stokes equation (2D).
-
-    Governing equtions (Latex):
-        \frac{\partial\phi}{dt} + u\cdot(\nabla\phi) + \tau\Delta w = 0, \\
-        w = \Delta\phi - f(\phi), \\
-        \rho(\frac{\partial u}{\partial t} + (u \cdot \nabla) u) + \nabla p - \mu\Delta u + \lambda(\Delta\phi- f(\phi))\nabla \phi = 0,\\
-        \nabla \cdot u = 0, \\
-        f(\phi) = F'(\phi) = 1/(h^2)(\phi^3- \phi) 
-
-    where
-        Input: [t, x, y]
-        Output: [u, v, p, phi], [w, psi_1, psi_2]
 """
 
 import sys
@@ -161,7 +150,7 @@ class Model(nn.Module):
         psi_1_l_x, psi_2_l_x = gradients(psi_1_l, x_l)[0][:, 1], gradients(psi_2_l, x_l)[0][:, 1]
         psi_1_r_x, psi_2_r_x = gradients(psi_1_r, x_r)[0][:, 1], gradients(psi_2_r, x_r)[0][:, 1]
         psi_1_up_y, psi_2_up_y = gradients(psi_1_up, x_up)[0][:, 2], gradients(psi_2_up, x_up)[0][:, 2]
-        psi_1_dw_y, psi_2_dw_y = gradients(psi_1_dw, x_dw)[0][:, 1], gradients(psi_2_dw, x_dw)[0][:, 2]
+        psi_1_dw_y, psi_2_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2], gradients(psi_2_dw, x_dw)[0][:, 2]
 
         return ((u_l-u_r)**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
                 + ((v_l-v_r)**2).mean() + ((v_up-v_up_real)**2).mean() + (v_dw**2).mean()\
