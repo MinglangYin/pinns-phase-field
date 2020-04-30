@@ -12,6 +12,8 @@ yline(10)
 loss = load('loss.his');
 figure()
 semilogy(loss)
+legend('pde', 'bc', 'ic', 'data')
 
-min(loss)
-lmd(find(loss == min(loss)))
+
+% min(loss)
+% lmd(find(loss == min(loss)))

@@ -51,10 +51,12 @@ class Model(nn.Module):
         super(Model, self).__init__()
         self.net = nn.Sequential()
         self.net.add_module('linear_layer_1', nn.Linear(3, 20))
-        self.net.add_module('tanh_layer_1', nn.Tanh())
-        for num in range(2,10):
+        # self.net.add_module('tanh_layer_1', nn.Tanh())
+        self.net.add_module('lrelu_layer_1', nn.LeakyReLU())
+        for num in range(2,14):
             self.net.add_module('linear_layer_%d' %(num), nn.Linear(20, 20))
-            self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
+            # self.net.add_module('tanh_layer_%d' %(num), nn.Tanh())
+            self.net.add_module('lrelu_layer_%d', nn.LeakyReLU())
         self.net.add_module('linear_layer_50', nn.Linear(20, 4))
 
     def forward(self, x):

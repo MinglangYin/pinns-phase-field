@@ -12,6 +12,9 @@ Upper: outflow
 Density for fluid and solid =1
 Viscosity for fluid and solid=0.01
 Lambda_e=0.25
-Phase-field interface width=0.02
+Phase-field interface width h =0.02
 Phase-field lambda=1.0607*0.02*0.0000001178
 Tau=10e-4
+
+HH=0.5
+

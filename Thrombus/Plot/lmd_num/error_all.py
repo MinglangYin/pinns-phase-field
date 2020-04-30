@@ -56,23 +56,27 @@ def main():
     case_2_err_psi_2_3 = [0.005121178342129216, 0.0017153106283618973, 0.0017211084261206208 , 0.0014606540830064216]
 
     ## plotting
-    fig = plt.figure(constrained_layout=False, figsize=(24,8))
-    gs = fig.add_gridspec(2, 1)
-    gs0 = gs[0].subgridspec(1, 6)
+    fig = plt.figure(constrained_layout=False, figsize=(12,16))
+    gs = fig.add_gridspec(4, 1)
+    gs0 = gs[0].subgridspec(1, 3)
     ax1 = fig.add_subplot(gs0[0])
     ax2 = fig.add_subplot(gs0[1])
     ax3 = fig.add_subplot(gs0[2])
-    ax4 = fig.add_subplot(gs0[3])
-    ax5 = fig.add_subplot(gs0[4])
-    ax6 = fig.add_subplot(gs0[5])
 
-    gs1 = gs[1].subgridspec(1, 6)
-    ax7 = fig.add_subplot(gs1[0])
-    ax8 = fig.add_subplot(gs1[1])
-    ax9 = fig.add_subplot(gs1[2])
-    ax10 = fig.add_subplot(gs1[3])
-    ax11 = fig.add_subplot(gs1[4])
-    ax12 = fig.add_subplot(gs1[5])
+    gs1 = gs[1].subgridspec(1, 3)
+    ax4 = fig.add_subplot(gs1[0])
+    ax5 = fig.add_subplot(gs1[1])
+    ax6 = fig.add_subplot(gs1[2])
+
+    gs2 = gs[2].subgridspec(1, 3)
+    ax7 = fig.add_subplot(gs2[0])
+    ax8 = fig.add_subplot(gs2[1])
+    ax9 = fig.add_subplot(gs2[2])
+
+    gs3 = gs[3].subgridspec(1, 3)
+    ax10 = fig.add_subplot(gs3[0])
+    ax11 = fig.add_subplot(gs3[1])
+    ax12 = fig.add_subplot(gs3[2])
 
     ## ax1: lmd
     ax1.axhline(y=10, linestyle='--', color='black',  label='true $\lambda_{e}$')
@@ -190,10 +194,8 @@ def main():
     # ax2.set_yticks(np.linspace(0, 12, 6))
     ax6.set_ylim([1e-5, 1e1])
     ax6.set_yscale('log')
-    ax6.set_title('(c)')
+    ax6.set_title('(f)')
     ax6.yaxis.set_label_coords(0.0,1.02)
-    # leg3 = ax3.legend([h_, h__],['full time window','partial time window'], loc='upper right')
-    # ax3.legend()
 
     
     ## ax7: lmd
@@ -211,10 +213,11 @@ def main():
     ax7.set_yticks(np.linspace(0, 20, 6))
     # ax1.set_xlim([0, 0.2])
     ax7.set_ylim([0, 20])
-    ax7.set_title('(d)')
+    ax7.set_title('(g)')
     # ax1.set_aspect('auto')
     ax7.yaxis.set_label_coords(0.0,1.02)
     ax7.legend()
+    # ax7.text(1.5, 15, "zero $\kappa$", fontsize=16)
 
     # ## ax8
     ax8.plot(x, case_2_err_v_1, color='blue')
@@ -230,7 +233,7 @@ def main():
     ax8.set_xticklabels(num_pt)
     ax8.set_ylim([1e-3, 1e1])
     ax8.set_yscale('log')
-    ax8.set_title('(e)')
+    ax8.set_title('(h)')
     ax8.yaxis.set_label_coords(0.0,1.02)
     # leg5 = ax5.legend([h_, h__],['full time window','partial time window'], loc='upper right')
     # ax5.legend()
@@ -249,7 +252,7 @@ def main():
     ax9.set_xticklabels(num_pt)
     ax9.set_ylim([1e-3, 1e1])
     ax9.set_yscale('log')
-    ax9.set_title('(f)')
+    ax9.set_title('(i)')
     ax9.yaxis.set_label_coords(0.0,1.02)
     # leg6 = ax6.legend([h_, h__],['full time window','partial time window'], loc='upper right')
     # ax6.legend()
@@ -268,7 +271,7 @@ def main():
     ax10.set_xticklabels(num_pt)
     ax10.set_ylim([1e-5, 1e1])
     ax10.set_yscale('log')
-    ax10.set_title('(f)')
+    ax10.set_title('(j)')
     ax10.yaxis.set_label_coords(0.0,1.02)
     # leg6 = ax6.legend([h_, h__],['full time window','partial time window'], loc='upper right')
     # ax6.legend()
@@ -287,7 +290,7 @@ def main():
     ax11.set_xticklabels(num_pt)
     ax11.set_ylim([1e-4, 1e1])
     ax11.set_yscale('log')
-    ax11.set_title('(f)')
+    ax11.set_title('(k)')
     ax11.yaxis.set_label_coords(0.0,1.02)
     # leg6 = ax6.legend([h_, h__],['full time window','partial time window'], loc='upper right')
     # ax6.legend()
@@ -306,13 +309,13 @@ def main():
     ax12.set_xticklabels(num_pt)
     ax12.set_ylim([1e-5, 1e1])
     ax12.set_yscale('log')
-    ax12.set_title('(f)')
+    ax12.set_title('(l)')
     ax12.yaxis.set_label_coords(0.0,1.02)
     # leg6 = ax6.legend([h_, h__],['full time window','partial time window'], loc='upper right')
     # ax6.legend()
 
     plt.tight_layout()
-    fig.savefig('error_all.png')
+    fig.savefig('fig_lmd_num.png')
     plt.close()
 
 

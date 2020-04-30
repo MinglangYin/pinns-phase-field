@@ -71,6 +71,7 @@ def main():
     # ax1.set_aspect('auto')
     ax1.yaxis.set_label_coords(0.0,1.02)
     ax1.legend(fontsize=14)
+    ax1.text(1.5, 0.0006, "$\kappa$=0.001", fontsize=16)
 
     # ## ax2
     ax2.plot(x, K0001_err_v, color='blue')
@@ -118,6 +119,7 @@ def main():
     # ax1.set_aspect('auto')
     ax4.yaxis.set_label_coords(0.0,1.02)
     ax4.legend(fontsize=14)
+    ax4.text(1.5, 0.013, "$\kappa$=0.01", fontsize=16)
 
     # ## ax5
     ax5.plot(x, K001_err_v, color='blue')
@@ -166,6 +168,7 @@ def main():
     # ax1.set_aspect('auto')
     ax7.yaxis.set_label_coords(0.0,1.02)
     ax7.legend(fontsize=14)
+    ax7.text(1.5, 0.5, "$\kappa$=1", fontsize=16)
 
     # ## ax8
     ax8.plot(x, K1_err_v, color='blue')
@@ -214,6 +217,7 @@ def main():
     # ax1.set_aspect('auto')
     ax10.yaxis.set_label_coords(0.0,1.02)
     ax10.legend(fontsize=14)
+    ax10.text(1.5, 200, "$\kappa$=100", fontsize=16)
 
     # ## ax8
     ax11.plot(x, K100_err_v, color='blue')
