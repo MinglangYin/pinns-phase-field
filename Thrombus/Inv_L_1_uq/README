@@ -1,0 +1,7 @@
+README
+tests: number of sampling points
+########### case 1: Lmd_e_10
+test_1-5: (Lmd_e_10), snapshot: 0-19, phase+p, number of points: 100, Prediction:
+test_11-15: (Lmd_e_10), snapshot: 0-19, phase+p, number of points: 10000, Prediction:
+test_21-25: (Lmd_e_10), snapshot: 0-19, phase+p, number of points: 20000, Prediction:
+test_31-35: (Lmd_e_10), snapshot: 0-19, phase+p, number of points: 30000, Prediction:
