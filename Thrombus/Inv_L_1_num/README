@@ -1,10 +1,10 @@
 README
 tests: number of sampling points
 ########### case 1: Lmd_e_10
-test_1: (Lmd_e_10) FFT-I, snapshot: 0-19, velo+phase+psi, sampling around thrombus, number of points: 100, Prediction: 1.42
-test_2: (Lmd_e_10) FFT-I, snapshot: 0-19, velo+phase+psi, sampling around thrombus, number of points: 10000, Prediction: 9.3280
-test_3: (Lmd_e_10) FFT-I, snapshot: 0-19, velo+phase+psi, sampling around thrombus, number of points: 20000, Prediction: 8.6424
-test_4: (Lmd_e_10) FFT-I, snapshot: 0-19, velo+phase+psi, sampling around thrombus, number of points: 30000, Prediction: 9.0431
+test_1: (Lmd_e_10) FFT-I, snapshot: 0-19, velo+phase+p+psi, sampling around thrombus, number of points: 100, Prediction: 1.42
+test_2: (Lmd_e_10) FFT-I, snapshot: 0-19, velo+phase+p+psi, sampling around thrombus, number of points: 10000, Prediction: 9.3280
+test_3: (Lmd_e_10) FFT-I, snapshot: 0-19, velo+phase+p+psi, sampling around thrombus, number of points: 20000, Prediction: 8.6424
+test_4: (Lmd_e_10) FFT-I, snapshot: 0-19, velo+phase+p+psi, sampling around thrombus, number of points: 30000, Prediction: 9.0431
 
 _test_5: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, phase + velocity, sampling around thrombus, number of points: 100, Prediction: 4.2467
 _test_6: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, phase + velocity, sampling around thrombus, number of points: 10000 Prediction: 4.1247
@@ -16,3 +16,17 @@ test_10: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, phase, sampling around thrombu
 test_11: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, phase, sampling around thrombus, number of points: 20000, Prediction: 1.2215
 test_12: (Lmd_e_10) FFT-I, lmd_e, snapshot: 0-19, phase, sampling around thrombus, number of points: 30000, Prediction: 1.8188
 
+test_13: (Lmd_e_10) FFT-I, snapshot: 0-19, velo+phase+p, sampling around thrombus, number of points: 100, Prediction: 
+test_14: (Lmd_e_10) FFT-I, snapshot: 0-19, velo+phase+p, sampling around thrombus, number of points: 10000, Prediction: 
+test_15: (Lmd_e_10) FFT-I, snapshot: 0-19, velo+phase+p, sampling around thrombus, number of points: 20000, Prediction: 
+test_16: (Lmd_e_10) FFT-I, snapshot: 0-19, velo+phase+p, sampling around thrombus, number of points: 30000, Prediction: 
+
+test_17: (Lmd_e_10) FFT-I, snapshot: 0-19, phase + p, sampling around thrombus, number of points: 100, Prediction: 
+test_18: (Lmd_e_10) FFT-I, snapshot: 0-19, phase + p, sampling around thrombus, number of points: 10000, Prediction: 
+test_19: (Lmd_e_10) FFT-I, snapshot: 0-19, phase + p, sampling around thrombus, number of points: 20000, Prediction: 
+test_20: (Lmd_e_10) FFT-I, snapshot: 0-19, phase + p, sampling around thrombus, number of points: 30000, Prediction: 
+
+test_21: (Lmd_e_10) FFT-I, snapshot: 0-19, velo + p, sampling around thrombus, number of points: 100, Prediction: 
+test_22: (Lmd_e_10) FFT-I, snapshot: 0-19, velo + p, sampling around thrombus, number of points: 10000, Prediction: 
+test_23: (Lmd_e_10) FFT-I, snapshot: 0-19, velo + p, sampling around thrombus, number of points: 20000, Prediction: 
+test_24: (Lmd_e_10) FFT-I, snapshot: 0-19, velo + p, sampling around thrombus, number of points: 30000, Prediction: 
