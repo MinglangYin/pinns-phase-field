@@ -120,10 +120,10 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
 
     ## loading model/optimizer state
-    model_path = ['../../Inv_L_2_num/test_9/CheckPts/model_chkpts.pt', 
-    '../../Inv_L_2_num/test_10/CheckPts/model_chkpts.pt',
-    '../../Inv_L_2_num/test_11/CheckPts/model_chkpts.pt', 
-    '../../Inv_L_2_num/test_12/CheckPts/model_chkpts.pt']
+    model_path = ['../../Inv_L_2_num/test_5/CheckPts/model_chkpts.pt', 
+    '../../Inv_L_2_num/test_6/CheckPts/model_chkpts.pt',
+    '../../Inv_L_2_num/test_7/CheckPts/model_chkpts.pt', 
+    '../../Inv_L_2_num/test_8/CheckPts/model_chkpts.pt']
 
 
     Predictions = np.zeros((4, 7, num_t, num_x1, num_x2))

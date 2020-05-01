@@ -15,4 +15,4 @@ semilogy(loss)
 
 loss_all = sum(loss, 2);
 min(loss_all)
-lmd(find(loss_all == min(loss_all)))
+lmd(end)

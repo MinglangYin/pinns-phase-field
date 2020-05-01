@@ -21,7 +21,7 @@ def main():
     num_data = 5
     ### inferred K
     noise_level = np.linspace(0, 0.2, 5)
-    lmd_inf_text = ['3.7891', '3.9018', '4.0679', '3.7717', '3.8299']
+    lmd_inf_text = ['10.1144', '11.4077', '12.32', '11.04', '11.53']
     Loss_inf_text = ['0.0372', '0.0471', '0.0607', '0.0956', '0.1378']
     err_phi_text = ['0.008051419432299447', '0.009478734804247843', '0.01132068173843572', '0.020044809031047436', '0.030512773730721393']
     err_v_text = ['0.02478066552721257', '0.029349231302478702', '0.024614214605236176', '0.02605206420946758', '0.02750679025451804']
@@ -49,9 +49,9 @@ def main():
     ax1.set_xlabel('noise level $\sigma$', fontsize=18)
     ax1.set_ylabel("$\lambda_{e}$", fontsize=18, rotation='horizontal')
     ax1.set_xticks(noise_level)
-    ax1.set_yticks(np.linspace(0, 12, 7))
+    ax1.set_yticks(np.linspace(0, 20, 6))
     ax1.set_xlim([0, 0.2])
-    ax1.set_ylim([0, 12])
+    ax1.set_ylim([0, 20])
     ax1.set_title('(a)')
     ax1.set_aspect('auto')
     ax1.yaxis.set_label_coords(0.0,1.02)
