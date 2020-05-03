@@ -1,17 +1,6 @@
 """
 Author: Minglang Yin
     PINNs_no_psi (physical-informed neural network) for solving time-dependent Cahn-Hilliard Navier-Stokes equation (2D).
-
-    Governing equtions (Latex):
-        \frac{\partial\phi}{dt} + u\cdot(\nabla\phi) + \tau\Delta w = 0, \\
-        w = \Delta\phi - f(\phi), \\
-        \rho(\frac{\partial u}{\partial t} + (u \cdot \nabla) u) + \nabla p - \mu\Delta u + \lambda(\Delta\phi- f(\phi))\nabla \phi = 0,\\
-        \nabla \cdot u = 0, \\
-        f(\phi) = F'(\phi) = 1/(h^2)(\phi^3- \phi) 
-
-    where
-        Input: [t, x, y]
-        Output: [u, v, p, phi], [w, psi_1, psi_2]
 """
 
 import sys
@@ -27,7 +16,6 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import scipy.io
 
-from others import *
 from plotting import newfig, savefig
 
 import matplotlib
@@ -43,7 +31,6 @@ tau = 1e-4
 rho = 1
 mu = 0.01
 HH = 0.5
-epsilon= 0.1
 
 class Model(nn.Module):
     def __init__(self):
@@ -64,7 +51,7 @@ class Model(nn.Module):
             self.net_u.add_module('net_u_tanh_%d' %(num), nn.Tanh())
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
-        self.lmd_e = torch.nn.Parameter(torch.tensor([15], requires_grad=True, dtype=torch.float32) )
+        self.lmd_e = torch.nn.Parameter(torch.tensor([5], requires_grad=True, dtype=torch.float32) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -128,11 +115,11 @@ class Model(nn.Module):
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean() \
              + (res_psi_x**2).mean() + (res_psi_y**2).mean()
 
-    def loss_data(self, x_data, u_data, v_data, phi_data):
+    def loss_data(self, x_data, p_data, phi_data):
         y_u = self.net_u(x_data)
-        u, v, phi = y_u[:, 0], y_u[:, 1], y_u[:, 3]
-
-        return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((phi - phi_data)**2).mean() 
+        p, phi = y_u[:, 2], y_u[:, 3]
+        print(f'p diff shape: {(p-p_data).shape}')
+        return ((p - p_data)**2).mean()  + ((phi - phi_data)**2).mean() 
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, v_up_real, phi_real):
         ## velocity inflow
@@ -160,7 +147,7 @@ class Model(nn.Module):
         psi_1_l_x, psi_2_l_x = gradients(psi_1_l, x_l)[0][:, 1], gradients(psi_2_l, x_l)[0][:, 1]
         psi_1_r_x, psi_2_r_x = gradients(psi_1_r, x_r)[0][:, 1], gradients(psi_2_r, x_r)[0][:, 1]
         psi_1_up_y, psi_2_up_y = gradients(psi_1_up, x_up)[0][:, 2], gradients(psi_2_up, x_up)[0][:, 2]
-        psi_1_dw_y, psi_2_dw_y = gradients(psi_1_dw, x_dw)[0][:, 1], gradients(psi_2_dw, x_dw)[0][:, 2]
+        psi_1_dw_y, psi_2_dw_y = gradients(psi_1_dw, x_dw)[0][:, 2], gradients(psi_2_dw, x_dw)[0][:, 2]
 
         return ((u_l-u_r)**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
                 + ((v_l-v_r)**2).mean() + ((v_up-v_up_real)**2).mean() + (v_dw**2).mean()\
@@ -169,13 +156,12 @@ class Model(nn.Module):
                 + (psi_1_l_x**2).mean() + (psi_2_l_x**2).mean() + (psi_1_r_x**2).mean() + (psi_2_r_x**2).mean()\
                 + (psi_1_up_y**2).mean() + (psi_2_up_y**2).mean() + (psi_1_dw_y**2).mean() + (psi_2_dw_y**2).mean()
                  
-                 
     def loss_ic(self, x, u_i, v_i, p_i, phi_i, psi_1_i, psi_2_i):
         y_u_pred = self.net_u(x)
         y_w_pred = self.net_w(x)
         u_i_pred, v_i_pred, p_i_pred, phi_i_pred = y_u_pred[:, 0][:,None], y_u_pred[:, 1][:,None], y_u_pred[:, 2][:,None], y_u_pred[:, 3][:,None]
         psi_1_i_pred, psi_2_i_pred = y_w_pred[:, 1][:,None], y_w_pred[:, 2][:,None]
-        
+
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() \
             + ((phi_i_pred-phi_i)**2).mean() + ((psi_1_i_pred-psi_1_i)**2).mean() + ((psi_2_i_pred-psi_2_i)**2).mean()
 
@@ -209,7 +195,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 200000
+    epochs = 300000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/', './Predictions/psi_1/', './Predictions/psi_2/']
@@ -227,7 +213,7 @@ def main():
     num_bh_train = 800   # number of sampling points on verticle boundary over time
     num_bv_train = 800   # number of sampling points on horizontal boundary over time
     num_f_train = 20000   # inner sampling points
-    num_ft_train = 10000 # sampling point around thrombus
+    #num_ft_train = 10000 # sampling point around thrombus
     num_i_train = 5000   # initial sampling points 
 
     x_min, x_max = 0, 1
@@ -319,9 +305,9 @@ def main():
     psi_2_i_sample = psi_2_init[id_i]
     ### boundary
     xt_l_sample, xt_r_sample = xt_l_ext[id_bv,:], xt_r_ext[id_bv,:]
+    phi_l_sample = phi_l[id_bv]
     xt_up_sample, xt_dw_sample = xt_up_ext[id_bh,:], xt_dw_ext[id_bh,:]
     v_up_sample = v_up[id_bh]
-    phi_l_sample = phi_l[id_bv]
 
     ### inner points
     xt_f_sample = x_data[id_f,:]
@@ -370,80 +356,32 @@ def main():
     ## training
     loss_his = np.zeros((epochs,4))
     lmd_e_his = np.zeros((epochs,1))
-    weig_param = np.zeros((epochs,3))
-
-    w_bc = 1
-    w_ic = 1
-    w_data = 50
-    
-    weight_list = []
-    bias_list = []
-    for name, param in model.named_parameters():
-        if param.requires_grad:
-            if 'weight' in name:
-                weight_list.append(param)
-            if 'bias' in name:
-                bias_list.append(param)
 
     print('start training...', flush=True)
     tic = time.time()
     for epoch in range(0, epochs):    
         model.train()
         print(model.lmd_e)
+        def closure():
+            optimizer.zero_grad()
+            loss_pde = model.loss_pde(xt_f_train)
+            loss_data = model.loss_data(xt_f_train, p_f_train, phi_f_train)        
+            loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, v_up_train, phi_l_train)
+            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
+            loss = loss_pde + loss_bc + 5*loss_data + 5*loss_ic
 
-        optimizer.zero_grad()
-        loss_pde = model.loss_pde(xt_f_train)
-        loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, phi_f_train)        
-        loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, v_up_train, phi_l_train)
-        loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-        
-        loss_pde.backward(retain_graph=True)
-        w_pde_grad = [weight_list[i].grad for i in range(len(weight_list))]
-        w_pde_grad_norm = get_max([to_numpy(w_pde_grad[i].detach()).flatten() for i in range(len(w_pde_grad))])
-        # print(w_pde_grad_norm)
-        optimizer.zero_grad()
+            loss_his[epoch,0] = to_numpy(loss_pde)
+            loss_his[epoch,1] = to_numpy(loss_bc)
+            loss_his[epoch,2] = to_numpy(loss_ic)
+            loss_his[epoch,3] = to_numpy(loss_data)
 
-        loss_bc.backward(retain_graph=True)
-        w_bc_grad = [weight_list[i].grad for i in range(len(weight_list))]
-        w_bc_grad_norm = get_average([to_numpy(w_bc_grad[i].detach()).flatten() for i in range(len(w_bc_grad))])
-        # print(w_bc_grad_norm)       
-        optimizer.zero_grad()
-        
-        loss_ic.backward(retain_graph=True)
-        w_ic_grad = [weight_list[i].grad for i in range(len(weight_list))]
-        w_ic_grad_norm = get_average([to_numpy(w_ic_grad[i].detach()).flatten() for i in range(len(w_ic_grad))])
-        # print(w_ic_grad_norm)       
-        optimizer.zero_grad()
+            print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
+            loss.backward()
+            return loss
 
-        loss_data.backward(retain_graph=True)
-        w_data_grad = [weight_list[i].grad for i in range(len(weight_list))]
-        w_data_grad_norm = get_average([to_numpy(w_data_grad[i].detach()).flatten() for i in range(len(w_data_grad))])
-        # print(w_data_grad_norm)       
-        optimizer.zero_grad()
-
-        w_bc = 0.9*w_bc + 0.1*w_pde_grad_norm/(w_bc*w_bc_grad_norm + epsilon)
-        w_ic = 0.9*w_ic + 0.1*w_pde_grad_norm/(w_ic*w_ic_grad_norm + epsilon)
-        w_data = 0.9*w_data + 0.1*w_pde_grad_norm/(w_data*w_data_grad_norm + epsilon)
-        print(w_bc, w_ic, w_data)
-
-        loss = loss_pde + w_bc*loss_bc + w_ic*loss_ic + w_data*loss_data
-
-        loss_his[epoch,0] = to_numpy(loss_pde)
-        loss_his[epoch,1] = to_numpy(loss_bc)
-        loss_his[epoch,2] = to_numpy(loss_ic)
-        loss_his[epoch,3] = to_numpy(loss_data)
-
-        weig_param[epoch, 0] = w_bc
-        weig_param[epoch, 1] = w_ic
-        weig_param[epoch, 2] = w_data
-
-        print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
-        loss.backward()
-
-        loss = optimizer.step()
+        loss = optimizer.step(closure)
         # loss_value = loss.item() if not isinstance(loss, float) else loss
         lmd_e_his[epoch, 0] = to_numpy(model.lmd_e)
-        # print(f'epoch {epoch}: loss {loss_value:.6f}')
         
         ## checkpoint saving
         if (epoch+1)%check_step == 0:
@@ -482,7 +420,6 @@ def main():
         
     np.savetxt('loss.his', loss_his)
     np.savetxt('lmd_e.his', lmd_e_his)
-    np.savetxt('weig_param.his', weig_param)
 
 if __name__ == '__main__':
     main()

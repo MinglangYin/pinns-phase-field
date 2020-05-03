@@ -123,13 +123,10 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
 
     ## loading model/optimizer state
-    model_path = ['../../Inv_L/test_23/CheckPts/model_chkpts.pt',
-    '../../Inv_L/test_24/CheckPts/model_chkpts.pt',
-    '../../Inv_L/test_25/CheckPts/model_chkpts.pt', 
-    '../../Inv_L/test_26/CheckPts/model_chkpts.pt']
+    model_path = ['../../Inv_L/test_23/CheckPts/model_chkpts.pt']
 
     Predictions = np.zeros((4, 7, num_t, num_x1, num_x2))
-    for k in range (0, 4):
+    for k in range (0, 1):
         checkpoint = torch.load(model_path[k])
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -153,7 +150,7 @@ def main():
     psi1_ref = np.zeros((num_t, num_x1, num_x2))
     psi2_inf = np.zeros((num_t, num_x1, num_x2))
     psi2_ref = np.zeros((num_t, num_x1, num_x2))
-    for k in range(0, 4):
+    for k in range(0, 1):
         for i in range(0, num_t):
             phi_inf[i, :, :] = Predictions[k, 3, i, :, :]
             phi_ref[i, :, :] = y_data[3, i, :, :]

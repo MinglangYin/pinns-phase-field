@@ -47,15 +47,16 @@ test_22: (Lmd_e_15_K_001), dyn_w, lmd_e, snapshot: 0-19, velo+phase, number of p
 
 ########## visco-elastic membrane 
 test_23: fix w, w_data:50, lmd_e, snapshot: 0-19, velo+phase, number of points: 30000, Prediction:
-test_24: dyn w, w_data:50, lmd_e, snapshot: 0-19, velo+phase, number of points: 30000, Prediction:
-
-test_25: fix w, w_data:50, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:
-test_26: dyn w, w_data:50, lmd_e, snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction:
+test_24: fix w, w_data:50, lmd_e, snapshot: 0-19, phase+p, number of points: 30000, Prediction:
+test_25: fix w, w_data:50, lmd_e, snapshot: 0-19, velo+phase+p+psi, number of points: 30000, Prediction:
+test_26: fix w, w_data:50, lmd_e, snapshot: 0-19, phase+p(boundary), number of points: 30000, Prediction:
 
 ############ new pressure boundary condition
 test_27: similar test_13 
 test_28: similar test_2
 
+######### lmd_10 ###########
+test_29: (Lmd_e_10) w_data:50, lmd_e, snapshot: 0-19, phase+p(boundary), points: 20000, Prediction: 
 
 
 
