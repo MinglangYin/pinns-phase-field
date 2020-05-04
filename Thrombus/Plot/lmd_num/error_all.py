@@ -11,15 +11,17 @@ def main():
     num_data = 4
     ### inferred K
     num_pt = ['3%', '8%', '13%', '18%']
-    case_1_lmd_1 = [1.42, 9.3280, 8.6424, 9.0431] # phi + v + psi
+    case_1_lmd_1 = [1.7798, 9.2559, 8.9303, 8.4984] # phi + v + p
     case_1_lmd_2 = [4.3467, 4.41247, 4.4087, 4.2447] # phi + v
     case_1_lmd_3 = [4.0384, 1.1751, 1.2215, 1.8188] # phi
+    case_1_lmd_4 = [8.2931, 9.4498, 8.9303, 8.6150] # phi + p
+    case_1_lmd_5 = [20.0489, 50.8264, 39.7520, 44.7701] # u + p
 
-    case_1_err_v_1 = [0.5684918864962359, 0.014145652170003797, 0.01572135854802598, 0.02621160684646784]
-    case_1_err_phi_1 = [0.2885261673175247, 0.01686707358268274, 0.012817297699005697, 0.013595372302310876]
-    case_1_err_p_1 = [0.030491674507753058, 0.00010092432738261509, 6.244089967933223e-05, 8.621635307445654e-05]
-    case_1_err_psi_1_1 = [0.005231953978333372, 0.0007150437527457803, 0.0010942246314679298, 0.00241645426397665]
-    case_1_err_psi_2_1 = [0.0029923287090149395, 0.0001576801918506319, 0.00026570635510500047, 0.00034971347876388924]
+    case_1_err_v_1 = [0.5625931345460555, 0.013485257750282979, 0.014629250286499617,0.013258648408320056 ]
+    case_1_err_phi_1 = [0.3160970179656275, 0.013352536625511738, 0.00944945929022528,0.011601915784289762 ]
+    case_1_err_p_1 = [0.03737750454426, 6.673513855436055e-05, 8.078005707626682e-05, 6.958081380072335e-05]
+    case_1_err_psi_1_1 = [0.1049961991147322, 0.00119825180980303, 0.0017778339314038292, 0.0026305699826746297]
+    case_1_err_psi_2_1 = [0.09424240870981872, 0.00045304666899898243, 0.0004639381771863123, 0.0015284374014468808]
 
     case_1_err_v_2 = [1.5801427980152334, 0.0236740700590421, 0.022105400710721958, 0.025176377316032457]
     case_1_err_phi_2 = [0.34587901315213554, 0.004554589624034001, 0.005477051268135714, 0.006203971294017096]
@@ -33,6 +35,19 @@ def main():
     case_1_err_psi_1_3 = [0.9596741728126401, 0.0014750764581647777, 0.0013436843860961283, 0.0012376463319576476]
     case_1_err_psi_2_3 = [1.154138026696123, 0.0016010700519875107, 0.0012873729021435768, 0.001200807772034765]
 
+    case_1_err_v_4 = [2.80784657605279, 0.030035224759115752, 0.03688040436906455, 0.050207983066788794]
+    case_1_err_phi_4 = [0.4810201305613992, 0.016830210380377585, 0.017575304567299974,0.017522778533420342 ]
+    case_1_err_p_4 = [0.1005884395393352, 9.772108445236659e-05, 6.681151218795605e-05, 0.00010303026165019657]
+    case_1_err_psi_1_4 = [0.019982277410623868, 0.0016743063171489585, 0.002882538850447998, 0.0035927384169207625]
+    case_1_err_psi_2_4 = [0.00948825102473937, 0.0006629210641742381, 0.0013910754973777296, 0.002014324070847926]
+
+    case_1_err_v_5 = [0.50830874148516, 0.03514084077693483, 0.028926857605279188,0.03500308232785726 ]
+    case_1_err_phi_5 = [0.9099167132438584, 0.8998956175883113, 1.0279927206374222, 0.9898297240486075]
+    case_1_err_p_5 = [0.04740027304660192, 4.955246727054696e-05, 4.604623893652238e-05, 5.8606374221171725e-05]
+    case_1_err_psi_1_5 = [0.010625445480080232, 0.012826217807737007, 0.024286083029936407, 0.027592028725171802]
+    case_1_err_psi_2_5 = [0.0219550390295887, 0.0014048819383071624, 0.0010675191143140659, 0.0006909279296374674]
+
+    ##### case 2
     case_2_lmd_1 = [1.5202, 11.2697, 11.2875, 10.2344] # phi + v + psi
     case_2_lmd_2 = [5.1133, 5.6738, 5.5645, 5.0464] # phi + v
     case_2_lmd_3 = [2.1050, 3.7115, 2.3074, 2.0182] # phi
@@ -81,18 +96,23 @@ def main():
     ## ax1: lmd
     ax1.axhline(y=10, linestyle='--', color='black',  label='true $\lambda_{e}$')
     ax1.plot(x, case_1_lmd_1, color='blue')
-    ax1.scatter(x, case_1_lmd_1, color='blue', label='$\phi$+u+p+$\psi$')
+    ax1.scatter(x, case_1_lmd_1, color='blue', label='$\phi$+u+p')
     ax1.plot(x, case_1_lmd_2, color='red')
     ax1.scatter(x, case_1_lmd_2, color='red', label='$\phi$+u')
     ax1.plot(x, case_1_lmd_3, color='black')
     ax1.scatter(x, case_1_lmd_3, color='black', label='$\phi$')
+    ax1.plot(x, case_1_lmd_4, color='orange')
+    ax1.scatter(x, case_1_lmd_4, color='orange', label='$\phi$+p')
+    ax1.plot(x, case_1_lmd_5, color='purple')
+    ax1.scatter(x, case_1_lmd_5, color='purple', label='u+p')
+
     ax1.set_xlabel('$N_{train}$/$N_{total}$', fontsize=18)
     ax1.set_ylabel("$\lambda_{e}$", fontsize=18, rotation='horizontal')
     ax1.set_xticks(np.arange(1, 5))
     ax1.set_xticklabels(num_pt)
-    ax1.set_yticks(np.linspace(0, 20, 6))
+    ax1.set_yticks(np.linspace(0, 60, 6))
     # ax1.set_xlim([1,4])
-    ax1.set_ylim([0, 20])
+    ax1.set_ylim([0, 60])
     ax1.set_title('(a)')
     # ax1.set_aspect('auto')
     ax1.yaxis.set_label_coords(0.0,1.02)
@@ -104,8 +124,12 @@ def main():
     ax2.scatter(x, case_1_err_v_1, color='blue', label='$\phi$+u+p+$\psi$')
     ax2.plot(x, case_1_err_v_2, color='red')
     ax2.scatter(x, case_1_err_v_2, color='red', label='$\phi$+u')
-    h_, =ax2.plot(x, case_1_err_v_3, color='black')
+    ax2.plot(x, case_1_err_v_3, color='black')
     ax2.scatter(x, case_1_err_v_3, color='black', label='$\phi$')
+    ax2.plot(x, case_1_err_v_4, color='orange')
+    ax2.scatter(x, case_1_err_v_4, color='orange', label='$\phi$+p')
+    ax2.plot(x, case_1_err_v_5, color='purple')
+    ax2.scatter(x, case_1_err_v_5, color='purple', label='u+p')
 
     ax2.set_xlabel('$N_{train}$/$N_{total}$', fontsize=18)
     ax2.set_ylabel("$\epsilon_{v}$", fontsize=18, rotation='horizontal')
@@ -117,7 +141,6 @@ def main():
     ax2.set_title('(b)')
     ax2.yaxis.set_label_coords(0.0,1.02)
     # ax2.legend()
-    # leg2 = ax2.legend([h_, h__],['full time window','partial time window'], loc='upper right')
 
     # ## ax3
     ax3.plot(x, case_1_err_phi_1, color='blue')
@@ -126,6 +149,10 @@ def main():
     ax3.scatter(x, case_1_err_phi_2, color='red', label='$\phi$+u')
     ax3.plot(x, case_1_err_phi_3, color='black')
     ax3.scatter(x, case_1_err_phi_3, color='black', label='$\phi$')
+    ax3.plot(x, case_1_err_phi_4, color='orange')
+    ax3.scatter(x, case_1_err_phi_4, color='orange', label='$\phi$+p')
+    ax3.plot(x, case_1_err_phi_5, color='purple')
+    ax3.scatter(x, case_1_err_phi_5, color='purple', label='u+p')
 
     ax3.set_xlabel('$N_{train}$/$N_{total}$', fontsize=18)
     ax3.set_ylabel("$\epsilon_{\phi}$", fontsize=18, rotation='horizontal')
@@ -146,6 +173,10 @@ def main():
     ax4.scatter(x, case_1_err_p_2, color='red', label='$\phi$+u')
     ax4.plot(x, case_1_err_p_3, color='black')
     ax4.scatter(x, case_1_err_p_3, color='black', label='$\phi$')
+    ax4.plot(x, case_1_err_p_4, color='orange')
+    ax4.scatter(x, case_1_err_p_4, color='orange', label='$\phi$+p')
+    ax4.plot(x, case_1_err_p_5, color='purple')
+    ax4.scatter(x, case_1_err_p_5, color='purple', label='u+p')
 
     ax4.set_xlabel('$N_{train}$/$N_{total}$', fontsize=18)
     ax4.set_ylabel("$\epsilon_{P}$", fontsize=18, rotation='horizontal')
@@ -166,6 +197,10 @@ def main():
     ax5.scatter(x, case_1_err_psi_1_2, color='red', label='$\phi$+u')
     ax5.plot(x, case_1_err_psi_1_3, color='black')
     ax5.scatter(x, case_1_err_psi_1_3, color='black', label='$\phi$')
+    ax5.plot(x, case_1_err_psi_1_4, color='orange')
+    ax5.scatter(x, case_1_err_psi_1_4, color='orange', label='$\phi$+p')
+    ax5.plot(x, case_1_err_psi_1_5, color='purple')
+    ax5.scatter(x, case_1_err_psi_1_5, color='purple', label='u+p')
 
     ax5.set_xlabel('$N_{train}$/$N_{total}$', fontsize=18)
     ax5.set_ylabel("$\epsilon_{\psi1}$", fontsize=18, rotation='horizontal')
@@ -186,6 +221,10 @@ def main():
     ax6.scatter(x, case_1_err_psi_2_2, color='red', label='$\phi$+u')
     ax6.plot(x, case_1_err_psi_2_3, color='black')
     ax6.scatter(x, case_1_err_psi_2_3, color='black', label='$\phi$')
+    ax6.plot(x, case_1_err_psi_2_4, color='orange')
+    ax6.scatter(x, case_1_err_psi_2_4, color='orange', label='$\phi$+p')
+    ax6.plot(x, case_1_err_psi_2_5, color='purple')
+    ax6.scatter(x, case_1_err_psi_2_5, color='purple', label='u+p')
 
     ax6.set_xlabel('$N_{train}$/$N_{total}$', fontsize=18)
     ax6.set_ylabel('$\epsilon_{\psi2}$', fontsize=18, rotation='horizontal')

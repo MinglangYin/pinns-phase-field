@@ -56,7 +56,7 @@ test_27: similar test_13
 test_28: similar test_2
 
 ######### lmd_10 ###########
-test_29: (Lmd_e_10) w_data:50, lmd_e, snapshot: 0-19, phase+p(boundary), points: 20000, Prediction: 
+test_29: (Lmd_e_10) w_data:50, lmd_e, snapshot: 0-19, phase+p(boundary), points: 20000, Prediction: 10.5502(not finish yet)
 
 
 

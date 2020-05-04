@@ -1,13 +1,32 @@
 """
 Author: Minglang Yin
 """
-import torch
-import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
+## get_relative_l2_error
+def get_relative_l2_error(data_inf, data_ref):
+    ## data_inf and data_ref have the same size (num_t, num_x, num_y)
+    [num_t, num_x, num_y] = data_inf.shape
+    error = np.zeros(num_t)
+    var = data_ref.var()
+    for t in range(0, num_t):
+        err = ((data_inf[t] - data_ref[t])**2).mean()
+        error[t] = err/var
+    return error
+
+## get_relative_l2_error
+def get_l2_error(data_inf, data_ref):
+    ## data_inf and data_ref have the same size (num_t, num_x, num_y)
+    [num_t, num_x, num_y] = data_inf.shape
+    error = np.zeros(num_t)
+    for t in range(0, num_t):
+        error[t] = ((data_inf[t] - data_ref[t])**2).mean()
+
+    return error
 
 def main(): 
     ## parameters
@@ -139,7 +158,7 @@ def main():
 
     ## plotting velocity
     vel_range = np.linspace(0, 1.0, 3)[:,None]
-    vel_error = np.linspace(0, 0.1, 3)[:,None]
+    vel_error = np.linspace(0, 0.2, 3)[:,None]
     fig = plt.figure(constrained_layout=False, figsize=(9, 4.5))
     gs = fig.add_gridspec(3, 1)
 
@@ -173,7 +192,7 @@ def main():
         _ax = fig.add_subplot(_gs[2])
         _ax.axis('off') 
         _h = _ax.imshow(np.abs(vel_2[t_gap*i, :, :] - vel_10[t_gap*i, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-        _h.set_clim(vmin=0, vmax=0.1)
+        _h.set_clim(vmin=0, vmax=0.2)
         axins = inset_axes(_ax,
                     width="100%",
                     height="10%",
@@ -232,6 +251,23 @@ def main():
 
     plt.savefig('pressure.png')
     plt.close()
+
+    l2_error_v = get_relative_l2_error(vel_2, vel_10)
+    print(f'mean relative l2 error (vel) full time: {l2_error_v.mean()}')
+
+    l2_error_phi = get_relative_l2_error(phi_2, phi_10)
+    print(f'mean relative l2 error (phi) full time: {l2_error_phi.mean()}')
+
+    l2_error_p = get_relative_l2_error(p_2, p_10)
+    print(f'mean relative l2 error (p) full time: {l2_error_p.mean()}')
+
+    l2_error_psi1 = get_relative_l2_error(psi_2_1, psi_10_1)
+    print(f'mean relative l2 error (psi1) full time: {l2_error_psi1.mean()}')
+
+    l2_error_psi2 = get_relative_l2_error(psi_2_2, psi_10_2)
+    print(f'mean relative l2 error (psi2) full time: {l2_error_psi2.mean()}')
+
+    
 
 if __name__ == '__main__':
     main()

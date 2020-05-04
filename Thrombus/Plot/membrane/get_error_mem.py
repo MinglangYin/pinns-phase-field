@@ -83,7 +83,7 @@ def main():
     print(device, flush=True)
 
     file_start = 0
-    file_end = 20
+    file_end = 10
     dt = 0.03
     t_gap = 7
 
@@ -123,7 +123,7 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
 
     ## loading model/optimizer state
-    model_path = ['../../Inv_L/test_23/CheckPts/model_chkpts.pt']
+    model_path = ['../../Inv_L/test_25/CheckPts/model_chkpts.pt']
 
     Predictions = np.zeros((4, 7, num_t, num_x1, num_x2))
     for k in range (0, 1):
