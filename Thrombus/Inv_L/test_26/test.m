@@ -5,9 +5,9 @@ clc
 lmd = load('lmd_e.his');
 
 figure()
-plot(lmd)
+semilogy(lmd)
 hold on
-yline(15)
+yline(0.25)
 
 loss = load('loss.his');
 figure()
