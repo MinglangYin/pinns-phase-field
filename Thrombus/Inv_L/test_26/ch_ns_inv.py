@@ -393,7 +393,7 @@ def main():
             loss_data = model.loss_data(xt_f_train, phi_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, v_up_train, phi_l_train, xt_b_train, p_b_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + 50*loss_data + 5*loss_ic
+            loss = 10*loss_pde + loss_bc + loss_data + loss_ic
 
             loss_his[epoch,0] = to_numpy(loss_pde)
             loss_his[epoch,1] = to_numpy(loss_bc)
