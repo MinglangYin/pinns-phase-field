@@ -1,20 +1,51 @@
 README
 tests: number of sampling points
 ########### case 2: Lmd_e_10_K_001
-test_1: (Lmd_e_10_K_001), snapshot: 0-19, velo+phase+psi, number of points: 100, Prediction: 1.5202
-test_2: (Lmd_e_10_K_001), snapshot: 0-19, velo+phase+psi, number of points: 10000, Prediction: 11.2697
-test_3: (Lmd_e_10_K_001), snapshot: 0-19, velo+phase+psi, number of points: 20000, Prediction: 11.2875
-test_4: (Lmd_e_10_K_001), snapshot: 0-19, velo+phase+psi, number of points: 30000, Prediction: 10.2344
 
+###### u_phi+p+psi
+test_1: (Lmd_e_10_K_001), snapshot: 0-19, velo+phase+p+psi, number of points: 100, Prediction: 1.5202
+test_2: (Lmd_e_10_K_001), snapshot: 0-19, velo+phase+p+psi, number of points: 10000, Prediction: 11.2697
+test_3: (Lmd_e_10_K_001), snapshot: 0-19, velo+phase+p+psi, number of points: 20000, Prediction: 11.2875
+test_4: (Lmd_e_10_K_001), snapshot: 0-19, velo+phase+p+psi, number of points: 30000, Prediction: 10.2344
+
+##### phi + u
 test_5: (Lmd_e_10_K_001), snapshot: 0-19, phase + velocity, number of points: 100, Prediction: 5.1133
 test_6: (Lmd_e_10_K_001), snapshot: 0-19, phase + velocity, number of points: 10000, Prediction: 5.6738
 test_7: (Lmd_e_10_K_001), snapshot: 0-19, phase + velocity, number of points: 20000, Prediction: 5.5645
 test_8: (Lmd_e_10_K_001), snapshot: 0-19, phase + velocity, number of points: 30000. Prediction: 5.0464
 
-test_9: (Lmd_e_10_K_001), snapshot: 0-19, phase, sampling around thrombus, number of points: 100, Prediction: 2.1050
-test_10: (Lmd_e_10_K_001), snapshot: 0-19, phase, sampling around thrombus, number of points: 10000, Prediction: 3.7115
-test_11: (Lmd_e_10_K_001), snapshot: 0-19, phase, sampling around thrombus, number of points: 20000, Prediction: 2.3074
-test_12: (Lmd_e_10_K_001), snapshot: 0-19, phase, sampling around thrombus, number of points: 30000, Prediction: 2.0182
+###### phi
+test_9: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 100, Prediction: 
+test_10: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 10000, Prediction:
+test_11: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 20000, Prediction: 
+test_12: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 30000, Prediction: 
+
+##### u+phi+p
+test_13: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 100, Prediction: 
+test_14: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 10000, Prediction: 
+test_15: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 20000, Prediction: 
+test_16: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 30000, Prediction: 
+
+##### phi+p
+test_17: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 100, Prediction: 
+test_18: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 10000, Prediction: 
+test_19: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 20000, Prediction: 
+test_20: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 30000, Prediction: 
+
+##### u+p
+test_21: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 100, Prediction: 
+test_22: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 10000, Prediction: 
+test_23: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 20000, Prediction: 
+test_24: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 30000, Prediction: 
+
+##### phi + p(boundary)
+test_25: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 100, Prediction: 
+test_26: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 10000, Prediction: 
+test_27: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 20000, Prediction: 
+test_28: (Lmd_e_10_K_001), snapshot: 0-19, sampling around thrombus, number of points: 30000, Prediction: 
+
+
+
 
 
 
