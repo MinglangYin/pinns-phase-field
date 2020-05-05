@@ -4,29 +4,11 @@ Author: Minglang Yin
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import sys
+sys.path.insert(0,'../')
 
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-
-## get_relative_l2_error
-def get_relative_l2_error(data_inf, data_ref):
-    ## data_inf and data_ref have the same size (num_t, num_x, num_y)
-    [num_t, num_x, num_y] = data_inf.shape
-    error = np.zeros(num_t)
-    var = data_ref.var()
-    for t in range(0, num_t):
-        err = ((data_inf[t] - data_ref[t])**2).mean()
-        error[t] = err/var
-    return error
-
-## get_relative_l2_error
-def get_l2_error(data_inf, data_ref):
-    ## data_inf and data_ref have the same size (num_t, num_x, num_y)
-    [num_t, num_x, num_y] = data_inf.shape
-    error = np.zeros(num_t)
-    for t in range(0, num_t):
-        error[t] = ((data_inf[t] - data_ref[t])**2).mean()
-
-    return error
+from Utils import *
 
 def main(): 
     ## parameters
@@ -110,15 +92,15 @@ def main():
     phi_range = np.linspace(-1, 1, 3)[:,None]
     phi_error = np.linspace(0, 0.1, 3)[:,None]
 
-    fig = plt.figure(constrained_layout=False, figsize=(9, 4.5))
-    gs = fig.add_gridspec(3, 1)
+    fig = plt.figure(constrained_layout=False, figsize=(9, 10))
+    gs = fig.add_gridspec(6, 1)
 
-    for i in range (0, 3):
+    for i in range (0, 2):
         _gs = gs[i].subgridspec(1, 3)
 
         _ax = fig.add_subplot(_gs[0])
         _ax.axis('off') 
-        _h = _ax.imshow(phi_2[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        _h = _ax.imshow(phi_2[t_gap*(i+1), :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
         _h.set_clim(vmin=-1, vmax=1)
         axins = inset_axes(_ax,
                     width="100%",
@@ -127,10 +109,11 @@ def main():
                     borderpad=-1,
                     )
         fig.colorbar(_h, ax=_ax, ticks=phi_range, cax = axins, orientation='horizontal')
+        # _ax.set_title('$\phi_{ref}$')
 
         _ax = fig.add_subplot(_gs[1])
         _ax.axis('off') 
-        _h = _ax.imshow(phi_10[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        _h = _ax.imshow(phi_10[t_gap*(i+1), :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
         _h.set_clim(vmin=-1, vmax=1)
         axins = inset_axes(_ax,
                     width="100%",
@@ -138,12 +121,13 @@ def main():
                     loc='lower center',
                     borderpad=-1,
                     )
+        # _ax.set_title('$\phi_{pred}$')
         
         fig.colorbar(_h, ax=_ax, ticks=phi_range, cax = axins, orientation='horizontal')
 
         _ax = fig.add_subplot(_gs[2])
         _ax.axis('off') 
-        _h = _ax.imshow(np.abs(phi_2[t_gap*i, :, :] - phi_10[t_gap*i, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        _h = _ax.imshow(np.abs(phi_2[t_gap*(i+1), :, :] - phi_10[t_gap*(i+1), :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
         _h.set_clim(vmin=0, vmax=0.1)
         axins = inset_axes(_ax,
                     width="100%",
@@ -152,22 +136,18 @@ def main():
                     borderpad=-1,
                     )
         fig.colorbar(_h, ax=_ax, ticks=phi_error, cax = axins, orientation='horizontal')
-
-    plt.savefig('phase.png')
-    plt.close()
+        # _ax.set_title('|$\phi_{ref}$ - $\phi_{pred}$|')
 
     ## plotting velocity
     vel_range = np.linspace(0, 1.0, 3)[:,None]
     vel_error = np.linspace(0, 0.2, 3)[:,None]
-    fig = plt.figure(constrained_layout=False, figsize=(9, 4.5))
-    gs = fig.add_gridspec(3, 1)
 
-    for i in range (0, 3):
+    for i in range (2, 4):
         _gs = gs[i].subgridspec(1, 3)
 
         _ax = fig.add_subplot(_gs[0])
         _ax.axis('off') 
-        _h = _ax.imshow(vel_2[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        _h = _ax.imshow(vel_2[t_gap*(i-1), :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
         _h.set_clim(vmin=0, vmax=1.0)
         axins = inset_axes(_ax,
                     width="100%",
@@ -176,10 +156,11 @@ def main():
                     borderpad=-1,
                     )
         fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
+        # _ax.set_title('$v_{ref}$')
 
         _ax = fig.add_subplot(_gs[1])
         _ax.axis('off') 
-        _h = _ax.imshow(vel_10[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        _h = _ax.imshow(vel_10[t_gap*(i-1), :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
         _h.set_clim(vmin=0, vmax=1.0)
         axins = inset_axes(_ax,
                     width="100%",
@@ -188,10 +169,11 @@ def main():
                     borderpad=-1,
                     )
         fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
+        # _ax.set_title('$v_{pred}$')
 
         _ax = fig.add_subplot(_gs[2])
         _ax.axis('off') 
-        _h = _ax.imshow(np.abs(vel_2[t_gap*i, :, :] - vel_10[t_gap*i, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+        _h = _ax.imshow(np.abs(vel_2[t_gap*(i-1), :, :] - vel_10[t_gap*(i-1), :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
         _h.set_clim(vmin=0, vmax=0.2)
         axins = inset_axes(_ax,
                     width="100%",
@@ -200,56 +182,98 @@ def main():
                     borderpad=-1,
                     )
         fig.colorbar(_h, ax=_ax, ticks=vel_error, cax = axins, orientation='horizontal')
-
-    plt.savefig('velo.png')
-    plt.close()
+        # _ax.set_title('|$v_{ref}$ - $v_{pred}$|')
 
     ## plotting pressure
-    p_range = np.linspace(-25, 25, 3)[:,None]
+    p_range = np.linspace(-20, 0, 3)[:,None]
     p_error = np.linspace(0, 1, 3)[:,None]
-    fig = plt.figure(constrained_layout=False, figsize=(9, 4.5))
-    gs = fig.add_gridspec(3, 1)
 
-    for i in range (0, 3):
-        _gs = gs[i].subgridspec(1, 3)
+    _gs = gs[4].subgridspec(1, 3)
 
-        _ax = fig.add_subplot(_gs[0])
-        _ax.axis('off') 
-        _h = _ax.imshow(p_2[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-        _h.set_clim(vmin=-25, vmax=25)
-        axins = inset_axes(_ax,
-                    width="100%",
-                    height="10%",
-                    loc='lower center',
-                    borderpad=-1,
-                    )
-        fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
+    _ax = fig.add_subplot(_gs[0])
+    _ax.axis('off') 
+    _h = _ax.imshow(p_2[t_gap, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    _h.set_clim(vmin=-20, vmax=0)
+    axins = inset_axes(_ax,
+                width="100%",
+                height="10%",
+                loc='lower center',
+                borderpad=-1,
+                )
+    fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
+    # _ax.set_title('$p_{ref}$')
 
-        _ax = fig.add_subplot(_gs[1])
-        _ax.axis('off') 
-        _h = _ax.imshow(p_10[t_gap*i, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-        _h.set_clim(vmin=-25, vmax=25)
-        axins = inset_axes(_ax,
-                    width="100%",
-                    height="10%",
-                    loc='lower center',
-                    borderpad=-1,
-                    )
-        fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
+    _ax = fig.add_subplot(_gs[1])
+    _ax.axis('off') 
+    _h = _ax.imshow(p_10[t_gap, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    _h.set_clim(vmin=-20, vmax=0)
+    axins = inset_axes(_ax,
+                width="100%",
+                height="10%",
+                loc='lower center',
+                borderpad=-1,
+                )
+    fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
+    # _ax.set_title('$p_{pred}$')
 
-        _ax = fig.add_subplot(_gs[2])
-        _ax.axis('off') 
-        _h = _ax.imshow(np.abs(p_2[t_gap*i, :, :] - p_10[t_gap*i, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-        _h.set_clim(vmin=0, vmax=1)
-        axins = inset_axes(_ax,
-                    width="100%",
-                    height="10%",
-                    loc='lower center',
-                    borderpad=-1,
-                    )
-        fig.colorbar(_h, ax=_ax, ticks=p_error, cax = axins, orientation='horizontal')
+    _ax = fig.add_subplot(_gs[2])
+    _ax.axis('off') 
+    _h = _ax.imshow(np.abs(p_2[t_gap, :, :] - p_10[t_gap, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    _h.set_clim(vmin=0, vmax=1)
+    axins = inset_axes(_ax,
+                width="100%",
+                height="10%",
+                loc='lower center',
+                borderpad=-1,
+                )
+    fig.colorbar(_h, ax=_ax, ticks=p_error, cax = axins, orientation='horizontal')
+    # _ax.set_title('|$p_{ref}$ - $p_{pred}$|')
 
-    plt.savefig('pressure.png')
+    #######
+    p_range = np.linspace(0, 10, 3)[:,None]
+    p_error = np.linspace(0, 1, 3)[:,None]
+    _gs = gs[5].subgridspec(1, 3)
+
+    _ax = fig.add_subplot(_gs[0])
+    _ax.axis('off') 
+    _h = _ax.imshow(p_2[t_gap*2, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    _h.set_clim(vmin=0, vmax=10)
+    axins = inset_axes(_ax,
+                width="100%",
+                height="10%",
+                loc='lower center',
+                borderpad=-1,
+                )
+    fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
+    # _ax.set_title('$p_{ref}$')
+
+    _ax = fig.add_subplot(_gs[1])
+    _ax.axis('off') 
+    _h = _ax.imshow(p_10[t_gap*2, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    _h.set_clim(vmin=0, vmax=10)
+    axins = inset_axes(_ax,
+                width="100%",
+                height="10%",
+                loc='lower center',
+                borderpad=-1,
+                )
+    fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
+    # _ax.set_title('$p_{pred}$')
+
+    _ax = fig.add_subplot(_gs[2])
+    _ax.axis('off') 
+    _h = _ax.imshow(np.abs(p_2[t_gap*2, :, :] - p_10[t_gap*2, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    _h.set_clim(vmin=0, vmax=1)
+    axins = inset_axes(_ax,
+                width="100%",
+                height="10%",
+                loc='lower center',
+                borderpad=-1,
+                )
+    fig.colorbar(_h, ax=_ax, ticks=p_error, cax = axins, orientation='horizontal')
+    # _ax.set_title('|$p_{ref}$ - $p_{pred}$|')
+
+    plt.savefig('append_fig_lmd_comp.png')
     plt.close()
 
     l2_error_v = get_relative_l2_error(vel_2, vel_10)
