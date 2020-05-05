@@ -109,7 +109,7 @@ def main():
                     borderpad=-1,
                     )
         fig.colorbar(_h, ax=_ax, ticks=phi_range, cax = axins, orientation='horizontal')
-        _ax.set_title('$\phi_{ref}$')
+        # _ax.set_title('$\phi_{ref}$')
 
         _ax = fig.add_subplot(_gs[1])
         _ax.axis('off') 
@@ -121,7 +121,7 @@ def main():
                     loc='lower center',
                     borderpad=-1,
                     )
-        _ax.set_title('$\phi_{pred}$')
+        # _ax.set_title('$\phi_{pred}$')
         
         fig.colorbar(_h, ax=_ax, ticks=phi_range, cax = axins, orientation='horizontal')
 
@@ -136,7 +136,7 @@ def main():
                     borderpad=-1,
                     )
         fig.colorbar(_h, ax=_ax, ticks=phi_error, cax = axins, orientation='horizontal')
-        _ax.set_title('|$\phi_{ref}$ - $\phi_{pred}$|')
+        # _ax.set_title('|$\phi_{ref}$ - $\phi_{pred}$|')
 
     ## plotting velocity
     vel_range = np.linspace(0, 1.0, 3)[:,None]
@@ -156,7 +156,7 @@ def main():
                     borderpad=-1,
                     )
         fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
-        _ax.set_title('$v_{ref}$')
+        # _ax.set_title('$v_{ref}$')
 
         _ax = fig.add_subplot(_gs[1])
         _ax.axis('off') 
@@ -169,7 +169,7 @@ def main():
                     borderpad=-1,
                     )
         fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
-        _ax.set_title('$v_{pred}$')
+        # _ax.set_title('$v_{pred}$')
 
         _ax = fig.add_subplot(_gs[2])
         _ax.axis('off') 
@@ -182,7 +182,7 @@ def main():
                     borderpad=-1,
                     )
         fig.colorbar(_h, ax=_ax, ticks=vel_error, cax = axins, orientation='horizontal')
-        _ax.set_title('|$v_{ref}$ - $v_{pred}$|')
+        # _ax.set_title('|$v_{ref}$ - $v_{pred}$|')
 
     ## plotting pressure
     p_range = np.linspace(-20, 0, 3)[:,None]
@@ -201,7 +201,7 @@ def main():
                 borderpad=-1,
                 )
     fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
-    _ax.set_title('$p_{ref}$')
+    # _ax.set_title('$p_{ref}$')
 
     _ax = fig.add_subplot(_gs[1])
     _ax.axis('off') 
@@ -214,7 +214,7 @@ def main():
                 borderpad=-1,
                 )
     fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
-    _ax.set_title('$p_{pred}$')
+    # _ax.set_title('$p_{pred}$')
 
     _ax = fig.add_subplot(_gs[2])
     _ax.axis('off') 
@@ -227,7 +227,7 @@ def main():
                 borderpad=-1,
                 )
     fig.colorbar(_h, ax=_ax, ticks=p_error, cax = axins, orientation='horizontal')
-    _ax.set_title('|$p_{ref}$ - $p_{pred}$|')
+    # _ax.set_title('|$p_{ref}$ - $p_{pred}$|')
 
     #######
     p_range = np.linspace(0, 10, 3)[:,None]
@@ -245,7 +245,7 @@ def main():
                 borderpad=-1,
                 )
     fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
-    _ax.set_title('$p_{ref}$')
+    # _ax.set_title('$p_{ref}$')
 
     _ax = fig.add_subplot(_gs[1])
     _ax.axis('off') 
@@ -258,7 +258,7 @@ def main():
                 borderpad=-1,
                 )
     fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
-    _ax.set_title('$p_{pred}$')
+    # _ax.set_title('$p_{pred}$')
 
     _ax = fig.add_subplot(_gs[2])
     _ax.axis('off') 
@@ -271,10 +271,7 @@ def main():
                 borderpad=-1,
                 )
     fig.colorbar(_h, ax=_ax, ticks=p_error, cax = axins, orientation='horizontal')
-    _ax.set_title('|$p_{ref}$ - $p_{pred}$|')
-
-
-
+    # _ax.set_title('|$p_{ref}$ - $p_{pred}$|')
 
     plt.savefig('append_fig_lmd_comp.png')
     plt.close()
