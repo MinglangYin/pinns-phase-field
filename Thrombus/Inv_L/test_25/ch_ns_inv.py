@@ -115,14 +115,11 @@ class Model(nn.Module):
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean() \
              + (res_psi_x**2).mean() + (res_psi_y**2).mean()
 
-    def loss_data(self, x_data, u_data, v_data, p_data, phi_data, psi_1_data, psi_2_data):
+    def loss_data(self, x_data, phi_data):
         y_u = self.net_u(x_data)
-        w_u = self.net_w(x_data)
-        u, v, p, phi = y_u[:, 0], y_u[:, 1], y_u[:, 2], y_u[:, 3]
-        psi_1, psi_2 = w_u[:, 1], w_u[:, 2]
+        phi = y_u[:, 3]
 
-        return ((u - u_data)**2).mean() + ((v - v_data)**2).mean() + ((p - p_data)**2).mean() + \
-            ((phi - phi_data)**2).mean() + ((psi_1 - psi_1_data)**2).mean() + ((psi_2 - psi_2_data)**2).mean()
+        return ((phi - phi_data)**2).mean() 
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, v_up_real, phi_real):
         ## velocity inflow
@@ -369,10 +366,10 @@ def main():
         def closure():
             optimizer.zero_grad()
             loss_pde = model.loss_pde(xt_f_train)
-            loss_data = model.loss_data(xt_f_train, u_f_train, v_f_train, p_f_train, phi_f_train, psi_1_f_train, psi_2_f_train)        
+            loss_data = model.loss_data(xt_f_train, phi_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, v_up_train, phi_l_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + 50*loss_data + 5*loss_ic
+            loss = loss_pde + loss_bc + 5*loss_data + 5*loss_ic
 
             loss_his[epoch,0] = to_numpy(loss_pde)
             loss_his[epoch,1] = to_numpy(loss_bc)
