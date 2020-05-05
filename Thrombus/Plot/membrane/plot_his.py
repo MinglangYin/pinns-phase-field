@@ -22,7 +22,7 @@ def main():
     ax1.set_ylim([1e-6, 1e2])
     ax1.set_xlim([0, 600000])
     ax1.set_xticks(np.linspace(0, 600000, 4))
-    ax1.set_title('(a)')
+    ax1.set_title('(b)')
     ax1.yaxis.set_label_coords(0.0,1.02)
     leg = ax1.legend()
     for line in leg.get_lines():
@@ -38,7 +38,7 @@ def main():
     ax2.set_xlim([0, 600000])
     ax2.set_ylim([0, 20])
     ax2.set_xticks(np.linspace(0, 600000, 4))
-    ax2.set_title('(b)')
+    ax2.set_title('(c)')
     ax2.legend()
     ax2.yaxis.set_label_coords(0.0,1.02)
     # ax2.set_aspect('equal')
