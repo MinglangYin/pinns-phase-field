@@ -349,9 +349,8 @@ def main():
     for epoch in range(0, 10000):    
         pre_train(epoch)
 
-
     ## training
-    loss_his = np.zeros((epochs,1))
+    loss_his = np.zeros((epochs,4))
     K_his = np.zeros((epochs,4))
 
     def train(epoch):
@@ -360,19 +359,23 @@ def main():
         print(f'b: {model.b}')
         print(f'c: {model.c}')
         print(f'd: {model.d}')
-        def closure():
-            optimizer.zero_grad()
-            loss_pde = model.loss_pde(xt_f_train)
-            loss_data = model.loss_data(xt_f_train, phi_f_train)        
-            loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
-            loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train)
-            loss = loss_pde + loss_bc + loss_data + 100*loss_ic
-            print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
-            loss.backward()
-            return loss
-        loss = optimizer.step(closure)
-        loss_value = loss.item() if not isinstance(loss, float) else loss
-        loss_his[epoch,0] = loss_value
+
+        optimizer.zero_grad()
+        loss_pde = model.loss_pde(xt_f_train)
+        loss_data = model.loss_data(xt_f_train, phi_f_train)        
+        loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, ul_train)
+        loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train)
+        loss = loss_pde + loss_bc + loss_data + 100*loss_ic
+        print(f'epoch {epoch} loss_pde:{loss_pde:6f}, loss_bc:{loss_bc:6f}, loss_ic:{loss_ic:6f}, loss_data:{loss_data:6f}', flush=True)
+        loss.backward()
+
+        loss = optimizer.step()
+        # loss_value = loss.item() if not isinstance(loss, float) else loss
+        loss_his[epoch,0] = to_numpy(loss_pde)
+        loss_his[epoch,1] = to_numpy(loss_bc)
+        loss_his[epoch,2] = to_numpy(loss_ic)
+        loss_his[epoch,3] = to_numpy(loss_data)
+
         K_his[epoch, 0], K_his[epoch, 1], K_his[epoch, 2], K_his[epoch, 3] = to_numpy(model.a), to_numpy(model.b), to_numpy(model.c), to_numpy(model.d)
         # print(f'epoch {epoch}: loss {loss_value:.6f}')
         

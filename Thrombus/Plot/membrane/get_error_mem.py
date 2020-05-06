@@ -124,7 +124,7 @@ def main():
         print(f'mean relative l2 error (psi2) full time: {l2_error[0], l2_error[9], l2_error[19]}')
 
     ## figure phi
-    tt = 19
+    tt = 15
     phi_min, phi_max = -1, 1
     v_min, v_max = 0, 2
     p_min, p_max = -1, 1

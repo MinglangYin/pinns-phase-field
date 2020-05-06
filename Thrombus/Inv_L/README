@@ -58,8 +58,13 @@ test_28: similar test_2
 ######### lmd_10 ###########
 test_29: (Lmd_e_10) w_data:50, lmd_e, snapshot: 0-19, phase+p(boundary), points: 20000, Prediction: 10.5502(not finish yet)
 
+######### membrane sin(2*pi*x)
+test_30: phase + p(boundary), prediction:
 
 
+######### lmd_10_k_001
+test_31, phase + p (boundary), lmd_e, K (7000+7000)
+test_32: phase + p (boundary), lmd_e, K (5000+5000)
 
 
 
