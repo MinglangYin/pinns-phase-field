@@ -16,4 +16,10 @@ test_8: 0.10
 test_9: 0.15
 test_10: 0.20
 
+(Lmd_e_10) FFT-I, snapshot: 0-19, phase+phi(boundary), number of points: 10000, 
+test_11: 0.0
+test_12: 0.05
+test_13: 0.10
+test_14: 0.15
+test_15: 0.20
 
