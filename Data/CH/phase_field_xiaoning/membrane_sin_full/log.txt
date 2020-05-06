@@ -1,0 +1,20 @@
+%elastic wave setup
+Geometry: [0 1] x [0 1]
+Velocity: periodic at left and right. Lower wall and upper Dirichlet. 
+u=0
+v=-sin(2*PI*x)
+w=0
+
+Phase-field: Dirichlet at left and right. phi= tanh((y-HH)/DSIGMA)
+Lower: phi=-1
+Upper: outflow
+
+Density for fluid and solid =1
+Viscosity for fluid and solid=0.01
+Lambda_e=0.25
+Phase-field interface width h =0.02
+Phase-field lambda=1.0607*0.02*0.0000001178
+Tau=10e-4
+
+HH=0.5
+
