@@ -4,8 +4,8 @@ import matplotlib.gridspec as gridspec
 
 def main():
     ## load data
-    loss = np.loadtxt('../../Inv_L/test_26/loss.dat')
-    lmd = np.loadtxt('../../Inv_L/test_26/lmd.dat')
+    loss = np.loadtxt('../../Inv_L/test_26/loss_new.dat')
+    lmd = np.loadtxt('../../Inv_L/test_26/lmd_new.dat')
 
     ## figure
     fig = plt.figure(constrained_layout=False, figsize=(8, 4))
@@ -20,7 +20,7 @@ def main():
     ax1.set_xlabel('epoches', fontsize=18)
     ax1.set_ylabel('loss', fontsize=18, rotation="horizontal")
     ax1.set_ylim([1e-6, 1e2])
-    ax1.set_xlim([0, 600000])
+    ax1.set_xlim([0, 900000])
     ax1.set_xticks(np.linspace(0, 600000, 4))
     ax1.set_title('(b)')
     ax1.yaxis.set_label_coords(0.0,1.02)
@@ -35,7 +35,7 @@ def main():
     ax2.plot(lmd, label='inferred $\lambda_{e}$', color='blue')
     ax2.set_xlabel('epoches', fontsize=18)
     ax2.set_ylabel('$\lambda_{e}$', fontsize=18, rotation="horizontal")
-    ax2.set_xlim([0, 600000])
+    ax2.set_xlim([0, 900000])
     ax2.set_ylim([0, 20])
     ax2.set_xticks(np.linspace(0, 600000, 4))
     ax2.set_title('(c)')

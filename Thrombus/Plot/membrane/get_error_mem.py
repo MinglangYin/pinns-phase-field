@@ -105,6 +105,7 @@ def main():
         print(f'{k}')
         l2_error = get_relative_l2_error(vel_inf, vel_ref)
         print(f'mean relative l2 error (vel) full time: {l2_error.mean()}')
+        print(f'mean relative l2 error (vel) full time: {l2_error}')
         print(f'mean relative l2 error (vel) full time: {l2_error[0], l2_error[9], l2_error[19]}')
 
         l2_error = get_relative_l2_error(phi_inf, phi_ref)
@@ -159,7 +160,7 @@ def main():
     _ax.axis('off') 
     _h = _ax.imshow(phi_inf[tt, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
     _h.set_clim(vmin=phi_min, vmax=phi_max)
-    axins = inset_axes(_ax, width="100%", height="10%", loc='lower center', borderpad=-1)
+    axins = inset_axes(_ax, width="100%", height="5%", loc='lower center', borderpad=-1)
     fig.colorbar(_h, ax=_ax, ticks=phi_range, cax = axins, orientation='horizontal')
     _ax.set_title('$\phi_{pred}$')
 
