@@ -136,7 +136,7 @@ def main():
     loss = np.loadtxt('../../Inv_K/test_10/loss.his')
 
     ## plotting
-    fig = plt.figure(constrained_layout=False, figsize=(9, 4))
+    fig = plt.figure(constrained_layout=True, figsize=(8, 4))
     gs = fig.add_gridspec(1, 1)
     gs0 = gs[0].subgridspec(1, 2)
     ax1 = fig.add_subplot(gs0[0, 0])
@@ -153,8 +153,8 @@ def main():
     ax1.set_xlim([0, 300000])
     ax1.set_ylim([1e-5, 1e2])
     # ax1.set_aspect((300000/1000), adjustable='box')
-    ax1.set_xlabel('epoches', fontsize=18)
-    ax1.set_ylabel('Loss', fontsize=18, rotation="horizontal")
+    ax1.set_xlabel('epoches', fontsize=14)
+    ax1.set_ylabel('Loss', fontsize=14, rotation="horizontal")
     ax1.yaxis.set_label_coords(0.0,1.02)
     ax1.set_aspect('auto')
     ax1.legend(ncol=2)
@@ -163,8 +163,8 @@ def main():
     ax2.step(x, K_step, linestyle="--", color="black",label='$\kappa_{true}$')
     ax2.plot(x, K_inf, linestyle="-", color="blue",label='$\kappa_{inf}$')
 
-    ax2.set_xlabel('$\phi$', fontsize=18)
-    ax2.set_ylabel('$\kappa$', fontsize=18, rotation="horizontal")
+    ax2.set_xlabel('$\phi$', fontsize=14)
+    ax2.set_ylabel('$\kappa$', fontsize=14, rotation="horizontal")
     # ax2.set_xticks(K_ref)
     # ax2.set_yticks(K_ref)
     ax2.yaxis.set_label_coords(0.0,1.02)
