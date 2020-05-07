@@ -4,13 +4,11 @@ Author: Minglang Yin
 import torch
 import torch.nn as nn
 import numpy as np
-import time
-import random
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import scipy.io
 
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+import sys
+sys.path.insert(0,'../')
+from Utils import *
+
 h = 0.04
 lmd = 0.4*0.00010607
 #lmd_e = 0.5
@@ -46,40 +44,10 @@ class Model(nn.Module):
         output = torch.cat((u, w), dim=1)
         return output
 
-## get_relative_l2_error
-def get_relative_l2_error(data_inf, data_ref):
-    ## data_inf and data_ref have the same size (num_t, num_x, num_y)
-    [num_t, num_x, num_y] = data_inf.shape
-    error = np.zeros(num_t)
-    var = data_ref.var()
-    for t in range(0, num_t):
-        err = ((data_inf[t] - data_ref[t])**2).mean()
-        error[t] = err/var
-    return error
-
-## get_relative_l2_error
-def get_l2_error(data_inf, data_ref):
-    ## data_inf and data_ref have the same size (num_t, num_x, num_y)
-    [num_t, num_x, num_y] = data_inf.shape
-    error = np.zeros(num_t)
-    for t in range(0, num_t):
-        error[t] = ((data_inf[t] - data_ref[t])**2).mean()
-
-    return error
-
-def to_numpy(input):
-    if isinstance(input, torch.Tensor):
-        return input.detach().cpu().numpy()
-    elif isinstance(input, np.ndarray):
-        return input
-    else:
-        raise TypeError('Unknown type of input, expected torch.Tensor or '\
-            'np.ndarray, but got {}'.format(type(input)))
-
-def main():
+def get_error_lmd(model_path):
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
-    print(device, flush=True)
+    # print(device, flush=True)
 
     file_start = 0
     file_end = 20
@@ -122,11 +90,6 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
 
     ## loading model/optimizer state
-    model_path = ['../../Inv_L_1_num/test_21/CheckPts/model_chkpts.pt', 
-    '../../Inv_L_1_num/test_22/CheckPts/model_chkpts.pt',
-    '../../Inv_L_1_num/test_23/CheckPts/model_chkpts.pt', 
-    '../../Inv_L_1_num/test_24/CheckPts/model_chkpts.pt']
-
     Predictions = np.zeros((4, 7, num_t, num_x1, num_x2))
     for k in range (0, 4):
         checkpoint = torch.load(model_path[k])
@@ -152,6 +115,9 @@ def main():
     psi1_ref = np.zeros((num_t, num_x1, num_x2))
     psi2_inf = np.zeros((num_t, num_x1, num_x2))
     psi2_ref = np.zeros((num_t, num_x1, num_x2))
+
+    Error_mat = np.zeros((4, 5))
+
     for k in range(0, 4):
         for i in range(0, num_t):
             phi_inf[i, :, :] = Predictions[k, 3, i, :, :]
@@ -165,33 +131,25 @@ def main():
             psi2_inf[i, :, :] = Predictions[k, 6, i, :, :]
             psi2_ref[i, :, :] = y_data[5, i, :, :] 
 
+        l2_error_vel = get_relative_l2_error(vel_inf, vel_ref)
+        # print(f'mean relative l2 error (vel) full time: {l2_error.mean()}')
 
-        # l2_error = get_relative_l2_error(vel_inf, vel_ref)
-        # print(f'mean relative l2 error (vel): {l2_error}')
-        print(f'{k}')
-        # l2_error = get_relative_l2_error(vel_inf, vel_ref)
-        # print(f'mean relative l2 error (vel): {l2_error}')
-        l2_error = get_relative_l2_error(vel_inf, vel_ref)
-        print(f'mean relative l2 error (vel) full time: {l2_error.mean()}')
-        # print(f'mean relative l2 error (vel) partial time: {l2_error[:10].mean()}')
+        l2_error_phi = get_relative_l2_error(phi_inf, phi_ref)
+        # print(f'mean relative l2 error (phi) full time: {l2_error.mean()}')
 
-        # l2_error = get_relative_l2_error(phi_inf, phi_ref)
-        # print(f'mean relative l2 error (phi): {l2_error}')
-        l2_error = get_relative_l2_error(phi_inf, phi_ref)
-        print(f'mean relative l2 error (phi) full time: {l2_error.mean()}')
-        # print(f'mean relative l2 error (phi) partial time: {l2_error[:10].mean()}')
+        l2_error_p = get_relative_l2_error(p_inf, p_ref)
+        # print(f'mean relative l2 error (p) full time: {l2_error.mean()}')
 
-        l2_error = get_relative_l2_error(p_inf, p_ref)
-        print(f'mean relative l2 error (p) full time: {l2_error.mean()}')
-        # print(f'mean relative l2 error (p) partial time: {l2_error[:10].mean()}')
+        l2_error_psi1 = get_relative_l2_error(psi1_inf, psi1_ref)
+        # print(f'mean relative l2 error (psi1) full time: {l2_error.mean()}')
 
-        l2_error = get_relative_l2_error(psi1_inf, psi1_ref)
-        print(f'mean relative l2 error (psi1) full time: {l2_error.mean()}')
-        # print(f'mean relative l2 error (psi1) partial time: {l2_error[:10].mean()}')
+        l2_error_psi2 = get_relative_l2_error(psi2_inf, psi2_ref)
+        # print(f'mean relative l2 error (psi2) full time: {l2_error.mean()}')
 
-        l2_error = get_relative_l2_error(psi2_inf, psi2_ref)
-        print(f'mean relative l2 error (psi2) full time: {l2_error.mean()}')
-        # print(f'mean relative l2 error (psi2) partial time: {l2_error[:10].mean()}')
-if __name__ == '__main__':
-    main()
+        Error_mat[k, 0] = l2_error_vel.mean()
+        Error_mat[k, 1] = l2_error_phi.mean()
+        Error_mat[k, 2] = l2_error_p.mean()
+        Error_mat[k, 3] = l2_error_psi1.mean()
+        Error_mat[k, 4] = l2_error_psi2.mean()
 
+    return Error_mat

@@ -66,6 +66,12 @@ test_30: phase + p(boundary), prediction:
 test_31, phase + p (boundary), lmd_e, K (7000+7000)
 test_32: phase + p (boundary), lmd_e, K (5000+5000)
 
+test_33 = test_32 after 100000
+test_34 = test_31 after 100000
+
+######### membrane case
+test_35: dyn w, average
+test_35: dyn w, max
 
 
 

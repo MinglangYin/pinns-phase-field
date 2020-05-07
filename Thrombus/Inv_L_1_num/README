@@ -37,10 +37,10 @@ test_23: (Lmd_e_10) FFT-I, snapshot: 0-19, velo + p, sampling around thrombus, n
 test_24: (Lmd_e_10) FFT-I, snapshot: 0-19, velo + p, sampling around thrombus, number of points: 30000, Prediction: 44.7701
 
 ### phi + p(boundary)
-test_25: (Lmd_e_10) FFT-I, snapshot: 0-19, phi + p, sampling around thrombus, number of points: 100, Prediction: 
-test_26: (Lmd_e_10) FFT-I, snapshot: 0-19, phi + p, sampling around thrombus, number of points: 10000, Prediction: 
-test_27: (Lmd_e_10) FFT-I, snapshot: 0-19, phi + p, sampling around thrombus, number of points: 20000, Prediction: 
-test_28: (Lmd_e_10) FFT-I, snapshot: 0-19, phi + p, sampling around thrombus, number of points: 30000, Prediction: 
+test_25: (Lmd_e_10) FFT-I, snapshot: 0-19, phi + p, sampling around thrombus, number of points: 100, Prediction: 9.3547
+test_26: (Lmd_e_10) FFT-I, snapshot: 0-19, phi + p, sampling around thrombus, number of points: 10000, Prediction: 8.1101
+test_27: (Lmd_e_10) FFT-I, snapshot: 0-19, phi + p, sampling around thrombus, number of points: 20000, Prediction: 7.7692
+test_28: (Lmd_e_10) FFT-I, snapshot: 0-19, phi + p, sampling around thrombus, number of points: 30000, Prediction: 8.7858
 
 
 
