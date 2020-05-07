@@ -223,8 +223,8 @@ def main():
     ax6.scatter(x, case_1_error[2, :, 4], color='black', label='$\phi$+u+p', alpha=0.2)
     ax6.plot(x, case_1_error[3, :, 4], color='orange', alpha=0.2)
     ax6.scatter(x, case_1_error[3, :, 4], color='orange', label='$\phi$+$p|_{\Omega}$', alpha=0.2)
-    ax6.plot(x, case_1_error[4, :, 4], color='gray')
-    ax6.scatter(x, case_1_error[4, :, 4], color='gray', label='u+p')
+    ax6.plot(x, case_1_error[4, :, 4], color='purple')
+    ax6.scatter(x, case_1_error[4, :, 4], color='purple', label='u+p')
     ax6.plot(x, case_1_error[5, :, 4], color='blue', alpha=0.2)
     ax6.scatter(x, case_1_error[5, :, 4], color='blue', label='$\phi$+$p|_{\partial\Omega}$', alpha=0.2)
 

@@ -17,9 +17,9 @@ test_9: 0.15
 test_10: 0.20
 
 (Lmd_e_10) FFT-I, snapshot: 0-19, phase+phi(boundary), number of points: 10000, 
-test_11: 0.0
-test_12: 0.05
-test_13: 0.10
-test_14: 0.15
-test_15: 0.20
+test_11: 0.0 : 8.1101, loss: 0.1126
+test_12: 0.05: 7.2270, loss: 0.1137
+test_13: 0.10: 8.4252, loss: 0.1253
+test_14: 0.15: 7.3424, loss: 0.1119
+test_15: 0.20: 8.0208, loss: 0.1229
 

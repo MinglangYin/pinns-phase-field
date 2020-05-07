@@ -14,4 +14,6 @@ figure()
 semilogy(loss)
 
 % min(loss)
+LOSS = sum(loss, 2);
+min_loss = min(LOSS)
 lmd(end)

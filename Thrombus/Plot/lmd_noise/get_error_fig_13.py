@@ -80,7 +80,11 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    model_path = '../../Inv_L_1_noise/test_5/CheckPts/model_chkpts.pt'
+    model_path = ['../../Inv_L_1_noise/test_11/CheckPts/model_chkpts.pt', 
+    '../../Inv_L_1_noise/test_12/CheckPts/model_chkpts.pt', 
+    '../../Inv_L_1_noise/test_13/CheckPts/model_chkpts.pt', 
+    '../../Inv_L_1_noise/test_14/CheckPts/model_chkpts.pt', 
+    '../../Inv_L_1_noise/test_15/CheckPts/model_chkpts.pt']
 
     file_start = 0
     file_end = 20
@@ -95,7 +99,7 @@ def main():
     asp_ratio = (y_max-y_min)/(x_max-x_min)
 
     ## load data file
-    y_data = np.zeros((4, file_end-file_start, num_x1, num_x2))
+    y_data = np.zeros((6, file_end-file_start, num_x1, num_x2))
     t_step = 0
     for file_id in range(file_start, file_end):
         name_u = '../../../Data/CH/phase_field_xiaoning/Lmd_e_10/dat/half' + str(file_id) + '.dat'
@@ -104,8 +108,8 @@ def main():
         data_phi = np.loadtxt(name_phi)
 
         ## x_tmp: [t,x,y]   u_tmp:[u,v,p,phi]
-        y_tmp = np.concatenate((data_u[:,3:5], data_u[:,6:7], data_phi[:,3:4]), axis=1)
-        for j in range (0, 4):
+        y_tmp = np.concatenate((data_u[:,3:5], data_u[:,6:7], data_phi[:,3:4], data_u[:,7:9]), axis=1)
+        for j in range (0, 6):
             y_data[j, t_step, :, :] = y_tmp[:,j].reshape(100, 100)
         t_step = t_step + 1
 
@@ -123,37 +127,60 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
 
     ## loading model/optimizer state
-    checkpoint = torch.load(model_path)
-    model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    Predictions = np.zeros((5, 7, num_t, num_x1, num_x2))
+    for k in range (0, 5):
+        checkpoint = torch.load(model_path[k])
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
-    ## testing
-    Predictions = np.zeros((7, num_t, num_x1, num_x2))
-    for i in range(0, num_t):
-        xt = np.concatenate((t[i]*np.ones((num_x1*num_x2, 1)), x_2d), axis=1)
-        xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.double).to(device)
-        y_pred = model(xt_tensor)
-        for j in range(0, 7):
-            Predictions[j, i, :, :] = to_numpy(y_pred[:, j]).reshape(num_x1, num_x2)
+        ## testing
+        for i in range(0, num_t):
+            xt = np.concatenate((t[i]*np.ones((num_x1*num_x2, 1)), x_2d), axis=1)
+            xt_tensor = torch.tensor(xt, requires_grad=True, dtype=torch.double).to(device)
+            y_pred = model(xt_tensor)
+            for j in range(0, 7):
+                Predictions[k, j, i, :, :] = to_numpy(y_pred[:, j]).reshape(num_x1, num_x2)
     
     ## v and phi
     phi_inf = np.zeros((num_t, num_x1, num_x2))
     phi_ref = np.zeros((num_t, num_x1, num_x2))
     vel_inf = np.zeros((num_t, num_x1, num_x2))
     vel_ref = np.zeros((num_t, num_x1, num_x2))
-    for i in range(0, num_t):
-        phi_inf[i, :, :] = Predictions[3, i, :, :]
-        phi_ref[i, :, :] = y_data[3, i, :, :]
-        vel_inf[i, :, :] = np.sqrt(Predictions[0, i, :, :]**2 + Predictions[1, i, :, :]**2)
-        vel_ref[i, :, :] = np.sqrt(y_data[0, i, :, :]**2 + y_data[1, i, :, :]**2)
+    p_inf = np.zeros((num_t, num_x1, num_x2))
+    p_ref = np.zeros((num_t, num_x1, num_x2))
+    psi1_inf = np.zeros((num_t, num_x1, num_x2))
+    psi1_ref = np.zeros((num_t, num_x1, num_x2))
+    psi2_inf = np.zeros((num_t, num_x1, num_x2))
+    psi2_ref = np.zeros((num_t, num_x1, num_x2))
 
-    l2_error = get_relative_l2_error(vel_inf, vel_ref)
-    print(f'mean relative l2 error (vel): {l2_error.mean()}')
-    print(f'mean relative l2 error (half vel): {l2_error[:10].mean()}')
+    for k in range(0, 5):
+        for i in range(0, num_t):
+            phi_inf[i, :, :] = Predictions[k, 3, i, :, :]
+            phi_ref[i, :, :] = y_data[3, i, :, :]
+            vel_inf[i, :, :] = np.sqrt(Predictions[k, 0, i, :, :]**2 + Predictions[k, 1, i, :, :]**2)
+            vel_ref[i, :, :] = np.sqrt(y_data[0, i, :, :]**2 + y_data[1, i, :, :]**2)
+            p_inf[i, :, :] = Predictions[k, 2, i, :, :]
+            p_ref[i, :, :] = y_data[2, i, :, :]
+            psi1_inf[i, :, :] = Predictions[k, 5, i, :, :]
+            psi1_ref[i, :, :] = y_data[4, i, :, :]
+            psi2_inf[i, :, :] = Predictions[k, 6, i, :, :]
+            psi2_ref[i, :, :] = y_data[5, i, :, :] 
 
-    l2_error = get_relative_l2_error(phi_inf, phi_ref)
-    print(f'mean relative l2 error (phi): {l2_error.mean()}')
-    print(f'mean relative l2 error (half phi): {l2_error[:10].mean()}')
+        print(k)
+        l2_error_vel = get_relative_l2_error(vel_inf, vel_ref)
+        print(f'mean relative l2 error (vel) full time: {l2_error_vel.mean()}')
+
+        l2_error_phi = get_relative_l2_error(phi_inf, phi_ref)
+        print(f'mean relative l2 error (phi) full time: {l2_error_phi.mean()}')
+
+        l2_error_p = get_relative_l2_error(p_inf, p_ref)
+        print(f'mean relative l2 error (p) full time: {l2_error_p.mean()}')
+
+        l2_error_psi1 = get_relative_l2_error(psi1_inf, psi1_ref)
+        print(f'mean relative l2 error (psi1) full time: {l2_error_psi1.mean()}')
+
+        l2_error_psi2 = get_relative_l2_error(psi2_inf, psi2_ref)
+        print(f'mean relative l2 error (psi2) full time: {l2_error_psi2.mean()}')
 
 if __name__ == '__main__':
     main()

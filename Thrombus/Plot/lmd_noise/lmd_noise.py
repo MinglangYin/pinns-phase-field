@@ -21,18 +21,13 @@ def main():
     num_data = 5
     ### inferred K
     noise_level = np.linspace(0, 0.2, 5)
-    lmd_inf_text = ['10.1144', '11.4077', '12.32', '11.04', '11.53']
-    Loss_inf_text = ['0.0372', '0.0471', '0.0607', '0.0956', '0.1378']
-    err_phi_text = ['0.008051419432299447', '0.009478734804247843', '0.01132068173843572', '0.020044809031047436', '0.030512773730721393']
-    err_v_text = ['0.02478066552721257', '0.029349231302478702', '0.024614214605236176', '0.02605206420946758', '0.02750679025451804']
-
-    lmd_inf, Loss_inf, err_phi, err_v = np.zeros((num_data)), np.zeros((num_data)), np.zeros((num_data)), np.zeros((num_data))
-
-    for i in range(num_data):
-        lmd_inf[i] = np.array(lmd_inf_text[i])
-        Loss_inf[i] = np.array(Loss_inf_text[i])
-        err_phi[i] = np.array(err_phi_text[i])
-        err_v[i] = np.array(err_v_text[i])
+    lmd_inf = [8.1101, 7.2270, 8.4252, 7.3424, 8.0208]
+    Loss_inf = [0.1126, 0.1137, 0.1253, 0.1119, 0.1229]
+    err_phi = [0.019132969661695337, 0.022165446091459352, 0.028774690058806056, 0.0330374651396011, 0.04862939423576465]
+    err_v = [0.06263739293792053, 0.05087910730989601, 0.057199515437603196, 0.05933298259246256, 0.060257633343410756]
+    err_p = [0.0006173756011650792, 0.0003939275101607151, 0.0004433617821461121,0.00038196944384585646 ,0.00042253077344307934 ]
+    err_psi1 = [0.00539565361006589, 0.0013109016008178505 , 0.0025911403681715415, 0.0014683988697763303,0.002081844771282982 ]
+    err_psi2 = [0.0005782863963844629, 0.0004720243355262035, 0.00040608197773290894, 0.0005885836333450958,0.0006157180399772479 ]
 
     ## plotting
     fig = plt.figure(constrained_layout=False, figsize=(12,4))
@@ -43,7 +38,7 @@ def main():
     ax3 = fig.add_subplot(gs0[2])
 
     ## ax1: K
-    ax1.axhline(y=10, linestyle='--', color='black',  label='real $\lambda_{e}$')
+    ax1.axhline(y=10, linestyle='--', color='black',  label='actual $\lambda_{e}$ = 10')
     ax1.plot(noise_level, lmd_inf, color='blue')
     ax1.scatter(noise_level, lmd_inf, color='blue', label='inferred $\lambda_{e}$')
     ax1.set_xlabel('noise level $\sigma$', fontsize=18)
@@ -75,14 +70,21 @@ def main():
     ax3.scatter(noise_level, err_phi, color="blue")
     ax3.plot(noise_level, err_v, color="red", label='$\epsilon_{v}$')
     ax3.scatter(noise_level, err_v, color="red")
+    ax3.plot(noise_level, err_p, color="black", label='$\epsilon_{p}$')
+    ax3.scatter(noise_level, err_p, color="black")
+    ax3.plot(noise_level, err_psi1, color="gray", label='$\epsilon_{\psi1}$')
+    ax3.scatter(noise_level, err_psi1, color="gray")
+    ax3.plot(noise_level, err_psi2, color="orange", label='$\epsilon_{\psi2}$')
+    ax3.scatter(noise_level, err_psi2, color="orange")
+
     ax3.set_xlabel('noise level $\sigma$', fontsize=18)
     ax3.set_ylabel('$\epsilon$', fontsize=18, rotation='horizontal')
     ax3.set_title('(c)')
     ax3.set_xlim([0, 0.2])
-    ax3.set_ylim([0, 0.05])
+    ax3.set_ylim([1e-4, 1e0])
+    ax3.set_yscale('log')
     ax3.yaxis.set_label_coords(0.0,1.02)
-    ax3.legend(fontsize=14, loc='best')
-    
+    ax3.legend(fontsize=10, loc='best', ncol=3)
     plt.tight_layout()
     fig.savefig('fig_lmd_noise.png')
     plt.close()
