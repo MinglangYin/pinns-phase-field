@@ -8,6 +8,7 @@ import matplotlib.gridspec as gridspec
 def main():
     ## figure
     x = [1, 2, 3, 4, 5, 6, 7]
+    y = np.arange(0, 9)
     num_data = 4
     ### inferred K
     num_pt = ['5%', '7.5%', '10%', '15%', '25%', '35%', '45%']
@@ -64,7 +65,7 @@ def main():
     ax1.set_xticks(np.arange(1, 8))
     ax1.set_xticklabels(num_pt)
 
-    ax1.set_xlim([1,7])
+    ax1.set_xlim([0.5,7.5])
     ax1.set_ylim([1e-4, 1e-2])
     ax1.set_title('(a)')
     ax1.set_yscale('log')
@@ -72,6 +73,7 @@ def main():
     ax1.yaxis.set_label_coords(0.0,1.02)
     ax1.legend(fontsize=14)
     ax1.text(1.5, 0.0006, "$\kappa$=0.001", fontsize=16)
+    # ax1.fill_between(y, 0.0005, 0.0015, facecolor='gray', alpha=0.2)
 
     # ## ax2
     ax2.plot(x, K0001_err_v, color='blue')
@@ -81,11 +83,12 @@ def main():
     ax2.set_xticks(np.arange(1, 8))
     ax2.set_xticklabels(num_pt)
     # ax2.set_yticks(np.linspace(0, 12, 6))
-    ax2.set_xlim([1,7])
-    ax2.set_ylim([1e-3, 1e-1])
+    ax2.set_xlim([0.5,7.5])
+    ax2.set_ylim([1e-5, 1e-1])
     ax2.set_yscale('log')
     ax2.set_title('(b)')
     ax2.yaxis.set_label_coords(0.0,1.02)
+    ax2.fill_between(y, 1e-5, 1e-2, facecolor='gray', alpha=0.2)
     # ax2.legend()
 
     # ## ax3
@@ -95,12 +98,13 @@ def main():
     ax3.set_ylabel("$\epsilon_{\phi}$", fontsize=18, rotation='horizontal')
     ax3.set_xticks(np.arange(1, 8))
     ax3.set_xticklabels(num_pt)
-    ax3.set_xlim([1,7])
+    ax3.set_xlim([0.5,7.5])
     # ax2.set_yticks(np.linspace(0, 12, 6))
     ax3.set_ylim([1e-5, 1e-1])
     ax3.set_yscale('log')
     ax3.set_title('(c)')
     ax3.yaxis.set_label_coords(0.0,1.02)
+    ax3.fill_between(y, 1e-5, 1e-2, facecolor='gray', alpha=0.2)
     # ax3.legend()
     
     ## K = 0.01
@@ -112,7 +116,7 @@ def main():
     ax4.set_xticks(np.arange(1, 8))
     ax4.set_xticklabels(num_pt)
     # ax4.set_yticks(np.linspace(0, 0.02, 11))
-    ax4.set_xlim([1,7])
+    ax4.set_xlim([0.5,7.5])
     ax4.set_ylim([1e-3, 1e-1])
     ax4.set_title('(d)')
     ax4.set_yscale('log')
@@ -129,11 +133,12 @@ def main():
     ax5.set_xticks(np.arange(1, 8))
     ax5.set_xticklabels(num_pt)
     # ax2.set_yticks(np.linspace(0, 12, 6))
-    ax5.set_xlim([1,7])
-    ax5.set_ylim([1e-3, 1e-1])
+    ax5.set_xlim([0.5,7.5])
+    ax5.set_ylim([1e-5, 1e-1])
     ax5.set_yscale('log')
     ax5.set_title('(e)')
     ax5.yaxis.set_label_coords(0.0,1.02)
+    ax5.fill_between(y, 1e-5, 1e-2, facecolor='gray', alpha=0.2)
     # ax2.legend()
 
     # ## ax3
@@ -143,12 +148,13 @@ def main():
     ax6.set_ylabel("$\epsilon_{\phi}$", fontsize=18, rotation='horizontal')
     ax6.set_xticks(np.arange(1, 8))
     ax6.set_xticklabels(num_pt)
-    ax6.set_xlim([1,7])
+    ax6.set_xlim([0.5,7.5])
     # ax2.set_yticks(np.linspace(0, 12, 6))
     ax6.set_ylim([1e-5, 1e-1])
     ax6.set_yscale('log')
     ax6.set_title('(f)')
     ax6.yaxis.set_label_coords(0.0,1.02)
+    ax6.fill_between(y, 1e-5, 1e-2, facecolor='gray', alpha=0.2)
     # ax3.legend()
 
     ## K = 1
@@ -161,7 +167,7 @@ def main():
     ax7.set_xticks(np.arange(1, 8))
     ax7.set_xticklabels(num_pt)
     # ax7.set_yticks(np.linspace(0, 10, 11))
-    ax7.set_xlim([1,7])
+    ax7.set_xlim([0.5,7.5])
     ax7.set_ylim([1e-1, 1e2])
     ax7.set_title('(g)')
     ax7.set_yscale('log')
@@ -178,11 +184,12 @@ def main():
     ax8.set_xticks(np.arange(1, 8))
     ax8.set_xticklabels(num_pt)
     # ax2.set_yticks(np.linspace(0, 12, 6))
-    ax8.set_xlim([1,7])
-    ax8.set_ylim([1e-4, 1e-2])
+    ax8.set_xlim([0.5,7.5])
+    ax8.set_ylim([1e-5, 1e-1])
     ax8.set_yscale('log')
     ax8.set_title('(h)')
     ax8.yaxis.set_label_coords(0.0,1.02)
+    ax8.fill_between(y, 1e-5, 1e-2, facecolor='gray', alpha=0.2)
     # ax2.legend()
 
     # ## ax9
@@ -192,12 +199,13 @@ def main():
     ax9.set_ylabel("$\epsilon_{\phi}$", fontsize=18, rotation='horizontal')
     ax9.set_xticks(np.arange(1, 8))
     ax9.set_xticklabels(num_pt)
-    ax9.set_xlim([1,7])
+    ax9.set_xlim([0.5,7.5])
     # ax2.set_yticks(np.linspace(0, 12, 6))
-    ax9.set_ylim([1e-4, 1e-2])
+    ax9.set_ylim([1e-5, 1e-1])
     ax9.set_yscale('log')
     ax9.set_title('(i)')
     ax9.yaxis.set_label_coords(0.0,1.02)
+    ax9.fill_between(y, 1e-5, 1e-2, facecolor='gray', alpha=0.2)
     # ax3.legend()
 
     ## K = 100
@@ -210,7 +218,7 @@ def main():
     ax10.set_xticks(np.arange(1, 8))
     ax10.set_xticklabels(num_pt)
     # ax7.set_yticks(np.linspace(0, 10, 11))
-    ax10.set_xlim([1,7])
+    ax10.set_xlim([0.5,7.5])
     ax10.set_ylim([1e-1, 1e4])
     ax10.set_title('(j)')
     ax10.set_yscale('log')
@@ -227,11 +235,12 @@ def main():
     ax11.set_xticks(np.arange(1, 8))
     ax11.set_xticklabels(num_pt)
     # ax2.set_yticks(np.linspace(0, 12, 6))
-    ax11.set_xlim([1,7])
-    ax11.set_ylim([1e-4, 1e-2])
+    ax11.set_xlim([0.5,7.5])
+    ax11.set_ylim([1e-5, 1e-1])
     ax11.set_yscale('log')
     ax11.set_title('(k)')
     ax11.yaxis.set_label_coords(0.0,1.02)
+    ax11.fill_between(y, 1e-5, 1e-2, facecolor='gray', alpha=0.2)
     # ax2.legend()
 
     # ## ax9
@@ -241,12 +250,13 @@ def main():
     ax12.set_ylabel("$\epsilon_{\phi}$", fontsize=18, rotation='horizontal')
     ax12.set_xticks(np.arange(1, 8))
     ax12.set_xticklabels(num_pt)
-    ax12.set_xlim([1,7])
+    ax12.set_xlim([0.5,7.5])
     # ax2.set_yticks(np.linspace(0, 12, 6))
     ax12.set_ylim([1e-5, 1e-1])
     ax12.set_yscale('log')
     ax12.set_title('(l)')
     ax12.yaxis.set_label_coords(0.0,1.02)
+    ax12.fill_between(y, 1e-5, 1e-2, facecolor='gray', alpha=0.2)
     # ax3.legend()
 
     plt.tight_layout()

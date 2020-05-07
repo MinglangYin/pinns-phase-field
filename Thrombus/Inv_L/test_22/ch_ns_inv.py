@@ -43,7 +43,8 @@ tau = 1e-6
 rho = 1
 mu = 0.1
 K = 0.01
-epsilon = 0.1
+
+epsilon = 1e-8
 
 class Model(nn.Module):
     def __init__(self):
