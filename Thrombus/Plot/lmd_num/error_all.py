@@ -246,7 +246,7 @@ def main():
     # ax7.plot(x, case_2_lmd_1, color='blue')
     # ax7.scatter(x, case_2_lmd_1, color='blue', label='$\phi$+u')
     ax7.plot(x, case_2_lmd_2, color='red')
-    ax7.scatter(x, case_2_lmd_2, color='red', label='$\phi')
+    ax7.scatter(x, case_2_lmd_2, color='red', label='$\phi$')
     ax7.plot(x, case_2_lmd_3, color='black')
     ax7.scatter(x, case_2_lmd_3, color='black', label='$\phi$+u+p')
     ax7.plot(x, case_2_lmd_4, color='orange')
