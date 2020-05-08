@@ -157,7 +157,7 @@ def main():
     ax1.set_ylabel('Loss', fontsize=14, rotation="horizontal")
     ax1.yaxis.set_label_coords(0.0,1.02)
     ax1.set_aspect('auto')
-    ax1.legend(ncol=2)
+    ax1.legend(ncol=2, fontsize=10)
 
     ## plot [0, 0]]
     ax2.step(x, K_step, linestyle="--", color="black",label='$\kappa_{true}$')
@@ -170,7 +170,7 @@ def main():
     ax2.yaxis.set_label_coords(0.0,1.02)
     ax2.set_title('(b)')
     ax2.grid()
-    ax2.legend(loc="best")
+    ax2.legend(loc="best", fontsize=10)
     ax2.set_aspect(2)
 
     fig.savefig('fig_K_phi.png')

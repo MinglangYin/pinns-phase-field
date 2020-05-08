@@ -78,7 +78,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    model_path = '../Inv_K_noise/test_5/CheckPts/model_chkpts.pt'
+    model_path = '../../Inv_K_noise/test_4/CheckPts/model_chkpts.pt'
 
     file_start = 0
     file_end = 20
@@ -96,8 +96,8 @@ def main():
     y_data = np.zeros((4, file_end-file_start, num_x1, num_x2))
     t_step = 0
     for file_id in range(file_start, file_end):
-        name_u = '../../Data/CH/phase_field_xiaoning/K_001/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../Data/CH/phase_field_xiaoning/K_001/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/K_001/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_001/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
@@ -139,24 +139,22 @@ def main():
     phi_ref = np.zeros((num_t, num_x1, num_x2))
     vel_inf = np.zeros((num_t, num_x1, num_x2))
     vel_ref = np.zeros((num_t, num_x1, num_x2))
+    p_inf = np.zeros((num_t, num_x1, num_x2))
+    p_ref = np.zeros((num_t, num_x1, num_x2))
     for i in range(0, num_t):
         phi_inf[i, :, :] = Predictions[3, i, :, :]
         phi_ref[i, :, :] = y_data[3, i, :, :]
         vel_inf[i, :, :] = np.sqrt(Predictions[0, i, :, :]**2 + Predictions[1, i, :, :]**2)
         vel_ref[i, :, :] = np.sqrt(y_data[0, i, :, :]**2 + y_data[1, i, :, :]**2)
+        p_inf[i, :, :] = Predictions[2, i, :, :]
+        p_ref[i, :, :] = y_data[2, i, :, :]
 
     l2_error = get_relative_l2_error(vel_inf, vel_ref)
-    # print(f'relative l2 error (vel): {l2_error}')
     print(f'mean relative l2 error (vel): {l2_error.mean()}')
-    # l2_error = get_l2_error(vel_inf, vel_ref)
-    # print(f'relative l2 error (vel): {l2_error}')
-    # print(f'mean l2 error (vel): {l2_error.mean()}')
     l2_error = get_relative_l2_error(phi_inf, phi_ref)
-    # print(f'relative l2 error (phi): {l2_error}')
     print(f'mean relative l2 error (phi): {l2_error.mean()}')
-    # l2_error = get_l2_error(phi_inf, phi_ref)
-    # print(f'relative l2 error (phi): {l2_error}')
-    # print(f'mean l2 error (phi): {l2_error.mean()}')
+    l2_error = get_relative_l2_error(p_inf, p_ref)
+    print(f'mean relative l2 error (p): {l2_error.mean()}')
 
 if __name__ == '__main__':
     main()

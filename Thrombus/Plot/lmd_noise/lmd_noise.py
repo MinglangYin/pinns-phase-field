@@ -84,9 +84,13 @@ def main():
     ax3.set_ylim([1e-4, 1e0])
     ax3.set_yscale('log')
     ax3.yaxis.set_label_coords(0.0,1.02)
-    ax3.legend(fontsize=10, loc='best', ncol=3)
+    leg = ax3.legend(fontsize=12, loc='best', ncol=3)
+    for legobj in leg.legendHandles:
+        legobj.set_linewidth(2.0)
+
     plt.tight_layout()
     fig.savefig('fig_lmd_noise.png')
+    
     plt.close()
 
 
