@@ -30,7 +30,9 @@ def main():
     ax1.set_title('(a)')
     ax1.yaxis.set_label_coords(0.0,1.02)
     # ax1.set_aspect('equal')
-    ax1.legend()
+    leg = ax1.legend(ncol=2, fontsize=10)
+    for line in leg.get_lines():
+        line.set_linewidth(2.0)
 
     ## lmd
     ax2 = fig.add_subplot(gs[1])

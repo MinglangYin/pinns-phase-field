@@ -157,7 +157,9 @@ def main():
     ax1.set_ylabel('Loss', fontsize=14, rotation="horizontal")
     ax1.yaxis.set_label_coords(0.0,1.02)
     ax1.set_aspect('auto')
-    ax1.legend(ncol=2, fontsize=10)
+    leg = ax1.legend(ncol=2, fontsize=10)
+    for line in leg.get_lines():
+        line.set_linewidth(2.0)
 
     ## plot [0, 0]]
     ax2.step(x, K_step, linestyle="--", color="black",label='$\kappa_{true}$')
