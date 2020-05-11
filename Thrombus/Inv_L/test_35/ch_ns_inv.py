@@ -214,7 +214,7 @@ def main():
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
     epochs = 600000
-    lr = 0.001
+    learning_rate = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/', './Predictions/psi_1/', './Predictions/psi_2/']
     model_path = 'CheckPts/model_chkpts.pt'
@@ -402,6 +402,10 @@ def main():
     print('start training...', flush=True)
     tic = time.time()
     for epoch in range(0, epochs):    
+        if (epoch % 10000 == 0 and epoch < 300000 and epoch > 0):
+            learning_rate = learning_rate*0.9
+            optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
+
         model.train()
         print(model.lmd_e)
 
