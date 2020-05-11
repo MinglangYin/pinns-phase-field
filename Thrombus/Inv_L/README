@@ -76,8 +76,6 @@ test_36: dyn w, max
 (og)test_37: decaying learning rate
 (og)test_38: decaying learning rate + LBFGS
 
-#########biofilm
-test_39: 
 
 
 
