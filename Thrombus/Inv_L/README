@@ -78,7 +78,8 @@ test_36: dyn w, max
 
 ######## biofilm
 (og)test_39 = test_32 (adam+lbfgs) reweights
-(og)test_40 = test_31 (adam: 0.001)
+(og)test_40 = test_31 (adam: 0.001) reweights
+(og)test_41 = test_31 (adam: 0.001) same weights
 
 
 
