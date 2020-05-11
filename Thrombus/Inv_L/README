@@ -71,8 +71,11 @@ test_34 = test_31 after 100000
 
 ######### membrane case
 test_35: dyn w, average
-test_35: dyn w, max
+test_36: dyn w, max
 
+#########unsteady cavity membrane###########
+test_37: decaying learning rate
+test_38: decaying learning rate + LBFGS
 
 
 

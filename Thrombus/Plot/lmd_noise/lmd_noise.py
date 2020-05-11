@@ -30,12 +30,12 @@ def main():
     err_psi2 = [0.0005782863963844629, 0.0004720243355262035, 0.00040608197773290894, 0.0005885836333450958,0.0006157180399772479 ]
 
     ## plotting
-    fig = plt.figure(constrained_layout=False, figsize=(12,4))
+    fig = plt.figure(constrained_layout=False, figsize=(8,4))
     gs = fig.add_gridspec(1, 1)
-    gs0 = gs[0].subgridspec(1, 3)
+    gs0 = gs[0].subgridspec(1, 2)
     ax1 = fig.add_subplot(gs0[0])
-    ax2 = fig.add_subplot(gs0[1])
-    ax3 = fig.add_subplot(gs0[2])
+    # ax2 = fig.add_subplot(gs0[1])
+    ax3 = fig.add_subplot(gs0[1])
 
     ## ax1: K
     ax1.axhline(y=10, linestyle='--', color='black',  label='actual $\lambda_{e}$ = 10')
@@ -53,17 +53,17 @@ def main():
     ax1.legend()
 
     ## ax2
-    ax2.plot(noise_level, Loss_inf, color="blue")
-    ax2.scatter(noise_level, Loss_inf, color="blue")
-    ax2.set_xlabel('noise level $\sigma$', fontsize=18)
-    ax2.set_ylabel('Loss', fontsize=18, rotation='horizontal')
-    ax2.set_xlim([0, 0.2])
-    ax2.set_ylim([0, 0.50])
-    ax2.set_xticks(noise_level)
-    ax2.set_yticks(np.linspace(0, 0.50, 3))
-    ax2.set_aspect('auto')
-    ax2.yaxis.set_label_coords(0.0,1.02)
-    ax2.set_title('(b)')
+    # ax2.plot(noise_level, Loss_inf, color="blue")
+    # ax2.scatter(noise_level, Loss_inf, color="blue")
+    # ax2.set_xlabel('noise level $\sigma$', fontsize=18)
+    # ax2.set_ylabel('Loss', fontsize=18, rotation='horizontal')
+    # ax2.set_xlim([0, 0.2])
+    # ax2.set_ylim([0, 0.50])
+    # ax2.set_xticks(noise_level)
+    # ax2.set_yticks(np.linspace(0, 0.50, 3))
+    # ax2.set_aspect('auto')
+    # ax2.yaxis.set_label_coords(0.0,1.02)
+    # ax2.set_title('(b)')
 
     ## ax3
     h3, = ax3.plot(noise_level, err_phi, color="blue", label='$\epsilon_{\phi}$')
@@ -79,7 +79,7 @@ def main():
 
     ax3.set_xlabel('noise level $\sigma$', fontsize=18)
     ax3.set_ylabel('$\epsilon$', fontsize=18, rotation='horizontal')
-    ax3.set_title('(c)')
+    ax3.set_title('(b)')
     ax3.set_xlim([0, 0.2])
     ax3.set_ylim([1e-4, 1e0])
     ax3.set_yscale('log')

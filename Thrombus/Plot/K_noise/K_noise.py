@@ -32,12 +32,12 @@ def main():
     err_p = [0.009794845039209004, 0.9630689082055446, 0.3124885667445249, 0.7091488581853999, 1.0822722417229453]
 
     ## plotting
-    fig = plt.figure(constrained_layout=False, figsize=(12,4))
+    fig = plt.figure(constrained_layout=False, figsize=(8,4))
     gs = fig.add_gridspec(1, 1)
-    gs0 = gs[0].subgridspec(1, 3)
+    gs0 = gs[0].subgridspec(1, 2)
     ax1 = fig.add_subplot(gs0[0])
-    ax2 = fig.add_subplot(gs0[1])
-    ax3 = fig.add_subplot(gs0[2])
+    # ax2 = fig.add_subplot(gs0[1])
+    ax3 = fig.add_subplot(gs0[1])
 
     ## ax1: K
     ax1.axhline(y=0.01, linestyle='--', color='black',  label='$\kappa_{true}$')
@@ -56,17 +56,17 @@ def main():
     ax1.legend(fontsize=14)
 
     ## ax2
-    ax2.plot(noise_level, Loss_inf, color="blue")
-    ax2.scatter(noise_level, Loss_inf, color="blue")
-    ax2.set_xlabel('noise level $\sigma$', fontsize=18)
-    ax2.set_ylabel('Loss', fontsize=18, rotation='horizontal')
-    ax2.set_xlim([0, 0.2])
-    ax2.set_ylim([0, 0.03])
-    ax2.set_xticks(noise_level)
-    ax2.set_yticks(np.linspace(0, 0.03, 7))
-    ax2.set_aspect('auto')
-    ax2.yaxis.set_label_coords(0.0,1.02)
-    ax2.set_title('(b)')
+    # ax2.plot(noise_level, Loss_inf, color="blue")
+    # ax2.scatter(noise_level, Loss_inf, color="blue")
+    # ax2.set_xlabel('noise level $\sigma$', fontsize=18)
+    # ax2.set_ylabel('Loss', fontsize=18, rotation='horizontal')
+    # ax2.set_xlim([0, 0.2])
+    # ax2.set_ylim([0, 0.03])
+    # ax2.set_xticks(noise_level)
+    # ax2.set_yticks(np.linspace(0, 0.03, 7))
+    # ax2.set_aspect('auto')
+    # ax2.yaxis.set_label_coords(0.0,1.02)
+    # ax2.set_title('(b)')
 
     ## ax3
     h3, = ax3.plot(noise_level, err_phi, color="blue", label='$\epsilon_{\phi}$')
