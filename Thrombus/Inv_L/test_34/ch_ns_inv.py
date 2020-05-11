@@ -450,13 +450,13 @@ def main():
     ## instantiate model/optimizer
     model = Model().to(device)
     # model.float32()
-    optimizer = torch.optim.Adam(model.parameters(), lr = lr)
+    optimizer = torch.optim.LBFGS(model.parameters())
 
     ## loading model/optimizer state
     if restart == 1:
         checkpoint = torch.load(model_path)
         model.load_state_dict(checkpoint['model_state_dict'])
-        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     
     ## training
     loss_his = np.zeros((epochs,4))

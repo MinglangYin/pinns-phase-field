@@ -210,7 +210,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 310000
+    epochs = 600000
     learning_rate = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/', './Predictions/psi_1/', './Predictions/psi_2/']
@@ -370,13 +370,13 @@ def main():
     ## instantiate model/optimizer
     model = Model().to(device)
     # model.float32()
-    optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
+    optimizer = torch.optim.LBFGS(model.parameters())
 
     ## loading model/optimizer state
     if restart == 1:
         checkpoint = torch.load(model_path)
         model.load_state_dict(checkpoint['model_state_dict'])
-        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     
     ## training
     loss_his = np.zeros((epochs,4))
@@ -385,11 +385,11 @@ def main():
     print('start training...', flush=True)
     tic = time.time()
     for epoch in range(0, epochs):    
-        if (epoch % 10000 == 0 and epoch < 300000 and epoch > 0):
-            learning_rate = learning_rate*0.9
-            optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
-        elif (epoch == 300000):
-            optimizer = torch.optim.LBFGS(model.parameters())
+        # if (epoch % 10000 == 0 and epoch < 300000 and epoch > 0):
+        #     learning_rate = learning_rate*0.9
+        #     optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
+        # elif (epoch == 300000):
+        #     optimizer = torch.optim.LBFGS(model.parameters())
 
         model.train()
         print(model.lmd_e)
@@ -399,7 +399,7 @@ def main():
             loss_data = model.loss_data(xt_f_train, phi_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, v_up_train, phi_l_train, xt_b_train, p_b_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + loss_data + loss_ic
+            loss = 10*loss_pde + loss_bc + loss_data + loss_ic
 
             loss_his[epoch,0] = to_numpy(loss_pde)
             loss_his[epoch,1] = to_numpy(loss_bc)

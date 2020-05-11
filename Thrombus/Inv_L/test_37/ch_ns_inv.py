@@ -215,7 +215,7 @@ def main():
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/', './Predictions/psi_1/', './Predictions/psi_2/']
     model_path = 'CheckPts/model_chkpts.pt'
-    restart = 0 # restart = 0: start from beginning, restart = 1: resuming training
+    restart = 1 # restart = 0: start from beginning, restart = 1: resuming training
     check_step = 10000
 
     file_start = 0
@@ -397,7 +397,7 @@ def main():
             loss_data = model.loss_data(xt_f_train, phi_f_train)        
             loss_bc = model.loss_bc(xt_l_train, xt_r_train, xt_up_train, xt_dw_train, v_up_train, phi_l_train, xt_b_train, p_b_train)
             loss_ic = model.loss_ic(xt_i_train, u_i_train, v_i_train, p_i_train, phi_i_train, psi_1_i_train, psi_2_i_train)
-            loss = loss_pde + loss_bc + loss_data + loss_ic
+            loss = 10*loss_pde + loss_bc + loss_data + loss_ic
 
             loss_his[epoch,0] = to_numpy(loss_pde)
             loss_his[epoch,1] = to_numpy(loss_bc)

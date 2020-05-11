@@ -61,22 +61,23 @@ test_29: (Lmd_e_10) w_data:50, lmd_e, snapshot: 0-19, phase+p(boundary), points:
 ######### membrane sin(2*pi*x)
 test_30: phase + p(boundary), prediction:
 
-
 ######### lmd_10_k_001
 test_31, phase + p (boundary), lmd_e, K (7000+7000)
 test_32: phase + p (boundary), lmd_e, K (5000+5000)
 
-test_33 = test_32 after 100000
-test_34 = test_31 after 100000
+(og)test_33 = test_32 after 100000 (decaying lr)
+(og)test_34 = test_31 after 100000 (adam+lbfgs)
 
 ######### membrane case
 test_35: dyn w, average
 test_36: dyn w, max
 
 #########unsteady cavity membrane###########
-test_37: decaying learning rate
-test_38: decaying learning rate + LBFGS
+(og)test_37: decaying learning rate
+(og)test_38: decaying learning rate + LBFGS
 
+#########biofilm
+test_39: 
 
 
 
