@@ -77,7 +77,7 @@ test_36: dyn w, max
 (og)test_38: decaying learning rate + LBFGS
 
 ######## biofilm
-(og)test_39 = test_32 (adam+lbfgs) reweights
+(og)test_39 = test_32 (adam + lbfgs) reweights
 (og)test_40 = test_31 (adam: 0.001) reweights
 (og)test_41 = test_31 (adam: 0.001) same weights
 
