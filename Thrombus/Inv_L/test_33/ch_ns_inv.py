@@ -450,7 +450,7 @@ def main():
     ## instantiate model/optimizer
     model = Model().to(device)
     # model.float32()
-    optimizer = torch.optim.Adam(model.parameters(), lr = lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
 
     ## loading model/optimizer state
     if restart == 1:
