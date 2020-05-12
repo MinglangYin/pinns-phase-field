@@ -33,5 +33,5 @@ K(end)
 
 save K.dat K -ascii
 save lmd.dat lmd -ascii
-
+save loss.dat loss -ascii
 

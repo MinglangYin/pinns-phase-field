@@ -62,7 +62,7 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
 
     ## loading model/optimizer state
-    model_path = ['../../Inv_L/test_26/CheckPts/model_chkpts.pt']
+    model_path = ['../../Inv_L/test_37/CheckPts/model_chkpts.pt']
 
     Predictions = np.zeros((4, 7, num_t, num_x1, num_x2))
     for k in range (0, 1):
