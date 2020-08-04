@@ -17,7 +17,7 @@ Author: Minglang Yin
 
 import sys
 import os
-sys.path.insert(0,'../../../Utils')
+sys.path.insert(0,'../../Utils')
 
 import torch
 import torch.nn as nn
@@ -106,7 +106,8 @@ def to_numpy(input):
 
 def init_cond(x_init):
     x = Symbol('x')
-    u = tanh(x/(sqrt(2)*0.05) )
+    # u = tanh(x/(sqrt(2)*0.05) )
+    u = -2*tanh(((x-0.5)**2)/(np.sqrt(2)*0.02) )+1
     u_x = u.diff(x)
     u_xx = u_x.diff(x)
     
@@ -132,7 +133,7 @@ def main():
     os.makedirs("Predictions", exist_ok=True)
     
     ##
-    x = np.linspace(-1, 1, num=num_x)
+    x = np.linspace(0, 1, num=num_x)
     t = np.linspace(0, 1, num=num_t)
     x_grid, t_grid = np.meshgrid(x, t)
     x_f = np.concatenate((t_grid[1:-1,1:-1].flatten()[:,None], x_grid[1:-1,1:-1].flatten()[:,None]), axis=1)
