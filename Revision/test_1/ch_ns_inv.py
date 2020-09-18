@@ -42,6 +42,7 @@ tau = 1e-6
 rho = 1
 mu = 0.1
 K = 0.01
+gamma = tau/lmd
 
 class Model(nn.Module):
     def __init__(self):
@@ -91,14 +92,14 @@ class Model(nn.Module):
 
         ## NS
         res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + \
-                lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/(2*self.K)
+                lmd*(2*phi_x*phi_xx + phi_yy*phi_x + phi_xy*phi_y) + mu*(1-phi)*u/(self.K)
         res_ns_y = rho*(v_t + u*v_x + v*v_y) + p_y - mu*(v_xx + v_yy) + \
-                lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + mu*(1-phi)*v/(2*self.K)
+                lmd*(phi_xy*phi_x + phi_xx*phi_y + 2*phi_y*phi_yy) + mu*(1-phi)*v/(self.K)
         res_incomp = u_x + v_y
 
         ## PF
         F_g = phi**3 - phi
-        res_w = w + h**2*(phi_xx + phi_yy) - F_g  
+        res_w = w + h**2*(phi_xx + phi_yy) - gamma*F_g  
         # res_pf = phi_t + h**2*(u*phi_x + v*phi_y) - tau*(w_xx + w_yy)
         res_pf = phi_t + (u*phi_x + v*phi_y) - tau*(w_xx + w_yy)/h**2
 
