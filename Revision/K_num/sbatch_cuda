@@ -1,10 +1,11 @@
 #!/bin/bash
 
-num_start=11
-num_end=15
+num_start=31
+num_end=36
 for ((i=num_start; i<=num_end; i++));do
     echo ${i}
     cd ./test_${i}
     sbatch cuda.sh
+    #sbatch cuda_gk.sh
     cd ../
 done
