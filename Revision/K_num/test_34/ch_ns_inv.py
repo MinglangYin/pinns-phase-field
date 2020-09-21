@@ -186,7 +186,7 @@ def main():
     num_t = file_end-file_start
     num_bh_train = 50   # number of sampling points on verticle boundary over time
     num_bv_train = 50   # number of sampling points on horizontal boundary over time
-    num_f_train = 750   # inner sampling points
+    num_f_train = 10000   # inner sampling points
     num_pde_train = 25000   # inner sampling points
     num_i_train = 1000   # initial sampling points 
 

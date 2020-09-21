@@ -1,34 +1,9 @@
-k = 100
-test 1: 100
-test 2: 250
-test 3: 500
-test 4: 750
-test 5: 1000
-test 6: 2000
-test 7: 5000
-test 8: 10000
-
-k = 1
-test 11: 100
-test 12: 250
-test 13: 500
-test 14: 750
-test 15: 1000
-test 16: 2000
-
-k = 0.01
-test 21: 100
-test 22: 250
-test 23: 500
-test 24: 750
-test 25: 1000
-test 26: 2000
 
 k = 0.001
 test 31: 100
-test 32: 250
-test 33: 500
-test 34: 750
-test 35: 1000
-test 36: 2000
-
+test 32: 2500
+test 33: 5000
+test 34: 10000
+test 35: 20000
+test 36: 30000
+test 37: 40000
