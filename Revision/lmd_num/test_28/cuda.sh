@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Request a GPU partition node and access to 1 GPU
-#SBATCH -p gk-gpu-condo
+#SBATCH -p gpu --gres=gpu:1
 
 # Request 1 CPU core
 #SBATCH -n 1
