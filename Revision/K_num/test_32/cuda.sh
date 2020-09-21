@@ -6,7 +6,7 @@
 # Request 1 CPU core
 #SBATCH -n 1
 
-#SBATCH -t 24:00:00
+#SBATCH -t 40:00:00
 #SBATCH -o MyCUDAJob-%j.out
 
 # Compile CUDA program and run
