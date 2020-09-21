@@ -1,7 +1,7 @@
 #!/bin/bash
 
-num_start=13
-num_end=24
+num_start=25
+num_end=28
 for ((i=num_start; i<=num_end; i++));do
     echo ${i}
     cd ./test_${i}
