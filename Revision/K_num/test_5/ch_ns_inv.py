@@ -169,7 +169,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 100000
+    epochs = 300000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
@@ -187,6 +187,7 @@ def main():
     num_bh_train = 50   # number of sampling points on verticle boundary over time
     num_bv_train = 50   # number of sampling points on horizontal boundary over time
     num_f_train = 1000   # inner sampling points
+    num_pde_train = 25000   # inner sampling points
     num_i_train = 1000   # initial sampling points 
 
     x_min, x_max = 0, 6
@@ -263,9 +264,10 @@ def main():
     id_bv = np.random.choice(num_x1*num_t, num_bv_train, replace=False)
     id_bh = np.random.choice(num_x1*num_t, num_bh_train, replace=False)
     id_i = np.random.choice(num_x1*num_x2, num_i_train, replace=False)
+    id_pde = np.random.choice(num_x1*num_x2*num_t, num_pde_train, replace=False)
 
     ### PDE
-    xt_pde = x_data
+    xt_pde_sample = x_data[id_pde, :]
     ### initial
     xt_i_sample = xt_init[id_i, :]
     u_i_sample, v_i_sample, p_i_sample, phi_i_sample = u_init[id_i], v_init[id_i], p_init[id_i], phi_init[id_i]
@@ -278,8 +280,7 @@ def main():
     u_f_sample, v_f_sample, p_f_sample, phi_f_sample = y_data[id_f,0], y_data[id_f,1], y_data[id_f,2], y_data[id_f,3]
 
     ## set data as tensor and send to device
-    print(xt_pde.shape)
-    xt_pde_train = torch.tensor(xt_pde, requires_grad=True, dtype=torch.double).to(device)
+    xt_pde_train = torch.tensor(xt_pde_sample, requires_grad=True, dtype=torch.double).to(device)
     xt_i_train = torch.tensor(xt_i_sample, requires_grad=True, dtype=torch.double).to(device)
     u_i_train = torch.tensor(u_i_sample, dtype=torch.double).to(device)
     v_i_train = torch.tensor(v_i_sample, dtype=torch.double).to(device)

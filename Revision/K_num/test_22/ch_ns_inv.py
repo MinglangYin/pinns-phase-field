@@ -103,23 +103,11 @@ class Model(nn.Module):
         # res_pf = phi_t + h**2*(u*phi_x + v*phi_y) - tau*(w_xx + w_yy)
         res_pf = phi_t + (u*phi_x + v*phi_y) - tau*(w_xx + w_yy)/h**2
 
-        # print(f'res_ns_x shape:{res_ns_x.shape}')
-        # print(f'res_ns_y shape:{res_ns_y.shape}')
-        # print(f'res_incomp shape:{res_incomp.shape}')
-        # print(f'res_w shape:{res_w.shape}')
-        # print(f'res_pf shape:{res_pf.shape}')
-
         return (res_pf**2).mean() + (res_incomp**2).mean() + (res_ns_x**2).mean() + (res_ns_y**2).mean() + (res_w**2).mean()
 
     def loss_data(self, x_data, phi_data):
         y = self.net_u(x_data)
         phi = y[:, 3]
-
-        # print(f'loss_data u shape: {((u - u_data)**2).shape}')
-        # print(f'loss_data v shape: {((v - v_data)**2).shape}')
-        # print(f'loss_data p shape: {((p - p_data)**2).shape}')
-        # print(f'loss_data phi shape: {((phi - phi_data)**2).shape}')
-
         return ((phi - phi_data)**2).mean()
 
     def loss_bc(self, x_l, x_r, x_up, x_dw, u_l_real):
@@ -144,8 +132,6 @@ class Model(nn.Module):
         w_up_y = gradients(w_up, x_up)[0][:, 2]
         w_dw_y = gradients(w_dw, x_dw)[0][:, 2]
 
-        # print(f'u_l - u_l_real: {((u_l - u_l_real)**2).shape}')
-
         return ((u_l - u_l_real)**2).mean() + (u_r_x**2).mean() + (u_up**2).mean() + (u_dw**2).mean()\
                 + (v_l**2).mean() + (v_up**2).mean() + (v_dw**2).mean() + (p_r**2).mean()\
                 + (phi_l_x**2).mean() + (phi_r_x**2).mean() +  (phi_up_y**2).mean() + (phi_dw_y**2).mean() \
@@ -154,16 +140,6 @@ class Model(nn.Module):
     def loss_ic(self, x, u_i, v_i, p_i, phi_i):
         y_pred = self.net_u(x)
         u_i_pred, v_i_pred, p_i_pred, phi_i_pred = y_pred[:, 0][:,None], y_pred[:, 1][:,None], y_pred[:, 2][:,None], y_pred[:, 3][:,None]
-
-        # print(f'u_i_pred shape: {u_i_pred.shape}')
-        # print(f'u_i shape: {u_i.shape}')
-
-        # print(f'loss_ic_u: {((u_i_pred-u_i)**2).shape}')
-        # print(f'loss_ic_v: {((v_i_pred-v_i)**2).shape}')
-        # print(f'loss_ic_p: {((p_i_pred-p_i)**2).shape}')
-        # print(f'loss_ic_phi: {((phi_i_pred-phi_i)**2).shape}')
-        # print(f'w_loss: {((w_i_pred-w_i)**2).shape}')
-        
         return ((u_i_pred-u_i)**2).mean() + ((v_i_pred-v_i)**2).mean() + ((p_i_pred-p_i)**2).mean() + ((phi_i_pred-phi_i)**2).mean() 
 
 def left_bound_vel(x):
@@ -193,7 +169,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    epochs = 100000
+    epochs = 300000
     lr = 0.001
     init_path = './InitConds/'
     path_list = ['./Predictions/u/', './Predictions/v/', './Predictions/p/', './Predictions/phi/', './Predictions/w/']
@@ -211,6 +187,7 @@ def main():
     num_bh_train = 50   # number of sampling points on verticle boundary over time
     num_bv_train = 50   # number of sampling points on horizontal boundary over time
     num_f_train = 250   # inner sampling points
+    num_pde_train = 25000   # inner sampling points
     num_i_train = 1000   # initial sampling points 
 
     x_min, x_max = 0, 6
@@ -287,9 +264,10 @@ def main():
     id_bv = np.random.choice(num_x1*num_t, num_bv_train, replace=False)
     id_bh = np.random.choice(num_x1*num_t, num_bh_train, replace=False)
     id_i = np.random.choice(num_x1*num_x2, num_i_train, replace=False)
+    id_pde = np.random.choice(num_x1*num_x2*num_t, num_pde_train, replace=False)
 
     ### PDE
-    xt_pde = x_data
+    xt_pde_sample = x_data[id_pde, :]
     ### initial
     xt_i_sample = xt_init[id_i, :]
     u_i_sample, v_i_sample, p_i_sample, phi_i_sample = u_init[id_i], v_init[id_i], p_init[id_i], phi_init[id_i]
@@ -302,8 +280,7 @@ def main():
     u_f_sample, v_f_sample, p_f_sample, phi_f_sample = y_data[id_f,0], y_data[id_f,1], y_data[id_f,2], y_data[id_f,3]
 
     ## set data as tensor and send to device
-    print(xt_pde.shape)
-    xt_pde_train = torch.tensor(xt_pde, requires_grad=True, dtype=torch.double).to(device)
+    xt_pde_train = torch.tensor(xt_pde_sample, requires_grad=True, dtype=torch.double).to(device)
     xt_i_train = torch.tensor(xt_i_sample, requires_grad=True, dtype=torch.double).to(device)
     u_i_train = torch.tensor(u_i_sample, dtype=torch.double).to(device)
     v_i_train = torch.tensor(v_i_sample, dtype=torch.double).to(device)
