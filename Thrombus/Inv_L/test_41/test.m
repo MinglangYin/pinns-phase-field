@@ -31,7 +31,7 @@ semilogy(loss)
 lmd(end)
 K(end)
 
-save K.dat K -ascii
-save lmd.dat lmd -ascii
-save loss.dat loss -ascii
+% save K.dat K -ascii
+% save lmd.dat lmd -ascii
+% save loss.dat loss -ascii
 
