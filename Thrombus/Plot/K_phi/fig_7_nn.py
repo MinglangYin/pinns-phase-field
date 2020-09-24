@@ -161,7 +161,7 @@ def main():
     ax1.set_xticks(np.linspace(0, 300000, 4))
     ax1.set_xlim([0, 300000])
     # ax1.set_aspect((300000/1000), adjustable='box')
-    ax1.set_xlabel('epoches', fontsize=18)
+    ax1.set_xlabel('epochs', fontsize=18)
     ax1.set_ylabel('Loss', fontsize=18, rotation="horizontal")
     ax1.yaxis.set_label_coords(0.0,1.02)
     ax1.set_aspect('auto')
