@@ -11,13 +11,16 @@ def main():
     y = np.arange(0, 9)
     num_data = 4
     ### inferred K
-    num_pt = ['5%', '7.5%', '10%', '15%', '25%', '35%', '45%']
+    num_pt = ['0.1%', '2.5%', '5%', '10%', '20%', '30%', '40%']
 
     ## K = 0.001
-    K0001_inf = [0.0056, 0.0016, 0.0018, 0.0015, 0.0016, 0.0016, 0.0016] 
-    K0001_err_v = [0.03692339637250551, 0.005122691087586185, 0.007008171686910214, 0.00452708413850194, 0.005106505064399686, 0.0052239411916606485, 0.005559307109883266]
-    K0001_err_phi = [0.013432807731299406, 0.00015518189842251366, 0.00019363300715335963, 0.00014029456982833175, 0.00017971960099100957, 0.00019347685395596873, 0.00012616948045365877]
-  
+    # K0001_inf = [0.0056, 0.0016, 0.0018, 0.0015, 0.0016, 0.0016, 0.0016] 
+    # K0001_err_v = [0.03692339637250551, 0.005122691087586185, 0.007008171686910214, 0.00452708413850194, 0.005106505064399686, 0.0052239411916606485, 0.005559307109883266]
+    # K0001_err_phi = [0.013432807731299406, 0.00015518189842251366, 0.00019363300715335963, 0.00014029456982833175, 0.00017971960099100957, 0.00019347685395596873, 0.00012616948045365877]
+    K0001_inf = [0.005, 0.0008, 0.000805, 0.000805, 0.00076, 0.0008, 0.0008]
+    K0001_err_v = [0.004431276424893243, 0.006651601016591628, 0.004162255897910429, 0.004371984565019348, 0.004826646820475884, 0.004566431695002859, 0.0037709769270081817]
+    K0001_err_phi = [5.0999814245247376e-05, 0.0004911467780966902, 6.209044728430996e-05, 5.882942454197718e-05, 6.633957471641322e-05, 8.57278546715761e-05, 0.00016659397468669549]
+
     ## K = 0.01
     K001_inf = [0.0071, 0.0061, 0.0057,0.0060, 0.0059, 0.0060, 0.0059] 
     K001_err_v = [0.019956355343961698, 0.004366403222419709, 0.004150289836349184,0.004847596176752074 , 0.004716459209682021,0.0051841116386620355 ,0.005292324602118571]
@@ -57,7 +60,7 @@ def main():
     ax12 = fig.add_subplot(gs3[2])
 
     ## ax1: K
-    ax1.axhline(y=0.001, linestyle='--', color='black',  label='$\kappa_{true}$')
+    ax1.axhline(y=0.0005, linestyle='--', color='black',  label='$\kappa_{true}$')
     ax1.plot(x, K0001_inf, color='blue')
     ax1.scatter(x, K0001_inf, color='blue', label='$\kappa_{inf}$')
     ax1.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
@@ -72,7 +75,7 @@ def main():
     # ax1.set_aspect('auto')
     ax1.yaxis.set_label_coords(0.0,1.02)
     ax1.legend(fontsize=14)
-    ax1.text(1.5, 0.0006, "$\kappa$=0.001", fontsize=16)
+    ax1.text(1.5, 0.0003, "$\kappa$=0.0005", fontsize=16)
     # ax1.fill_between(y, 0.0005, 0.0015, facecolor='gray', alpha=0.2)
 
     # ## ax2
@@ -108,7 +111,7 @@ def main():
     # ax3.legend()
     
     ## K = 0.01
-    ax4.axhline(y=0.01, linestyle='--', color='black',  label='$\kappa_{true}$')
+    ax4.axhline(y=0.005, linestyle='--', color='black',  label='$\kappa_{true}$')
     ax4.plot(x, K001_inf, color='blue')
     ax4.scatter(x, K001_inf, color='blue', label='$\kappa_{inf}$')
     ax4.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
@@ -123,7 +126,7 @@ def main():
     # ax1.set_aspect('auto')
     ax4.yaxis.set_label_coords(0.0,1.02)
     ax4.legend(fontsize=14)
-    ax4.text(1.5, 0.013, "$\kappa$=0.01", fontsize=16)
+    ax4.text(1.5, 0.003, "$\kappa$=0.005", fontsize=16)
 
     # ## ax5
     ax5.plot(x, K001_err_v, color='blue')
@@ -159,7 +162,7 @@ def main():
 
     ## K = 1
     ##ax7
-    ax7.axhline(y=1, linestyle='--', color='black',  label='$\kappa_{true}$')
+    ax7.axhline(y=0.5, linestyle='--', color='black',  label='$\kappa_{true}$')
     ax7.plot(x, K1_inf, color='blue')
     ax7.scatter(x, K1_inf, color='blue', label='$\kappa_{inf}$')
     ax7.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
@@ -174,7 +177,7 @@ def main():
     # ax1.set_aspect('auto')
     ax7.yaxis.set_label_coords(0.0,1.02)
     ax7.legend(fontsize=14)
-    ax7.text(1.5, 0.5, "$\kappa$=1", fontsize=16)
+    ax7.text(1.5, 0.3, "$\kappa$=0.5", fontsize=16)
 
     # ## ax8
     ax8.plot(x, K1_err_v, color='blue')
@@ -210,7 +213,7 @@ def main():
 
     ## K = 100
     ##ax7
-    ax10.axhline(y=100, linestyle='--', color='black',  label='$\kappa_{true}$')
+    ax10.axhline(y=50, linestyle='--', color='black',  label='$\kappa_{true}$')
     ax10.plot(x, K100_inf, color='blue')
     ax10.scatter(x, K100_inf, color='blue', label='$\kappa_{inf}$')
     ax10.set_xlabel('$N_{train}/N_{total}$', fontsize=18)
@@ -225,7 +228,7 @@ def main():
     # ax1.set_aspect('auto')
     ax10.yaxis.set_label_coords(0.0,1.02)
     ax10.legend(fontsize=14)
-    ax10.text(1.5, 200, "$\kappa$=100", fontsize=16)
+    ax10.text(1.5, 100, "$\kappa$=50", fontsize=16)
 
     # ## ax8
     ax11.plot(x, K100_err_v, color='blue')

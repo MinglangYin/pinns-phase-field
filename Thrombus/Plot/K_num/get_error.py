@@ -98,8 +98,8 @@ def main():
     y_data = np.zeros((4, file_end-file_start, num_x1, num_x2))
     t_step = 0
     for file_id in range(file_start, file_end):
-        name_u = '../../../Data/CH/phase_field_xiaoning/K_001/dat/half' + str(file_id) + '.dat'
-        name_phi = '../../../Data/CH/phase_field_xiaoning/K_001/dat_phase/halfp' + str(file_id) + '.dat'
+        name_u = '../../../Data/CH/phase_field_xiaoning/K_0001/dat/half' + str(file_id) + '.dat'
+        name_phi = '../../../Data/CH/phase_field_xiaoning/K_0001/dat_phase/halfp' + str(file_id) + '.dat'
         data_u = np.loadtxt(name_u)
         data_phi = np.loadtxt(name_phi)
 
@@ -123,14 +123,21 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
 
     ## loading model/optimizer state
+    # model_path = ['../../Inv_K_num/test_1/CheckPts/model_chkpts.pt', 
+    # '../../Inv_K_num/test_2/CheckPts/model_chkpts.pt',
+    # '../../Inv_K_num/test_3/CheckPts/model_chkpts.pt', 
+    # '../../Inv_K_num/test_4/CheckPts/model_chkpts.pt',
+    # '../../Inv_K_num/test_5/CheckPts/model_chkpts.pt', 
+    # '../../Inv_K_num/test_6/CheckPts/model_chkpts.pt',
+    # '../../Inv_K_num/test_7/CheckPts/model_chkpts.pt']
 
-    model_path = ['../../Inv_K_num/test_1/CheckPts/model_chkpts.pt', 
-    '../../Inv_K_num/test_2/CheckPts/model_chkpts.pt',
-    '../../Inv_K_num/test_3/CheckPts/model_chkpts.pt', 
-    '../../Inv_K_num/test_4/CheckPts/model_chkpts.pt',
-    '../../Inv_K_num/test_5/CheckPts/model_chkpts.pt', 
-    '../../Inv_K_num/test_6/CheckPts/model_chkpts.pt',
-    '../../Inv_K_num/test_7/CheckPts/model_chkpts.pt']
+    model_path = ['../../../Revision/K_num/test_31/CheckPts/model_chkpts.pt', 
+    '../../../Revision/K_num/test_32/CheckPts/model_chkpts.pt',
+    '../../../Revision/K_num/test_33/CheckPts/model_chkpts.pt', 
+    '../../../Revision/K_num/test_34/CheckPts/model_chkpts.pt',
+    '../../../Revision/K_num/test_35/CheckPts/model_chkpts.pt', 
+    '../../../Revision/K_num/test_36/CheckPts/model_chkpts.pt',
+    '../../../Revision/K_num/test_37/CheckPts/model_chkpts.pt']
 
     Predictions = np.zeros((7, 5, num_t, num_x1, num_x2))
     for k in range (0, 7):
