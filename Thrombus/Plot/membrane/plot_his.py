@@ -22,6 +22,7 @@ def main():
     ax1.set_ylim([1e-6, 1e2])
     ax1.set_xlim([0, 900000])
     ax1.set_xticks(np.linspace(0, 900000, 4))
+    ax1.set_xticklabels(['0', '300K', '600K', '900K'])
     ax1.set_title('(b)')
     ax1.yaxis.set_label_coords(0.0,1.02)
     leg = ax1.legend()
@@ -36,8 +37,10 @@ def main():
     ax2.set_xlabel('epochs', fontsize=18)
     ax2.set_ylabel('$\lambda_{e}$', fontsize=18, rotation="horizontal")
     ax2.set_xlim([0, 900000])
+    
     ax2.set_ylim([0, 20])
     ax2.set_xticks(np.linspace(0, 900000, 4))
+    ax2.set_xticklabels(['0', '300K', '600K', '900K'])
     ax2.set_title('(c)')
     ax2.legend()
     ax2.yaxis.set_label_coords(0.0,1.02)

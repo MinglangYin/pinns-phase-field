@@ -150,6 +150,7 @@ def main():
     ax1.set_yscale('log')
     ax1.set_title('(a)')
     ax1.set_xticks(np.linspace(0, 300000, 4))
+    ax1.set_xticklabels(['0', '100K', '200K', '300K'])
     ax1.set_xlim([0, 300000])
     ax1.set_ylim([1e-5, 1e2])
     # ax1.set_aspect((300000/1000), adjustable='box')
