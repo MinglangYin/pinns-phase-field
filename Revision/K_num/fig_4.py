@@ -7,7 +7,7 @@ import matplotlib.gridspec as gridspec
 
 def main():
     ## load data
-    K1 = np.loadtxt('./test_16/K.his')
+    K1 = np.loadtxt('./test_17/K.his')
 
     ## plotting
     fig = plt.figure(constrained_layout=True, figsize=(6, 6))
