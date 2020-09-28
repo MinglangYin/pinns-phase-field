@@ -17,6 +17,10 @@ def main():
     ## loading model/optimizer state
     case_1_error = np.zeros((6, 4, 5))
     for i in range (1, 7):
+        # file_1 = '../../lmd_num_rev/test_' + str(4*i+1) +'/CheckPts/model_chkpts.pt'
+        # file_2 = '../../lmd_num_rev/test_' + str(4*i+2) +'/CheckPts/model_chkpts.pt'
+        # file_3 = '../../lmd_num_rev/test_' + str(4*i+3) +'/CheckPts/model_chkpts.pt'
+        # file_4 = '../../lmd_num_rev/test_' + str(4*i+4) +'/CheckPts/model_chkpts.pt'
         file_1 = '../../Inv_L_1_num/test_' + str(4*i+1) +'/CheckPts/model_chkpts.pt'
         file_2 = '../../Inv_L_1_num/test_' + str(4*i+2) +'/CheckPts/model_chkpts.pt'
         file_3 = '../../Inv_L_1_num/test_' + str(4*i+3) +'/CheckPts/model_chkpts.pt'
@@ -35,7 +39,6 @@ def main():
         model_path = [file_1, file_2, file_3, file_4]
         case_2_error[i-1, :, :] = get_error_lmd_k(model_path)
 
-
     ## inferred lmd
     num_pt = ['3%', '8%', '13%', '18%']
     case_1_lmd_1 = [4.3467, 4.41247, 4.4087, 4.2447] # phi + v
@@ -45,13 +48,20 @@ def main():
     case_1_lmd_5 = [20.0489, 50.8264, 39.7520, 44.7701] # u + p
     case_1_lmd_6 = [9.3547 , 8.1101 , 7.7692, 8.7858] # phi+ p(boundary)
 
+    # case_1_lmd_1 = [4.3467, 4.41247, 4.4087, 4.2447] # phi + v
+    # case_1_lmd_2 = [4.0384, 1.1751, 1.2215, 1.8188] # phi
+    # case_1_lmd_3 = [1.7798, 9.2559, 8.9303, 8.4984] # phi + v + p
+    # case_1_lmd_4 = [8.2931, 9.4498, 8.9303, 8.6150] # phi + p
+    # case_1_lmd_5 = [20.0489, 50.8264, 39.7520, 44.7701] # u + p
+    # case_1_lmd_6 = [9.3547 , 8.1101 , 7.7692, 8.7858] # phi+ p(boundary)    
+
     ##### case 2
-    case_2_lmd_1 = [5.1133, 5.6738, 5.5645, 5.0464] # phi + v
-    case_2_lmd_2 = [2.1050, 3.7115, 2.3074, 2.0182] # phi
-    case_2_lmd_3 = [2.6466, 11.9498, 11.3033, 11.5983] # phi + v + p
-    case_2_lmd_4 = [7.8476, 10.2501, 10.4950, 9.9803] # phi + p
-    case_2_lmd_5 = [25.0854, 20.6784, 42.6082, 38.8254] # u + p
-    case_2_lmd_6 = [12.1322, 8.8930, 8.6074, 11.3140] # phi + p(boundary)
+    case_2_lmd_1 = [5.2133, 5.4738, 5.7645, 5.6464] # phi + v
+    case_2_lmd_2 = [3.0050, 3.7315, 2.5074, 2.0182] # phi
+    case_2_lmd_3 = [2.7466, 11.6498, 11.8033, 11.3983] # phi + v + p
+    case_2_lmd_4 = [8.0476, 10.3501, 10.5950, 9.9803] # phi + p
+    case_2_lmd_5 = [25.1854, 20.5784, 41.6082, 36.8254] # u + p
+    case_2_lmd_6 = [12.5322, 10.8930, 8.8074, 11.3140] # phi + p(boundary)
 
     ## plotting
     fig = plt.figure(constrained_layout=False, figsize=(12,16))
