@@ -64,7 +64,7 @@ class Model(nn.Module):
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
         self.a = torch.nn.Parameter(torch.tensor([0.5], requires_grad=True, dtype=torch.double) )
-        self.b = 10
+        self.b = torch.nn.Parameter(torch.tensor([5], requires_grad=True, dtype=torch.double) )
         self.c = torch.nn.Parameter(torch.tensor([2], requires_grad=True, dtype=torch.double) )
         self.d = torch.nn.Parameter(torch.tensor([0.5], requires_grad=True, dtype=torch.double) )
 
