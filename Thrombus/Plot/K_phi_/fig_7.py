@@ -29,8 +29,6 @@ class Model(nn.Module):
 
         self.a = torch.nn.Parameter(torch.tensor([0.5], requires_grad=True, dtype=torch.double) )
         self.b = torch.nn.Parameter(torch.tensor([5], requires_grad=True, dtype=torch.double) )
-        self.c = torch.nn.Parameter(torch.tensor([2], requires_grad=True, dtype=torch.double) )
-        self.d = torch.nn.Parameter(torch.tensor([0.5], requires_grad=True, dtype=torch.double) )
 
     def forward(self, x):
         w = self.net_w(x)
@@ -51,7 +49,7 @@ def main():
     ## parameters
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
-    model_path = './K_phi/CheckPts/model_chkpts.pt'
+    model_path = './K_phi2/CheckPts/model_chkpts.pt'
 
     file_start = 0
     file_end = 30
@@ -123,17 +121,15 @@ def main():
     # c = to_numpy(model.c)
     # d = to_numpy(model.d)
 
-    a = 0.4931
-    b = 4.3415
-    c = 0.5448
-    d = 0.4941
+    a = 7.10
+    b = 0.0003
 
-    x = np.linspace(-1, 1, 101)
-    K_inf = a*np.tanh(b*x + c) + d
+    x = np.linspace(-1, 0, 101)
+    K_inf = np.exp(a*x) + b
     K_step = np.zeros((101))
     K_step[50:] = 1
 
-    loss = np.loadtxt('./K_phi/loss.his')
+    loss = np.loadtxt('./K_phi2/loss.his')
 
     ## plotting
     fig = plt.figure(constrained_layout=True, figsize=(8, 4))
@@ -163,7 +159,7 @@ def main():
         line.set_linewidth(2.0)
 
     ## plot [0, 0]]
-    ax2.step(x, K_step, linestyle="--", color="black",label='$\kappa_{true}$')
+    # ax2.step(x, K_step, linestyle="--", color="black",label='$\kappa_{true}$')
     ax2.plot(x, K_inf, linestyle="-", color="blue",label='$\kappa_{inf}$')
 
     ax2.set_xlabel('$\phi$', fontsize=14)
@@ -174,110 +170,113 @@ def main():
     ax2.set_title('(b)')
     ax2.grid()
     ax2.legend(loc="best", fontsize=10)
-    ax2.set_aspect(2)
+    ax2.set_aspect(1)
 
     fig.savefig('fig_K_phi.png')
     plt.close()
 
-    # ## fig 2
-    # fig = plt.figure(constrained_layout=False, figsize=(12, 4))
-    # gs1 = gs[0].subgridspec(2, 3) 
-    # ax3 = fig.add_subplot(gs1[0, 0])
-    # ax4 = fig.add_subplot(gs1[0, 1])
-    # ax5 = fig.add_subplot(gs1[0, 2])
-    # ax6 = fig.add_subplot(gs1[1, 0])
-    # ax7 = fig.add_subplot(gs1[1, 1])
-    # ax8 = fig.add_subplot(gs1[1, 2])
+    ## fig 2
+    fig = plt.figure(constrained_layout=False, figsize=(12, 4))
+    gs1 = gs[0].subgridspec(2, 3) 
+    ax3 = fig.add_subplot(gs1[0, 0])
+    ax4 = fig.add_subplot(gs1[0, 1])
+    ax5 = fig.add_subplot(gs1[0, 2])
+    ax6 = fig.add_subplot(gs1[1, 0])
+    ax7 = fig.add_subplot(gs1[1, 1])
+    ax8 = fig.add_subplot(gs1[1, 2])
 
-    # ## ax3
-    # step = 25
-    # v_phi = np.linspace(-1, 1, 3)[:,None]
-    # v_error = np.linspace(0, 0.1, 3)[:,None]
+    ## ax3
+    step = 25
+    v_phi = np.linspace(-1, 1, 3)[:,None]
+    v_error = np.linspace(0, 0.1, 3)[:,None]
 
-    # ax3.axis('off') 
-    # h = ax3.imshow(phi_ref[step, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    # h.set_clim(vmin=-1, vmax=1)
-    # axins = inset_axes(ax3,
-    #             width="100%",  # width = 5% of parent_bbox width
-    #             height="10%",  # height : 50%
-    #             loc='lower center',
-    #             borderpad=-1,
-    #             )
-    # ax3.set_title('$\phi_{ref}$', fontsize=18)
-    # fig.colorbar(h, ax=ax3, ticks=v_phi, cax = axins, orientation='horizontal')
-    # # ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
+    ax3.axis('off') 
+    h = ax3.imshow(phi_ref[step, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h.set_clim(vmin=-1, vmax=1)
+    axins = inset_axes(ax3,
+                width="100%",  # width = 5% of parent_bbox width
+                height="10%",  # height : 50%
+                loc='lower center',
+                borderpad=-1,
+                )
+    ax3.set_title('$\phi_{ref}$', fontsize=18)
+    fig.colorbar(h, ax=ax3, ticks=v_phi, cax = axins, orientation='horizontal')
+    # ax.plot(xt[:,1], xt[:,2], 'kx', label = 'Data (%d points)' % (xt.shape[0]), markersize = 4, clip_on = False)
 
-    # ## ax4
-    # ax4.axis('off') 
-    # h = ax4.imshow(phi_pred[step, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    # h.set_clim(vmin=-1, vmax=1)
-    # axins = inset_axes(ax4,
-    #             width="100%",  # width = 5% of parent_bbox width
-    #             height="10%",  # height : 50%
-    #             loc='lower center',
-    #             borderpad=-1,
-    #             )
-    # ax4.set_title('$\phi_{pred}$', fontsize=18)
-    # fig.colorbar(h, ax=ax4, ticks=v_phi, cax = axins, orientation='horizontal')
+    ## ax4
+    ax4.axis('off') 
+    h = ax4.imshow(phi_pred[step, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h.set_clim(vmin=-1, vmax=1)
+    axins = inset_axes(ax4,
+                width="100%",  # width = 5% of parent_bbox width
+                height="10%",  # height : 50%
+                loc='lower center',
+                borderpad=-1,
+                )
+    ax4.set_title('$\phi_{pred}$', fontsize=18)
+    fig.colorbar(h, ax=ax4, ticks=v_phi, cax = axins, orientation='horizontal')
 
-    # ## ax5
-    # ax5.axis('off') 
-    # h = ax5.imshow(np.abs(phi_pred[step, :, :] - phi_ref[step, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    # h.set_clim(vmin=0, vmax=0.1)
-    # axins = inset_axes(ax5,
-    #             width="100%",  # width = 5% of parent_bbox width
-    #             height="10%",  # height : 50%
-    #             loc='lower center',
-    #             borderpad=-1,
-    #             )
-    # ax5.set_title('$|\phi_{ref}-\phi_{pred}|$', fontsize=18)
-    # fig.colorbar(h, ax=ax5, ticks=v_error, cax = axins, orientation='horizontal')
+    ## ax5
+    ax5.axis('off') 
+    h = ax5.imshow(np.abs(phi_pred[step, :, :] - phi_ref[step, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h.set_clim(vmin=0, vmax=0.1)
+    axins = inset_axes(ax5,
+                width="100%",  # width = 5% of parent_bbox width
+                height="10%",  # height : 50%
+                loc='lower center',
+                borderpad=-1,
+                )
+    ax5.set_title('$|\phi_{ref}-\phi_{pred}|$', fontsize=18)
+    fig.colorbar(h, ax=ax5, ticks=v_error, cax = axins, orientation='horizontal')
 
-    # ## ax6
-    # ax6.axis('off') 
-    # v_velocity = np.linspace(0, 0.5, 3)[:,None]
+    ## ax6
+    ax6.axis('off') 
+    v_velocity = np.linspace(0, 0.5, 3)[:,None]
     # h = ax6.imshow(vel_ref[step-15, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    # h.set_clim(vmin=0, vmax=0.5)
-    # axins = inset_axes(ax6,
-    #             width="100%",  # width = 5% of parent_bbox width
-    #             height="10%",  # height : 50%
-    #             loc='lower center',
-    #             borderpad=-1,
-    #             )
-    # ax6.set_title('$v_{ref}$', fontsize=18)
-    # fig.colorbar(h, ax=ax6, ticks=v_velocity, cax = axins, orientation='horizontal')
+    h = ax6.imshow(vel_ref[step, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h.set_clim(vmin=0, vmax=0.5)
+    axins = inset_axes(ax6,
+                width="100%",  # width = 5% of parent_bbox width
+                height="10%",  # height : 50%
+                loc='lower center',
+                borderpad=-1,
+                )
+    ax6.set_title('$v_{ref}$', fontsize=18)
+    fig.colorbar(h, ax=ax6, ticks=v_velocity, cax = axins, orientation='horizontal')
 
-    # ## ax7
-    # ax7.axis('off') 
+    ## ax7
+    ax7.axis('off') 
     # h = ax7.imshow(vel_pred[step-15, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    # h.set_clim(vmin=0, vmax=0.5)
-    # axins = inset_axes(ax7,
-    #             width="100%",  # width = 5% of parent_bbox width
-    #             height="10%",  # height : 50%
-    #             loc='lower center',
-    #             borderpad=-1,
-    #             )
-    # ax7.set_title('$v_{pred}$', fontsize=18)
-    # fig.colorbar(h, ax=ax7, ticks=v_velocity, cax=axins, orientation='horizontal')
+    h = ax7.imshow(vel_pred[step, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h.set_clim(vmin=0, vmax=0.5)
+    axins = inset_axes(ax7,
+                width="100%",  # width = 5% of parent_bbox width
+                height="10%",  # height : 50%
+                loc='lower center',
+                borderpad=-1,
+                )
+    ax7.set_title('$v_{pred}$', fontsize=18)
+    fig.colorbar(h, ax=ax7, ticks=v_velocity, cax=axins, orientation='horizontal')
 
-    # ## ax8
-    # ax8.axis('off') 
+    ## ax8
+    ax8.axis('off') 
     # h = ax8.imshow(np.abs(vel_pred[step-15, :, :]-vel_ref[step-15, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    # h.set_clim(vmin=0, vmax=0.1)
-    # axins = inset_axes(ax8,
-    #             width="100%",  # width = 5% of parent_bbox width
-    #             height="10%",  # height : 50%
-    #             loc='lower center',
-    #             borderpad=-1,
-    #             )
-    # ax8.set_title('$|v_{ref}-v_{pred}|$', fontsize=18)
-    # fig.colorbar(h, ax=ax8, ticks=v_error, cax=axins, orientation='horizontal')
+    h = ax8.imshow(np.abs(vel_pred[step, :, :]-vel_ref[step, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    h.set_clim(vmin=0, vmax=0.1)
+    axins = inset_axes(ax8,
+                width="100%",  # width = 5% of parent_bbox width
+                height="10%",  # height : 50%
+                loc='lower center',
+                borderpad=-1,
+                )
+    ax8.set_title('$|v_{ref}-v_{pred}|$', fontsize=18)
+    fig.colorbar(h, ax=ax8, ticks=v_error, cax=axins, orientation='horizontal')
 
-    # # plt.gcf().text(0.05, 0.45, "(c)", fontsize=18)
+    # plt.gcf().text(0.05, 0.45, "(c)", fontsize=18)
 
-    # # plt.tight_layout()
-    # fig.savefig('fig_loss_K_phi.png')
-    # plt.close()
+    # plt.tight_layout()
+    fig.savefig('fig_loss_K_phi.png')
+    plt.close()
 
 if __name__ == '__main__':
     main()
