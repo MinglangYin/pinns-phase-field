@@ -5,12 +5,12 @@ clc
 K = load('K.his');
 
 figure()
-semilogy(K)
-hold on
-yline(0.001)
+plot(K)
+ylim([-5, 10])
+legend()
 
-loss = load('loss.his');
 figure()
-semilogy(loss)
-
-K(find(loss == min(loss)))
+x = linspace(-1, 1, 100);
+% y = K(end, 1)*tanh(K(end, 2)*x + K(end, 3)) + K(end, 4);
+y = K(end, 1)*tanh(5*x + K(end, 3)) + K(end, 4);
+plot(x, y)

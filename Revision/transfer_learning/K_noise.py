@@ -29,7 +29,7 @@ def main():
     ax4 = fig.add_subplot(gs1[1])
 
     ## ax1: K
-    ax1.axhline(y=0.005, linestyle='--', color='black',  label='$\kappa_{true}$')
+    ax1.axhline(y=0.005, linestyle='--', color='black',  label='$\kappa_{true}$=0.005')
     ax1.plot(k_old_001*0.005, color='blue', label='PINNs')
     ax1.plot(k_pre_001*0.005, color='red', label='Pre-trained PINNs')
     ax1.set_xlabel('Epochs', fontsize=14)
@@ -52,7 +52,7 @@ def main():
     ax2.legend(fontsize=14)
 
     ## ax3: K
-    ax3.axhline(y=0.0005, linestyle='--', color='black',  label='$\kappa_{true}$')
+    ax3.axhline(y=0.0005, linestyle='--', color='black',  label='$\kappa_{true}$=0.0005')
     ax3.plot(k_old_0001*0.0005, color='blue', label='PINNs')
     ax3.plot(k_pre_0001*0.0005, color='red', label='Pre-trained PINNs')
     ax3.set_xlabel('Epochs', fontsize=14)

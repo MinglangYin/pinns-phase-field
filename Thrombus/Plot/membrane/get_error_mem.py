@@ -104,172 +104,177 @@ def main():
 
         print(f'{k}')
         l2_error = get_relative_l2_error(vel_inf, vel_ref)
-        print(f'mean relative l2 error (vel) full time: {l2_error.mean()}')
+        print(f'mean relative l2 error (vel) full time: {l2_error}')
+        # print(f'mean relative l2 error (vel) full time: {l2_error.mean()}')
         # print(f'mean relative l2 error (vel) full time: {l2_error}')
-        print(f'mean relative l2 error (vel) half time: {l2_error[:10].mean()}')
+        # print(f'mean relative l2 error (vel) half time: {l2_error[:10].mean()}')
 
         l2_error = get_relative_l2_error(phi_inf, phi_ref)
-        print(f'mean relative l2 error (phi) full time: {l2_error.mean()}')
-        print(f'mean relative l2 error (phi) half time: {l2_error[:10].mean()}')
+        print(f'mean relative l2 error (phi) full time: {l2_error}')
+        # print(f'mean relative l2 error (phi) full time: {l2_error.mean()}')
+        # print(f'mean relative l2 error (phi) half time: {l2_error[:10].mean()}')
 
         l2_error = get_relative_l2_error(p_inf, p_ref)
-        print(f'mean relative l2 error (p) full time: {l2_error.mean()}')
-        print(f'mean relative l2 error (p) half time: {l2_error[:10].mean()}')
+        print(f'mean relative l2 error (p) full time: {l2_error}')
+        # print(f'mean relative l2 error (p) full time: {l2_error.mean()}')
+        # print(f'mean relative l2 error (p) half time: {l2_error[:10].mean()}')
 
         l2_error = get_relative_l2_error(psi1_inf, psi1_ref)
-        print(f'mean relative l2 error (psi1) full time: {l2_error.mean()}')
-        print(f'mean relative l2 error (psi1) half time: {l2_error[:10].mean()}')
+        print(f'mean relative l2 error (psi1) full time: {l2_error}')
+        # print(f'mean relative l2 error (psi1) full time: {l2_error.mean()}')
+        # print(f'mean relative l2 error (psi1) half time: {l2_error[:10].mean()}')
 
         l2_error = get_relative_l2_error(psi2_inf, psi2_ref)
-        print(f'mean relative l2 error (psi2) full time: {l2_error.mean()}')
-        print(f'mean relative l2 error (psi2) half time: {l2_error[:10].mean()}')
+        print(f'mean relative l2 error (psi2) full time: {l2_error}') 
+        # print(f'mean relative l2 error (psi2) full time: {l2_error.mean()}')
+        # print(f'mean relative l2 error (psi2) half time: {l2_error[:10].mean()}')
 
     ## figure phi
-    tt = 15
-    phi_min, phi_max = -1, 1
-    v_min, v_max = 0, 2
-    p_min, p_max = -1, 1
+    # tt = 15
+    # phi_min, phi_max = -1, 1
+    # v_min, v_max = 0, 2
+    # p_min, p_max = -1, 1
 
-    phi_range = np.linspace(phi_min, phi_max, 3)[:,None]
-    phi_error = np.linspace(0, 0.1*(phi_max-phi_min), 3)[:,None]
-    vel_range = np.linspace(v_min, v_max, 3)[:,None]
-    vel_error = np.linspace(0, 0.2*(v_max-v_min), 3)[:,None]
-    p_range = np.linspace(p_min, p_max, 3)[:,None]
-    p_error = np.linspace(0, 0.1*(p_max-p_min), 3)[:,None]
+    # phi_range = np.linspace(phi_min, phi_max, 3)[:,None]
+    # phi_error = np.linspace(0, 0.1*(phi_max-phi_min), 3)[:,None]
+    # vel_range = np.linspace(v_min, v_max, 3)[:,None]
+    # vel_error = np.linspace(0, 0.2*(v_max-v_min), 3)[:,None]
+    # p_range = np.linspace(p_min, p_max, 3)[:,None]
+    # p_error = np.linspace(0, 0.1*(p_max-p_min), 3)[:,None]
 
-    fig = plt.figure(constrained_layout=False, figsize=(9, 10))
-    gs = fig.add_gridspec(3, 1)
-    _gs = gs[0].subgridspec(1, 3)
+    # fig = plt.figure(constrained_layout=False, figsize=(9, 10))
+    # gs = fig.add_gridspec(3, 1)
+    # _gs = gs[0].subgridspec(1, 3)
 
-    ##(0, 0)
-    _ax = fig.add_subplot(_gs[0])
-    _ax.axis('off') 
-    _h = _ax.imshow(phi_ref[tt, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    _h.set_clim(vmin=phi_min, vmax=phi_max)
-    axins = inset_axes(_ax,
-                width="100%",
-                height="5%",
-                loc='lower center',
-                borderpad=-1,
-                )
-    fig.colorbar(_h, ax=_ax, ticks=phi_range, cax = axins, orientation='horizontal')
-    _ax.set_title('$\phi_{ref}$')
+    # ##(0, 0)
+    # _ax = fig.add_subplot(_gs[0])
+    # _ax.axis('off') 
+    # _h = _ax.imshow(phi_ref[tt, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    # _h.set_clim(vmin=phi_min, vmax=phi_max)
+    # axins = inset_axes(_ax,
+    #             width="100%",
+    #             height="5%",
+    #             loc='lower center',
+    #             borderpad=-1,
+    #             )
+    # fig.colorbar(_h, ax=_ax, ticks=phi_range, cax = axins, orientation='horizontal')
+    # _ax.set_title('$\phi_{ref}$')
 
-    ##(0, 1)
-    _ax = fig.add_subplot(_gs[1])
-    _ax.axis('off') 
-    _h = _ax.imshow(phi_inf[tt, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    _h.set_clim(vmin=phi_min, vmax=phi_max)
-    axins = inset_axes(_ax, width="100%", height="5%", loc='lower center', borderpad=-1)
-    fig.colorbar(_h, ax=_ax, ticks=phi_range, cax = axins, orientation='horizontal')
-    _ax.set_title('$\phi_{pred}$')
+    # ##(0, 1)
+    # _ax = fig.add_subplot(_gs[1])
+    # _ax.axis('off') 
+    # _h = _ax.imshow(phi_inf[tt, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    # _h.set_clim(vmin=phi_min, vmax=phi_max)
+    # axins = inset_axes(_ax, width="100%", height="5%", loc='lower center', borderpad=-1)
+    # fig.colorbar(_h, ax=_ax, ticks=phi_range, cax = axins, orientation='horizontal')
+    # _ax.set_title('$\phi_{pred}$')
 
-    ##(0, 2)
-    _ax = fig.add_subplot(_gs[2])
-    _ax.axis('off') 
-    _h = _ax.imshow(np.abs(phi_ref[tt, :, :] - phi_inf[tt, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    _h.set_clim(vmin=0, vmax=0.1*(phi_max-phi_min))
-    axins = inset_axes(_ax,
-                width="100%",
-                height="5%",
-                loc='lower center',
-                borderpad=-1,
-                )
-    fig.colorbar(_h, ax=_ax, ticks=phi_error, cax = axins, orientation='horizontal')
-    _ax.set_title('|$\phi_{ref}$ - $\phi_{pred}$|')
+    # ##(0, 2)
+    # _ax = fig.add_subplot(_gs[2])
+    # _ax.axis('off') 
+    # _h = _ax.imshow(np.abs(phi_ref[tt, :, :] - phi_inf[tt, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    # _h.set_clim(vmin=0, vmax=0.1*(phi_max-phi_min))
+    # axins = inset_axes(_ax,
+    #             width="100%",
+    #             height="5%",
+    #             loc='lower center',
+    #             borderpad=-1,
+    #             )
+    # fig.colorbar(_h, ax=_ax, ticks=phi_error, cax = axins, orientation='horizontal')
+    # _ax.set_title('|$\phi_{ref}$ - $\phi_{pred}$|')
 
-    ## plotting velocity
-    _gs = gs[1].subgridspec(1, 3)
+    # ## plotting velocity
+    # _gs = gs[1].subgridspec(1, 3)
 
-    ##(1, 0)
-    _ax = fig.add_subplot(_gs[0])
-    _ax.axis('off') 
-    _h = _ax.imshow(vel_ref[tt, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    _h.set_clim(vmin=v_min, vmax=v_max)
-    axins = inset_axes(_ax,
-                width="100%",
-                height="5%",
-                loc='lower center',
-                borderpad=-1,
-                )
-    fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
-    _ax.set_title('$v_{ref}$')
+    # ##(1, 0)
+    # _ax = fig.add_subplot(_gs[0])
+    # _ax.axis('off') 
+    # _h = _ax.imshow(vel_ref[tt, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    # _h.set_clim(vmin=v_min, vmax=v_max)
+    # axins = inset_axes(_ax,
+    #             width="100%",
+    #             height="5%",
+    #             loc='lower center',
+    #             borderpad=-1,
+    #             )
+    # fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
+    # _ax.set_title('$v_{ref}$')
 
-    ##(1, 1)
-    _ax = fig.add_subplot(_gs[1])
-    _ax.axis('off') 
-    _h = _ax.imshow(vel_inf[tt, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    _h.set_clim(vmin=v_min, vmax=v_max)
-    axins = inset_axes(_ax,
-                width="100%",
-                height="5%",
-                loc='lower center',
-                borderpad=-1,
-                )
-    fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
-    _ax.set_title('$v_{pred}$')
+    # ##(1, 1)
+    # _ax = fig.add_subplot(_gs[1])
+    # _ax.axis('off') 
+    # _h = _ax.imshow(vel_inf[tt, :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    # _h.set_clim(vmin=v_min, vmax=v_max)
+    # axins = inset_axes(_ax,
+    #             width="100%",
+    #             height="5%",
+    #             loc='lower center',
+    #             borderpad=-1,
+    #             )
+    # fig.colorbar(_h, ax=_ax, ticks=vel_range, cax = axins, orientation='horizontal')
+    # _ax.set_title('$v_{pred}$')
 
-    ##(1, 2)
-    _ax = fig.add_subplot(_gs[2])
-    _ax.axis('off') 
-    _h = _ax.imshow(np.abs(vel_ref[tt, :, :] - vel_inf[tt, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    _h.set_clim(vmin=0, vmax=0.2*(v_max-v_min))
-    axins = inset_axes(_ax,
-                width="100%",
-                height="5%",
-                loc='lower center',
-                borderpad=-1,
-                )
-    fig.colorbar(_h, ax=_ax, ticks=vel_error, cax = axins, orientation='horizontal')
-    _ax.set_title('|$v_{ref}$ - $v_{pred}$|')
+    # ##(1, 2)
+    # _ax = fig.add_subplot(_gs[2])
+    # _ax.axis('off') 
+    # _h = _ax.imshow(np.abs(vel_ref[tt, :, :] - vel_inf[tt, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    # _h.set_clim(vmin=0, vmax=0.2*(v_max-v_min))
+    # axins = inset_axes(_ax,
+    #             width="100%",
+    #             height="5%",
+    #             loc='lower center',
+    #             borderpad=-1,
+    #             )
+    # fig.colorbar(_h, ax=_ax, ticks=vel_error, cax = axins, orientation='horizontal')
+    # _ax.set_title('|$v_{ref}$ - $v_{pred}$|')
 
-    ## plotting pressure
-    _gs = gs[2].subgridspec(1, 3)
+    # ## plotting pressure
+    # _gs = gs[2].subgridspec(1, 3)
 
-    ##(2, 0)
-    _ax = fig.add_subplot(_gs[0])
-    _ax.axis('off') 
-    _h = _ax.imshow(p_ref[tt , :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    _h.set_clim(vmin=p_min, vmax=p_max)
-    axins = inset_axes(_ax,
-                width="100%",
-                height="5%",
-                loc='lower center',
-                borderpad=-1,
-                )
-    fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
-    _ax.set_title('$p_{ref}$')
+    # ##(2, 0)
+    # _ax = fig.add_subplot(_gs[0])
+    # _ax.axis('off') 
+    # _h = _ax.imshow(p_ref[tt , :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    # _h.set_clim(vmin=p_min, vmax=p_max)
+    # axins = inset_axes(_ax,
+    #             width="100%",
+    #             height="5%",
+    #             loc='lower center',
+    #             borderpad=-1,
+    #             )
+    # fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
+    # _ax.set_title('$p_{ref}$')
 
-    ##(2, 1)
-    _ax = fig.add_subplot(_gs[1])
-    _ax.axis('off') 
-    _h = _ax.imshow(p_inf[tt , :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    _h.set_clim(vmin=p_min, vmax=p_max)
-    axins = inset_axes(_ax,
-                width="100%",
-                height="5%",
-                loc='lower center',
-                borderpad=-1,
-                )
-    fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
-    _ax.set_title('$p_{pred}$')
+    # ##(2, 1)
+    # _ax = fig.add_subplot(_gs[1])
+    # _ax.axis('off') 
+    # _h = _ax.imshow(p_inf[tt , :, :], interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    # _h.set_clim(vmin=p_min, vmax=p_max)
+    # axins = inset_axes(_ax,
+    #             width="100%",
+    #             height="5%",
+    #             loc='lower center',
+    #             borderpad=-1,
+    #             )
+    # fig.colorbar(_h, ax=_ax, ticks=p_range, cax = axins, orientation='horizontal')
+    # _ax.set_title('$p_{pred}$')
 
-    ##(2, 2)
-    _ax = fig.add_subplot(_gs[2])
-    _ax.axis('off') 
-    _h = _ax.imshow(np.abs(p_ref[tt , :, :] - p_inf[tt, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
-    _h.set_clim(vmin=0, vmax=0.1*(p_max-p_min))
-    axins = inset_axes(_ax,
-                width="100%",
-                height="5%",
-                loc='lower center',
-                borderpad=-1,
-                )
-    fig.colorbar(_h, ax=_ax, ticks=p_error, cax = axins, orientation='horizontal')
-    _ax.set_title('|$p_{ref}$ - $p_{pred}$|')
+    # ##(2, 2)
+    # _ax = fig.add_subplot(_gs[2])
+    # _ax.axis('off') 
+    # _h = _ax.imshow(np.abs(p_ref[tt , :, :] - p_inf[tt, :, :]), interpolation='nearest', cmap='coolwarm', origin='lower', aspect=asp_ratio)
+    # _h.set_clim(vmin=0, vmax=0.1*(p_max-p_min))
+    # axins = inset_axes(_ax,
+    #             width="100%",
+    #             height="5%",
+    #             loc='lower center',
+    #             borderpad=-1,
+    #             )
+    # fig.colorbar(_h, ax=_ax, ticks=p_error, cax = axins, orientation='horizontal')
+    # _ax.set_title('|$p_{ref}$ - $p_{pred}$|')
 
-    plt.savefig('fig_mem.png')
-    plt.close()
+    # plt.savefig('fig_mem.png')
+    # plt.close()
 
 if __name__ == '__main__':
     main()
