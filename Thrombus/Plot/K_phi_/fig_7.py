@@ -170,7 +170,7 @@ def main():
     K = np.loadtxt('./K_phi2/K.his')
     ax3.plot(K[:, 0], linestyle="-", color="blue",label='a')
     ax3.plot(K[:, 1], linestyle="-", color="orange",label='b')
-    ax3.axhline(7, linestyle="--", color="gray")
+    ax3.axhline(6.901, linestyle="--", color="gray")
     ax3.axhline(0, linestyle="--", color="gray")
     ax3.set_xlabel('Epochs', fontsize=14)
     ax3.yaxis.set_label_coords(0.0,1.02)
