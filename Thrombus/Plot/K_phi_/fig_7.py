@@ -116,11 +116,6 @@ def main():
         vel_ref[i, :, :] = np.sqrt(y_data[0, i, :, :]**2 + y_data[1, i, :, :]**2)
 
     ## figure
-    # a = to_numpy(model.a)
-    # b = to_numpy(model.b)
-    # c = to_numpy(model.c)
-    # d = to_numpy(model.d)
-
     a = 7.10
     b = 0.0003
 
@@ -132,11 +127,12 @@ def main():
     loss = np.loadtxt('./K_phi2/loss.his')
 
     ## plotting
-    fig = plt.figure(constrained_layout=True, figsize=(8, 4))
+    fig = plt.figure(constrained_layout=True, figsize=(12, 4))
     gs = fig.add_gridspec(1, 1)
-    gs0 = gs[0].subgridspec(1, 2)
+    gs0 = gs[0].subgridspec(1, 3)
     ax1 = fig.add_subplot(gs0[0, 0])
     ax2 = fig.add_subplot(gs0[0, 1])
+    ax3 = fig.add_subplot(gs0[0, 2])
 
     ## plot [0, 1]
     ax1.plot(loss[:, 0], color='blue', linewidth=0.5, label='Loss PDE', alpha=0.7)
@@ -150,7 +146,7 @@ def main():
     ax1.set_xlim([0, 300000])
     ax1.set_ylim([1e-5, 1e2])
     # ax1.set_aspect((300000/1000), adjustable='box')
-    ax1.set_xlabel('epochs', fontsize=14)
+    ax1.set_xlabel('Epochs', fontsize=14)
     ax1.set_ylabel('Loss', fontsize=14, rotation="horizontal")
     ax1.yaxis.set_label_coords(0.0,1.02)
     ax1.set_aspect('auto')
@@ -161,17 +157,28 @@ def main():
     ## plot [0, 0]]
     # ax2.step(x, K_step, linestyle="--", color="black",label='$\kappa_{true}$')
     ax2.plot(x, K_inf, linestyle="-", color="blue",label='$\kappa_{inf}$')
-
     ax2.set_xlabel('$\phi$', fontsize=14)
     ax2.set_ylabel('$\kappa$', fontsize=14, rotation="horizontal")
-    # ax2.set_xticks(K_ref)
-    # ax2.set_yticks(K_ref)
+
     ax2.yaxis.set_label_coords(0.0,1.02)
     ax2.set_title('(b)')
     ax2.grid()
     ax2.legend(loc="best", fontsize=10)
     ax2.set_aspect(1)
 
+    ## ax3
+    K = np.loadtxt('./K_phi2/K.his')
+    ax3.plot(K[:, 0], linestyle="-", color="blue",label='a')
+    ax3.plot(K[:, 1], linestyle="-", color="orange",label='b')
+    ax3.axhline(7, linestyle="--", color="gray")
+    ax3.axhline(0, linestyle="--", color="gray")
+    ax3.set_xlabel('Epochs', fontsize=14)
+    ax3.yaxis.set_label_coords(0.0,1.02)
+    ax3.set_title('(c)')
+    ax3.legend(loc="best", fontsize=10) 
+    ax3.set_xlim([0, 300000])
+    ax3.set_xticks(np.linspace(0, 300000, 4))
+    ax3.set_xticklabels(['0', '100K', '200K', '300K'])
     fig.savefig('fig_K_phi.png')
     plt.close()
 
