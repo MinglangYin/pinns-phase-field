@@ -9,6 +9,6 @@ plot(K)
 ylim([-5, 10])
 
 figure()
-x = linspace(-1, 1, 100);
-y = K(end, 1)*tanh(K(end, 2)*x + K(end, 3)) +K(end, 4);
+x = linspace(-1, 0, 100);
+y = exp(K(end, 1)*x) + K(end, 2);
 plot(x, y)

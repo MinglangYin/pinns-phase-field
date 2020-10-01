@@ -64,13 +64,7 @@ class Model(nn.Module):
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
         self.a = torch.nn.Parameter(torch.tensor([0.5], requires_grad=True, dtype=torch.double) )
-<<<<<<< HEAD
         self.b = torch.nn.Parameter(torch.tensor([5.0], requires_grad=True, dtype=torch.double) )
-=======
-        self.b = torch.nn.Parameter(torch.tensor([5], requires_grad=True, dtype=torch.double) )
-        self.c = torch.nn.Parameter(torch.tensor([2], requires_grad=True, dtype=torch.double) )
-        self.d = torch.nn.Parameter(torch.tensor([0.5], requires_grad=True, dtype=torch.double) )
->>>>>>> 1590cad70b484ea87555b31b8aa89db38f261b6c
 
     def forward(self, x):
         w = self.net_w(x)
