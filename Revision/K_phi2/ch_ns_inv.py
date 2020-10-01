@@ -64,9 +64,13 @@ class Model(nn.Module):
         self.net_u.add_module('net_u_linear_50', nn.Linear(20, 4))
 
         self.a = torch.nn.Parameter(torch.tensor([0.5], requires_grad=True, dtype=torch.double) )
+<<<<<<< HEAD
+        self.b = torch.nn.Parameter(torch.tensor([5.0], requires_grad=True, dtype=torch.double) )
+=======
         self.b = torch.nn.Parameter(torch.tensor([5], requires_grad=True, dtype=torch.double) )
         self.c = torch.nn.Parameter(torch.tensor([2], requires_grad=True, dtype=torch.double) )
         self.d = torch.nn.Parameter(torch.tensor([0.5], requires_grad=True, dtype=torch.double) )
+>>>>>>> 1590cad70b484ea87555b31b8aa89db38f261b6c
 
     def forward(self, x):
         w = self.net_w(x)
@@ -94,7 +98,8 @@ class Model(nn.Module):
         w_xx, w_yy = gradients(w_x, x)[0][:, 1], gradients(w_y, x)[0][:, 2]
 
         ## K permebility
-        K = self.a*torch.tanh(self.b*phi+self.c)+self.d
+        #K = self.a*torch.tanh(self.b*phi+self.c)+self.d
+        K = torch.exp(self.a*phi) + self.b
 
         ## NS
         res_ns_x = rho*(u_t + u*u_x + v*u_y) + p_x - mu*(u_xx + u_yy) + \
@@ -356,14 +361,12 @@ def main():
 
     ## training
     loss_his = np.zeros((epochs,4))
-    K_his = np.zeros((epochs,4))
+    K_his = np.zeros((epochs,2))
 
     def train(epoch):
         model.train()
         print(f'a: {model.a}')
         print(f'b: {model.b}')
-        print(f'c: {model.c}')
-        print(f'd: {model.d}')
 
         optimizer.zero_grad()
         loss_pde = model.loss_pde(xt_pde_train)
@@ -381,7 +384,7 @@ def main():
         loss_his[epoch,2] = to_numpy(loss_ic)
         loss_his[epoch,3] = to_numpy(loss_data)
 
-        K_his[epoch, 0], K_his[epoch, 1], K_his[epoch, 2], K_his[epoch, 3] = to_numpy(model.a), to_numpy(model.b), to_numpy(model.c), to_numpy(model.d)
+        K_his[epoch, 0], K_his[epoch, 1] = to_numpy(model.a), to_numpy(model.b)
         # print(f'epoch {epoch}: loss {loss_value:.6f}')
         
         ## checkpoint saving
