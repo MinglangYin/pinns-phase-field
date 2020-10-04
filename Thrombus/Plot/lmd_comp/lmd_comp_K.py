@@ -63,7 +63,8 @@ def main():
     device = torch.device(f"cuda:{0}" if torch.cuda.is_available() else "cpu")
     print(device, flush=True)
     lr = 0.001
-    model_path = '../../Inv_L/test_34/CheckPts/model_chkpts.pt'
+    # model_path = '../../Inv_L/test_34/CheckPts/model_chkpts.pt'
+    model_path = '../../../Revision/lmd_k/test_2/CheckPts/model_chkpts.pt'
 
     file_start = 0
     file_end = 20
