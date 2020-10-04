@@ -18,6 +18,8 @@ from pinns import *
 
 def main():
    t = np.linspace(0.03, 0.6, 20)
+   t1 = np.linspace(0.02, 1.16, 20)
+
    ##error
    vel_err = [0.00121025, 0.00074912, 0.00074008, 0.00119988, 0.00206117, 0.00330161,
 0.00492361, 0.00702406, 0.00985297, 0.01387888, 0.01966338, 0.02758236,
@@ -41,51 +43,92 @@ def main():
 0.02223416, 0.02344263, 0.02490741, 0.02659426, 0.02848326, 0.03056472,
 0.03283817, 0.0353174 ]
 
+   v_film_err = [0.00340928, 0.00533428, 0.0092642,  0.01095999, 0.01234244, 0.01350054,
+0.0153514,  0.01906389, 0.0282892,  0.02419704, 0.02024339 ,0.02048551,
+0.02337741, 0.02656938, 0.03133582, 0.03637136, 0.05411707, 0.05165005,
+0.03530834, 0.03809131]
+   phi_film_err = [0.00542974, 0.00932204, 0.00961718, 0.00926386, 0.01035573, 0.01011795,
+0.0094184,  0.00865329, 0.00828213, 0.00847073, 0.00900357, 0.00957804,
+0.00968735, 0.00983862, 0.00959932, 0.00947225, 0.00979333, 0.01075351,
+0.01269962, 0.01465273]
+   p_film_err = [1.78971626e-06, 2.59875739e-05, 5.39987992e-05, 1.19976655e-04,
+1.10924808e-04, 7.44208751e-05, 7.83625908e-05, 9.42237954e-05,
+1.24455537e-04, 2.24849536e-04, 4.04101922e-04, 5.76565637e-04,
+5.79323576e-04, 4.32695260e-04, 2.96069778e-04, 2.30655248e-04,
+2.40053179e-04, 1.95813674e-04, 2.19531616e-04, 4.35281366e-04]
+   psi1_film_err = [0.00024218, 0.00036919, 0.00059628, 0.00090825, 0.0012585,  0.00161559,
+0.00197037, 0.00231943, 0.00265653, 0.00296641, 0.0032281,  0.00342291,
+0.00353938, 0.00359255, 0.00363009, 0.0037109,  0.00387872, 0.00414287,
+0.00446733, 0.00479398]
+   psi2_film_err = [6.33938437e-05, 8.43920075e-05, 1.22650788e-04, 1.84657738e-04,
+2.76506211e-04, 3.97373321e-04, 5.36682688e-04, 6.75192261e-04,
+7.93008873e-04, 8.82166223e-04, 9.49718150e-04, 1.00594894e-03,
+1.05570269e-03, 1.09565132e-03, 1.12352832e-03, 1.13606984e-03,
+1.13306640e-03, 1.12249975e-03, 1.12113894e-03, 1.14694028e-03]
 
    ## figure phi
-   fig = plt.figure(constrained_layout=False, figsize=(7, 9))
-   gs = fig.add_gridspec(3, 1)
-   gs0 = gs[0].subgridspec(1, 2)
-   gs1 = gs[1].subgridspec(1, 2)
-   gs2 = gs[2].subgridspec(1, 2)
+   fig = plt.figure(constrained_layout=False, figsize=(18, 6))
+   gs = fig.add_gridspec(2, 1)
+   gs0 = gs[0].subgridspec(1, 5)
+   gs1 = gs[1].subgridspec(1, 5)
+   # gs2 = gs[2].subgridspec(1, 2)
    
    ax1 = fig.add_subplot(gs0[0])
    ax2 = fig.add_subplot(gs0[1])
-   ax3 = fig.add_subplot(gs1[0])
-   ax4 = fig.add_subplot(gs1[1])
-   ax5 = fig.add_subplot(gs2[0])
+   ax3 = fig.add_subplot(gs0[2])
+   ax4 = fig.add_subplot(gs0[3])
+   ax5 = fig.add_subplot(gs0[4])
+
+   ax6 = fig.add_subplot(gs1[0])
+   ax7 = fig.add_subplot(gs1[1])
+   ax8 = fig.add_subplot(gs1[2])
+   ax9 = fig.add_subplot(gs1[3])
+   ax10 = fig.add_subplot(gs1[4])
    
    ##(0, 0)
    ax1.plot(t, vel_err, label='$\epsilon_{v}$', color='blue')
-   ax1.set_title('(a)')
    ax1.set_ylabel('Error')
    ax1.set_xlabel('Time (s)')
    ax1.legend()
 
    ax2.plot(t, phi_err, label='$\epsilon_{\phi}$', color='blue')
-   ax2.set_title('(b)')
-   # ax2.set_ylabel('Error')
    ax2.set_xlabel('Time (s)')
    ax2.legend()
 
    ax3.plot(t, p_err, label='$\epsilon_{p}$', color='blue')
-   ax3.set_title('(c)')
-   ax3.set_ylabel('Error')
    ax3.set_xlabel('Time (s)')
    ax3.legend()
 
    ax4.plot(t, psi1_err, label='$\epsilon_{\psi1}$', color='blue')
-   ax4.set_title('(d)')
-   # ax4.set_ylabel('Error')
    ax4.set_xlabel('Time (s)')
    ax4.legend()
 
    ax5.plot(t, psi2_err, label='$\epsilon_{\psi2}$', color='blue')
-   ax5.set_title('(e)')
-   ax5.set_ylabel('Error')
    ax5.set_xlabel('Time (s)')
    ax5.legend()
-   
+
+   ##(1, 0)
+   ax6.plot(t1, v_film_err, label='$\epsilon_{v}$', color='blue')
+   ax6.set_ylabel('Error')
+   ax6.set_xlabel('Time (s)')
+   ax6.legend()
+
+   ax7.plot(t1, phi_film_err, label='$\epsilon_{\phi}$', color='blue')
+   ax7.set_xlabel('Time (s)')
+   ax7.legend()
+
+   ax8.plot(t1, p_film_err, label='$\epsilon_{p}$', color='blue')
+   ax8.set_xlabel('Time (s)')
+   ax8.legend()
+
+   ax9.plot(t1, psi1_film_err, label='$\epsilon_{\psi1}$', color='blue')
+   ax9.set_xlabel('Time (s)')
+   ax9.legend()
+
+   ax10.plot(t1, psi2_film_err, label='$\epsilon_{\psi2}$', color='blue')
+   ax10.set_xlabel('Time (s)')
+   ax10.legend()
+
    plt.tight_layout()
    plt.savefig('fig_err_time.png')
    plt.close()
