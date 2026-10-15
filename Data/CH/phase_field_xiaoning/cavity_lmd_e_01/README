@@ -1,8 +1,0 @@
-#here is a disk in lid driven cavity
-#only upper lid is moving to the right with velocity u=1, all other three are walls
-#each chk is 0.03, therefore the elapsed time is 0.03*4=0.12 between two files
-Lambda=1.0607*0.02
-Interface width eta=0.02
-Product=1.0e-4
-
-
